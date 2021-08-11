@@ -1,0 +1,38 @@
+<idea-plugin>
+    <id>yapix</id>
+    <name>Yapi X</name>
+    <version>0.0.1</version>
+    <vendor email="luokaiqiongmou@foxmail.com" url="https://github.com/jetplugins">Jetplugins</vendor>
+
+    <description><![CDATA[
+    Generate api document to any where, like yapi, rap2, eolinker, markdown etc</br>
+    一键生成接口文档, 上传到yapi, rap2, eolinker等</br>
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="145.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationService serviceImplementation="com.github.jetplugins.yapix.config.YapiSettings"/>
+        <applicationConfigurable instance="com.github.jetplugins.yapix.ui.YapiConfigurationSettings"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="UploadToYapi" class="com.github.jetplugins.yapix.action.YapiUploadAction" text="UploadToYapi"
+            description="UploadToYapi">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
+        </action>
+    </actions>
+
+    <depends>com.intellij.modules.java</depends>
+
+</idea-plugin>
