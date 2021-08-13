@@ -1,6 +1,5 @@
 package com.github.jetplugins.yapix.config;
 
-import com.github.jetplugins.yapix.constant.ProjectTypeConstant;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -33,14 +32,6 @@ public class YapiConfig {
      */
     public boolean isValidate() {
         return StringUtils.isNotEmpty(projectId);
-    }
-
-    public boolean isDubboProject() {
-        return ProjectTypeConstant.dubbo.equals(projectType);
-    }
-
-    public boolean isApiProject() {
-        return ProjectTypeConstant.api.equals(projectType);
     }
 
     //------------------ generated ------------------//

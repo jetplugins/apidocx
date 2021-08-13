@@ -9,6 +9,11 @@ public interface DocTags {
 
     String Description = "description";
 
+    String DescriptionYapiUpload = "Description";
+
     String Deprecated = "deprecated";
+
+    String Param = "param";
+
 
 }

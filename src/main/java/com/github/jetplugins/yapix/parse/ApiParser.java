@@ -1,11 +1,17 @@
 package com.github.jetplugins.yapix.parse;
 
-import com.github.jetplugins.yapix.constant.HttpMethodConstant;
-import com.github.jetplugins.yapix.constant.SpringConstants;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.jetplugins.yapix.model.Api;
-import com.github.jetplugins.yapix.parse.PathParser.PathInfo;
-import com.github.jetplugins.yapix.util.PathUtils;
-import com.github.jetplugins.yapix.util.PsiAnnotationSearchUtil;
+import com.github.jetplugins.yapix.parse.constant.SpringConstants;
+import com.github.jetplugins.yapix.parse.model.ControllerApiInfo;
+import com.github.jetplugins.yapix.parse.model.PathParseInfo;
+import com.github.jetplugins.yapix.parse.model.RequestParseInfo;
+import com.github.jetplugins.yapix.parse.parser.ParseHelper;
+import com.github.jetplugins.yapix.parse.parser.PathParser;
+import com.github.jetplugins.yapix.parse.parser.RequestParser;
+import com.github.jetplugins.yapix.parse.parser.ResponseParser;
+import com.github.jetplugins.yapix.parse.util.PathUtils;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.intellij.psi.PsiAnnotation;
@@ -19,10 +25,18 @@ import java.util.stream.Collectors;
 
 /**
  * 接口参数解析器
+ *
+ * @see #parse(PsiClass)
  */
 public class ApiParser {
 
+    private final ApiParseSettings settings;
     private static final Gson gson = new Gson();
+
+    public ApiParser(ApiParseSettings settings) {
+        checkNotNull(settings);
+        this.settings = settings;
+    }
 
     /**
      * 解析接口
@@ -56,14 +70,14 @@ public class ApiParser {
     private ControllerApiInfo parseController(PsiClass controller) {
         // 路径
         String path = null;
-        PsiAnnotation annotation = PsiAnnotationSearchUtil.findAnnotation(controller, SpringConstants.RequestMapping);
+        PsiAnnotation annotation = controller.getAnnotation(SpringConstants.RequestMapping);
         if (annotation != null) {
-            PathInfo mapping = PathParser.parseRequestMappingAnnotation(annotation);
+            PathParseInfo mapping = PathParser.parseRequestMappingAnnotation(annotation);
             path = mapping.getPath();
         }
         ControllerApiInfo info = new ControllerApiInfo();
         info.setPath(PathUtils.path(path));
-        info.setCategory(ParseHelper.apiCategory(controller));
+        info.setCategory(ParseHelper.getApiCategory(controller));
         return info;
     }
 
@@ -72,7 +86,7 @@ public class ApiParser {
      */
     private List<Api> parseMethod(ControllerApiInfo controllerApiInfo, PsiMethod method) {
         List<Api> apis = Lists.newArrayList();
-        PathInfo mapping = PathParser.parse(method);
+        PathParseInfo mapping = PathParser.parse(method);
         if (mapping == null || mapping.getPaths() == null) {
             return apis;
         }
@@ -97,22 +111,20 @@ public class ApiParser {
     /**
      * 解析方法的通用信息，出path/method外
      */
-    private Api doParseMethod(PsiMethod method, PathInfo mapping) {
+    private Api doParseMethod(PsiMethod method, PathParseInfo mapping) {
         Api api = new Api();
         api.setMethod(mapping.getMethod());
-        api.setSummary(ParseHelper.apiSummary(method));
-        api.setDescription(ParseHelper.apiDescription(method));
+        api.setSummary(ParseHelper.getApiSummary(method));
+        api.setDescription(ParseHelper.getApiDescription(method));
         api.setDeprecated(ParseHelper.isDeprecated(method));
-        api.setParameters(RequestParser.parseParameters(method));
-        List<String> bodyMethods = Lists
-                .newArrayList(HttpMethodConstant.POST, HttpMethodConstant.PUT, HttpMethodConstant.PATCH);
-        if (bodyMethods.contains(api.getMethod())) {
-            api.setRequestBodyType(RequestParser.parseRequestBodyType(method));
-            api.setRequestBody(RequestParser.parseRequestBody(method, api.getRequestBodyType()));
-        }
-        api.setResponses((new ResponseParser(null)).parse(method));
+
+        RequestParseInfo requestInfo = RequestParser.parse(method, mapping.getMethod());
+        api.setParameters(requestInfo.getParameters());
+        api.setRequestBodyType(requestInfo.getRequestBodyType());
+        api.setRequestBody(requestInfo.getRequestBody());
+        api.setRequestBodyForm(requestInfo.getRequestBodyForm());
+        api.setResponses((new ResponseParser(settings)).parse(method));
         return api;
     }
-
 
 }

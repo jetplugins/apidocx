@@ -7,9 +7,10 @@ import com.github.jetplugins.yapix.config.YapiConfig;
 import com.github.jetplugins.yapix.config.YapiConfigUtils;
 import com.github.jetplugins.yapix.config.YapiSettings;
 import com.github.jetplugins.yapix.constant.DefaultConstants;
-import com.github.jetplugins.yapix.handle.YapiUploader;
 import com.github.jetplugins.yapix.model.Api;
+import com.github.jetplugins.yapix.parse.ApiParseSettings;
 import com.github.jetplugins.yapix.parse.ApiParser;
+import com.github.jetplugins.yapix.process.yapi.YapiUploader;
 import com.github.jetplugins.yapix.sdk.yapi.YapiClient;
 import com.github.jetplugins.yapix.sdk.yapi.mode.AuthCookies;
 import com.github.jetplugins.yapix.sdk.yapi.mode.YapiInterface;
@@ -101,12 +102,18 @@ public class YapiUploadAction extends AnAction {
             return;
         }
 
-        // YapiClient client = new YapiClient(settings.getYapiUrl(), settings.getAccount(), settings.getPassword(), settings.getCookies(), settings.getCookiesTtl());
-        ApiParser parser = new ApiParser();
+        YapiClient client = new YapiClient(settings.getYapiUrl(), settings.getAccount(), settings.getPassword(),
+                settings.getCookies(), settings.getCookiesTtl());
+        ApiParseSettings parseSettings = new ApiParseSettings();
+        parseSettings.setReturnClass(config.getReturnClass());
+        ApiParser parser = new ApiParser(parseSettings);
         List<Api> apis = parser.parse(theClass);
+        uploadAsync(apis, project, client, config, settings);
     }
 
-    private void uploadAsync(List<YapiInterface> apis, Project project, YapiClient client, YapiSettings settings) {
+    private void uploadAsync(List<Api> apis, Project project, YapiClient client, YapiConfig config,
+            YapiSettings settings) {
+        Integer projectId = Integer.valueOf(config.getProjectId());
         ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
 
             @Override
@@ -120,15 +127,15 @@ public class YapiUploadAction extends AnAction {
                         if (indicator.isCanceled()) {
                             break;
                         }
-                        YapiInterface api = apis.get(i);
+                        Api api = apis.get(i);
                         indicator.setText("[" + (i + 1) + "/" + apis.size() + "] " + api.getMethod() + " "
                                 + api
                                 .getPath());
                         try {
                             // 上传
-                            uploader.upload(api);
-                            categoryUrl = client.calculateCatUrl(api.getProjectId(), api.getCatid());
-                            interfaceUrl = client.calculateInterfaceUrl(api.getProjectId(), api.getId());
+                            YapiInterface yapi = uploader.upload(projectId, api);
+                            categoryUrl = client.calculateCatUrl(yapi.getProjectId(), yapi.getCatid());
+                            interfaceUrl = client.calculateInterfaceUrl(yapi.getProjectId(), yapi.getId());
                         } catch (Exception e) {
                             notifyError("Yapi Upload failed", ExceptionUtils.getStackTrace(e));
                         }

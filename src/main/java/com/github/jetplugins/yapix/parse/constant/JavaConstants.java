@@ -1,0 +1,28 @@
+package com.github.jetplugins.yapix.parse.constant;
+
+/**
+ * Java相关常量
+ */
+public interface JavaConstants {
+
+    String Object = "java.lang.Object";
+
+    String NotNull = "javax.validation.constraints.NotNull";
+
+    String NotEmpty = "javax.validation.constraints.NotEmpty";
+
+    String NotBlank = "javax.validation.constraints.NotBlank";
+
+    String HttpServletRequest = "javax.servlet.http.HttpServletRequest";
+
+    String HttpServletResponse = "javax.servlet.http.HttpServletResponse";
+
+    String Deprecate = "java.lang.Deprecated";
+
+    String Enum = "java.lang.Enum";
+
+    String Map = "java.util.Map";
+
+    String Collection = "java.util.Collection";
+
+}

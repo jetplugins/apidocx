@@ -16,8 +16,8 @@ public class Item {
     /** 描述 */
     private String description;
 
-    /** 参数位置：path, header, cookie, query */
-    private String in;
+    /** 参数位置 */
+    private ParameterIn in;
 
     /** 是否必须 */
     private boolean required;
@@ -32,12 +32,15 @@ public class Item {
     private Item items;
 
     /**
-     * /** 请求示例
+     * 请求示例
      */
     private String example;
 
     /** 响应mock */
     private String mock;
+
+    /** 默认值 */
+    private String defaultValue;
 
     public boolean isArrayType() {
         return DataTypes.ARRAY.equals(type);
@@ -48,6 +51,7 @@ public class Item {
     }
 
     //---------------------------generated-------------------------------//
+
 
     public String getName() {
         return name;
@@ -73,11 +77,11 @@ public class Item {
         this.description = description;
     }
 
-    public String getIn() {
+    public ParameterIn getIn() {
         return in;
     }
 
-    public void setIn(String in) {
+    public void setIn(ParameterIn in) {
         this.in = in;
     }
 
@@ -127,5 +131,13 @@ public class Item {
 
     public void setMock(String mock) {
         this.mock = mock;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }

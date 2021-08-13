@@ -2,7 +2,6 @@ package com.github.jetplugins.yapix.sdk.yapi.mode;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ public class YapiInterface implements Serializable {
     private String id;
 
     /**
-     * 项目id
+     项目id
      */
     @SerializedName("project_id")
     private Integer projectId;
@@ -29,10 +28,10 @@ public class YapiInterface implements Serializable {
     private String path;
 
     /**
-     * 请求参数
+     * 请求路径参数
      */
     @SerializedName("req_params")
-    private List reqParams;
+    private List<YapiParameter> reqParams;
 
     /**
      * 菜单名称
@@ -53,19 +52,19 @@ public class YapiInterface implements Serializable {
      * 请求参数
      */
     @SerializedName("req_query")
-    private List reqQuery;
+    private List<YapiParameter> reqQuery;
 
     /**
      * header
      */
     @SerializedName("req_headers")
-    private List reqHeaders = new ArrayList();
+    private List<YapiParameter> reqHeaders;
 
     /**
      * 请求参数 form 类型
      */
     @SerializedName("req_body_form")
-    private List reqBodyForm;
+    private List<YapiParameter> reqBodyForm;
 
     /**
      * 标题
@@ -80,6 +79,7 @@ public class YapiInterface implements Serializable {
     /**
      * 请求数据类型   raw,form,json
      */
+    @SerializedName("req_body_type")
     private String reqBodyType = "json";
 
     /**
@@ -103,13 +103,14 @@ public class YapiInterface implements Serializable {
     /**
      * 返回参数类型  json
      */
-    private String res_body_type = "json";
+    @SerializedName("res_body_type")
+    private String resBodyType = "json";
 
     /**
      * 返回参数
      */
     @SerializedName("res_body")
-    private String res_body;
+    private String resBody;
 
     /**
      * 返回参数是否为json_schema
@@ -139,38 +140,8 @@ public class YapiInterface implements Serializable {
     /**
      * 文档描述
      */
-    private String desc = "<h3>请补充描述</h3>";
+    private String desc;
 
-
-    public YapiInterface() {
-    }
-
-    public YapiInterface(String token, String title, String path, String reqBodyOther, String res_body,
-            Integer projectId, String desc) {
-        this.token = token;
-        this.title = title;
-        this.path = path;
-        this.res_body = res_body;
-        this.reqBodyOther = reqBodyOther;
-        this.projectId = projectId;
-        this.desc = desc;
-    }
-
-    public YapiInterface(String token, String title, String path, List reqQuery, String reqBodyOther, String res_body,
-            Integer projectId, boolean reqBodyIsJsonSchema, String method, String desc,
-            List header) {
-        this.token = token;
-        this.title = title;
-        this.path = path;
-        this.reqQuery = reqQuery;
-        this.res_body = res_body;
-        this.reqBodyOther = reqBodyOther;
-        this.projectId = projectId;
-        this.reqBodyIsJsonSchema = reqBodyIsJsonSchema;
-        this.method = method;
-        this.desc = desc;
-        this.reqHeaders = header;
-    }
 
     public String getId() {
         return id;
@@ -204,11 +175,11 @@ public class YapiInterface implements Serializable {
         this.path = path;
     }
 
-    public List getReqParams() {
+    public List<YapiParameter> getReqParams() {
         return reqParams;
     }
 
-    public void setReqParams(List reqParams) {
+    public void setReqParams(List<YapiParameter> reqParams) {
         this.reqParams = reqParams;
     }
 
@@ -236,27 +207,27 @@ public class YapiInterface implements Serializable {
         this.token = token;
     }
 
-    public List getReqQuery() {
+    public List<YapiParameter> getReqQuery() {
         return reqQuery;
     }
 
-    public void setReqQuery(List reqQuery) {
+    public void setReqQuery(List<YapiParameter> reqQuery) {
         this.reqQuery = reqQuery;
     }
 
-    public List getReqHeaders() {
+    public List<YapiParameter> getReqHeaders() {
         return reqHeaders;
     }
 
-    public void setReqHeaders(List reqHeaders) {
+    public void setReqHeaders(List<YapiParameter> reqHeaders) {
         this.reqHeaders = reqHeaders;
     }
 
-    public List getReqBodyForm() {
+    public List<YapiParameter> getReqBodyForm() {
         return reqBodyForm;
     }
 
-    public void setReqBodyForm(List reqBodyForm) {
+    public void setReqBodyForm(List<YapiParameter> reqBodyForm) {
         this.reqBodyForm = reqBodyForm;
     }
 
@@ -308,20 +279,20 @@ public class YapiInterface implements Serializable {
         this.status = status;
     }
 
-    public String getRes_body_type() {
-        return res_body_type;
+    public String getResBodyType() {
+        return resBodyType;
     }
 
-    public void setRes_body_type(String res_body_type) {
-        this.res_body_type = res_body_type;
+    public void setResBodyType(String resBodyType) {
+        this.resBodyType = resBodyType;
     }
 
-    public String getRes_body() {
-        return res_body;
+    public String getResBody() {
+        return resBody;
     }
 
-    public void setRes_body(String res_body) {
-        this.res_body = res_body;
+    public void setResBody(String resBody) {
+        this.resBody = resBody;
     }
 
     public boolean isResBodyIsJsonSchema() {

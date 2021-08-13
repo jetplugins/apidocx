@@ -11,7 +11,7 @@ public class Api {
     private String path;
 
     /** 请求方法 */
-    private String method;
+    private HttpMethod method;
 
     /** 概述标题 */
     private String summary;
@@ -28,18 +28,21 @@ public class Api {
     /**
      * 请求体类型
      */
-    private String requestBodyType;
+    private RequestBodyType requestBodyType;
 
     /** 请求体参数 */
     private Item requestBody;
+
+    /**
+     * 请求体表单
+     */
+    private List<Item> requestBodyForm;
 
     /** 响应体 */
     private Item responses;
 
     /** 分类 */
     private String category;
-
-    //--------------generated----------------//
 
     public String getPath() {
         return path;
@@ -49,11 +52,11 @@ public class Api {
         this.path = path;
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -89,11 +92,11 @@ public class Api {
         this.parameters = parameters;
     }
 
-    public String getRequestBodyType() {
+    public RequestBodyType getRequestBodyType() {
         return requestBodyType;
     }
 
-    public void setRequestBodyType(String requestBodyType) {
+    public void setRequestBodyType(RequestBodyType requestBodyType) {
         this.requestBodyType = requestBodyType;
     }
 
@@ -119,5 +122,13 @@ public class Api {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public List<Item> getRequestBodyForm() {
+        return requestBodyForm;
+    }
+
+    public void setRequestBodyForm(List<Item> requestBodyForm) {
+        this.requestBodyForm = requestBodyForm;
     }
 }

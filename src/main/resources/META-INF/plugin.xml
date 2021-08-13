@@ -5,8 +5,8 @@
     <vendor email="luokaiqiongmou@foxmail.com" url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
-    Generate api document to any where, like yapi, rap2, eolinker, markdown etc</br>
-    一键生成接口文档, 上传到yapi, rap2, eolinker等</br>
+    Generate api document to any where, like yapi, rap2, eolinker, markdown etc <br>
+    一键生成接口文档, 上传到yapi, rap2, eolinker等 <br>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -14,9 +14,7 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -33,6 +31,13 @@
         </action>
     </actions>
 
-    <depends>com.intellij.modules.java</depends>
+    <change-notes><![CDATA[
+      <p>0.0.1</p>
+      <ul>
+        <li>1.初始化提交</li>
+        <li>2.支持生成文档</li>
+        <li>3.支持上传到yapi平台</li>
+      </ul>
+      ]]></change-notes>
 
 </idea-plugin>

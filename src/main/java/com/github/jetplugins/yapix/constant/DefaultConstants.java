@@ -8,6 +8,6 @@ public interface DefaultConstants {
     /**
      * 插件名称
      */
-    String NAME = "WxbYapiUpload";
+    String NAME = "Yapi X";
 
 }

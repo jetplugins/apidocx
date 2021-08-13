@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Yapi应用程序级别配置.
  */
-@State(name = "YapiUploadSettings", storages = @Storage("yapi-upload-settings.xml"))
+@State(name = "YapixSettings", storages = @Storage("yapix.xml"))
 public class YapiSettings implements PersistentStateComponent<YapiSettings> {
 
     /**
