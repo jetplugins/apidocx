@@ -18,13 +18,13 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="com.github.jetplugins.yapix.config.YapiSettings"/>
-        <applicationConfigurable instance="com.github.jetplugins.yapix.ui.YapiConfigurationSettings"/>
+        <applicationService serviceImplementation="io.yapix.config.YapiSettings"/>
+        <applicationConfigurable instance="io.yapix.ui.YapiConfigurationSettings"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToYapi" class="com.github.jetplugins.yapix.action.YapiUploadAction" text="UploadToYapi"
+        <action id="UploadToYapi" class="io.yapix.action.YapiUploadAction" text="UploadToYapi"
             description="UploadToYapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
