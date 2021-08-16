@@ -83,22 +83,30 @@ public abstract class AbstractClient implements Closeable {
      */
     protected String execute(HttpUriRequest request, boolean isStoreAuth) {
         try (CloseableHttpResponse response = httpClient.execute(request)) {
+            String data = doHandleResponse(request, response);
             if (isStoreAuth) {
                 this.authSession = getSession(response);
             }
-            return doHandleResponse(request, response);
+            return data;
         } catch (IOException e) {
             throw new Rap2Exception(request.getURI().getPath(), e.getMessage(), e);
         }
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (this.httpClient != null) {
-            this.httpClient.close();
+            try {
+                this.httpClient.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
+    public HttpSession getAuthSession() {
+        return authSession;
+    }
 
     protected String encodeUri(String value) {
         try {

@@ -20,7 +20,15 @@ public class Rap2Exception extends RuntimeException {
     }
 
     public boolean isNeedAuth() {
-        return msg != null && msg.contains("没有访问权限");
+        return msg != null && msg.equals("没有访问权限");
+    }
+
+    public boolean isCaptchaError() {
+        return msg != null && msg.equals("错误的验证码");
+    }
+
+    public boolean isAccountPasswordError() {
+        return msg != null && msg.equals("账号或密码错误");
     }
 
     public String getPath() {

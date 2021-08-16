@@ -1,6 +1,6 @@
 package io.yapix.action;
 
-import static io.yapix.base.NotificationUtils.notifyError;
+import static io.yapix.base.util.NotificationUtils.notifyError;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

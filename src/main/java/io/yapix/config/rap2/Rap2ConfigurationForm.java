@@ -1,7 +1,11 @@
 package io.yapix.config.rap2;
 
 import io.yapix.base.DefaultConstants;
+import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
+import io.yapix.base.sdk.rap2.request.CaptchaResponse;
+import javax.swing.ImageIcon;
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -16,6 +20,11 @@ public class Rap2ConfigurationForm {
     private JFormattedTextField accountField;
     private JPasswordField passwordField;
     private JPanel panel;
+    private JPanel captchaPanel;
+    private JLabel captchaImageLabel;
+    private JTextField captchaField;
+    private JLabel captchaLabel;
+    private HttpSession captchaSession;
 
     public JPanel getPanel() {
         return panel;
@@ -26,6 +35,8 @@ public class Rap2ConfigurationForm {
         urlField.setText(url);
         accountField.setText(data.getAccount());
         passwordField.setText(data.getPassword());
+        captchaPanel.setVisible(false);
+        captchaLabel.setVisible(false);
     }
 
     public Rap2Settings get() {
@@ -34,6 +45,13 @@ public class Rap2ConfigurationForm {
         data.setAccount(accountField.getText().trim());
         data.setPassword(new String(passwordField.getPassword()).trim());
         return data;
+    }
+
+    public void setCaptchaIcon(CaptchaResponse captcha) {
+        captchaPanel.setVisible(true);
+        captchaLabel.setVisible(true);
+        this.captchaSession = captcha.getSession();
+        this.captchaImageLabel.setIcon(new ImageIcon(captcha.getBytes()));
     }
 
     //------------------generated-------------------//
@@ -48,5 +66,13 @@ public class Rap2ConfigurationForm {
 
     public JPasswordField getPasswordField() {
         return passwordField;
+    }
+
+    public JTextField getCaptchaField() {
+        return captchaField;
+    }
+
+    public HttpSession getCaptchaSession() {
+        return captchaSession;
     }
 }

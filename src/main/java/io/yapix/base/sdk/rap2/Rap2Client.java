@@ -11,9 +11,11 @@ import io.yapix.base.sdk.rap2.model.Rap2InterfaceBase;
 import io.yapix.base.sdk.rap2.model.Rap2Module;
 import io.yapix.base.sdk.rap2.model.Rap2Repository;
 import io.yapix.base.sdk.rap2.model.Rap2User;
+import io.yapix.base.sdk.rap2.request.CaptchaResponse;
 import io.yapix.base.sdk.rap2.request.CreateModuleRequest;
 import io.yapix.base.sdk.rap2.request.LoginRequest;
 import io.yapix.base.sdk.rap2.request.UpdatePropertiesRequest;
+import io.yapix.base.util.SvgUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -81,14 +83,19 @@ public class Rap2Client extends AbstractClient {
     /**
      * 获取验证码
      */
-    public byte[] getCaptcha() {
+    public CaptchaResponse getCaptcha() {
         String url = this.url + Rap2Constants.GetCaptcha;
         HttpGet request = new HttpGet(url);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             HttpEntity resEntity = response.getEntity();
             byte[] bytes = IOUtils.readFully(resEntity.getContent(), (int) resEntity.getContentLength());
+            bytes = SvgUtils.convertToJpegBytes(bytes);
+
             this.captchaSession = getSession(response);
-            return bytes;
+            CaptchaResponse captchaResponse = new CaptchaResponse();
+            captchaResponse.setBytes(bytes);
+            captchaResponse.setSession(this.captchaSession);
+            return captchaResponse;
         } catch (IOException e) {
             throw new Rap2Exception(request.getURI().getPath(), e.getMessage(), e);
         }
@@ -97,8 +104,9 @@ public class Rap2Client extends AbstractClient {
     /**
      * 登录
      */
-    public void login(String captcha) {
+    public void login(String captcha, HttpSession session) {
         this.captcha = captcha;
+        this.captchaSession = session;
         freshAuth(true);
     }
 
