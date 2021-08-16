@@ -18,12 +18,20 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="io.yapix.config.YapiSettings"/>
-        <applicationConfigurable instance="io.yapix.ui.YapiConfigurationSettings"/>
+        <applicationService serviceImplementation="io.yapix.config.yapi.YapiSettings"/>
+        <applicationService serviceImplementation="io.yapix.config.rap2.Rap2Settings"/>
+        <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixConfigurationSettings">
+            <configurable displayName="Yapi" instance="io.yapix.config.yapi.YapiConfigurationSettings"/>
+            <configurable displayName="Rap2" instance="io.yapix.config.rap2.Rap2ConfigurationSettings"/>
+        </applicationConfigurable>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
+        <action id="UploadToRap2" class="io.yapix.action.Rap2UploadAction" text="UploadToRap2"
+            description="UploadToRap2">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+        </action>
         <action id="UploadToYapi" class="io.yapix.action.YapiUploadAction" text="UploadToYapi"
             description="UploadToYapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>

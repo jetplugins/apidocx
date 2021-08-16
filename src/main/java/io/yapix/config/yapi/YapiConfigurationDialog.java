@@ -1,10 +1,9 @@
-package io.yapix.ui;
+package io.yapix.config.yapi;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.DefaultConstants;
-import io.yapix.config.YapiSettings;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +58,7 @@ public class YapiConfigurationDialog extends DialogWrapper {
     @Override
     protected ValidationInfo doValidate() {
         YapiSettings data = form.get();
-        if (StringUtils.isEmpty(data.getYapiUrl())) {
+        if (StringUtils.isEmpty(data.getUrl())) {
             return new ValidationInfo("", form.getUrlField());
         }
         if (StringUtils.isEmpty(data.getAccount())) {

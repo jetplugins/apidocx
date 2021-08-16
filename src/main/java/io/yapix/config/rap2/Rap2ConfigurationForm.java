@@ -1,15 +1,16 @@
-package io.yapix.ui;
+package io.yapix.config.rap2;
 
-import io.yapix.config.YapiSettings;
+import io.yapix.base.DefaultConstants;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Yapi配置菜单界面
+ * Rap2配置菜单界面
  */
-public class YApiConfigurationForm {
+public class Rap2ConfigurationForm {
 
     private JTextField urlField;
     private JFormattedTextField accountField;
@@ -20,15 +21,16 @@ public class YApiConfigurationForm {
         return panel;
     }
 
-    public void set(YapiSettings data) {
-        urlField.setText(data.getYapiUrl());
+    public void set(Rap2Settings data) {
+        String url = StringUtils.isNotEmpty(data.getUrl()) ? data.getUrl() : DefaultConstants.RAP2_URL;
+        urlField.setText(url);
         accountField.setText(data.getAccount());
         passwordField.setText(data.getPassword());
     }
 
-    public YapiSettings get() {
-        YapiSettings data = new YapiSettings();
-        data.setYapiUrl(urlField.getText().trim());
+    public Rap2Settings get() {
+        Rap2Settings data = new Rap2Settings();
+        data.setUrl(urlField.getText().trim());
         data.setAccount(accountField.getText().trim());
         data.setPassword(new String(passwordField.getPassword()).trim());
         return data;

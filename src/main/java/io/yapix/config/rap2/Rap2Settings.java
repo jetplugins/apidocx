@@ -1,4 +1,4 @@
-package io.yapix.config;
+package io.yapix.config.rap2;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -10,15 +10,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Yapi应用程序级别配置.
+ * Rap2应用程序级别配置.
  */
-@State(name = "YapixSettings", storages = @Storage("yapix.xml"))
-public class YapiSettings implements PersistentStateComponent<YapiSettings> {
+@State(name = "YapixRap2Settings", storages = @Storage("YapixRap2Settings.xml"))
+public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
 
     /**
      * 服务地址
      */
-    private String yapiUrl;
+    private String url;
 
     /**
      * 用户名
@@ -40,18 +40,18 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
      */
     private volatile long cookiesTtl;
 
-    public static YapiSettings getInstance() {
-        return ServiceManager.getService(YapiSettings.class);
+    public static Rap2Settings getInstance() {
+        return ServiceManager.getService(Rap2Settings.class);
     }
 
     @Nullable
     @Override
-    public YapiSettings getState() {
+    public Rap2Settings getState() {
         return this;
     }
 
     @Override
-    public void loadState(@NotNull YapiSettings state) {
+    public void loadState(@NotNull Rap2Settings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
@@ -59,17 +59,17 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
      * 配置是否有效
      */
     public boolean isValidate() {
-        return StringUtils.isNotEmpty(yapiUrl) && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
+        return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
     }
 
     //----------------------generated----------------------//
 
-    public String getYapiUrl() {
-        return yapiUrl;
+    public String getUrl() {
+        return url;
     }
 
-    public void setYapiUrl(String yapiUrl) {
-        this.yapiUrl = yapiUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getAccount() {
@@ -109,13 +109,13 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof YapiSettings)) {
+        if (!(o instanceof Rap2Settings)) {
             return false;
         }
 
-        YapiSettings that = (YapiSettings) o;
+        Rap2Settings that = (Rap2Settings) o;
 
-        if (yapiUrl != null ? !yapiUrl.equals(that.yapiUrl) : that.yapiUrl != null) {
+        if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
         if (account != null ? !account.equals(that.account) : that.account != null) {

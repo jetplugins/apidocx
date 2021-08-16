@@ -1,51 +1,49 @@
-package io.yapix.ui;
+package io.yapix.config.rap2;
 
 import com.intellij.openapi.options.Configurable;
-import io.yapix.base.DefaultConstants;
-import io.yapix.config.YapiSettings;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 应用级别配置界面.
+ * Rap2应用级别配置界面.
  */
-public class YapiConfigurationSettings implements Configurable {
+public class Rap2ConfigurationSettings implements Configurable {
 
-    private YApiConfigurationForm form;
+    private Rap2ConfigurationForm form;
 
     @Nls(capitalization = Capitalization.Title)
     @Override
     public String getDisplayName() {
-        return DefaultConstants.NAME;
+        return "Rap2";
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
         if (form == null) {
-            form = new YApiConfigurationForm();
+            form = new Rap2ConfigurationForm();
         }
         return form.getPanel();
     }
 
     @Override
     public boolean isModified() {
-        YapiSettings settings = YapiSettings.getInstance();
-        YapiSettings data = form.get();
+        Rap2Settings settings = Rap2Settings.getInstance();
+        Rap2Settings data = form.get();
         return !settings.equals(data);
     }
 
     @Override
     public void apply() {
-        YapiSettings data = form.get();
-        YapiSettings.getInstance().loadState(data);
+        Rap2Settings data = form.get();
+        Rap2Settings.getInstance().loadState(data);
     }
 
     @Override
     public void reset() {
-        YapiSettings settings = YapiSettings.getInstance();
+        Rap2Settings settings = Rap2Settings.getInstance();
         form.set(settings);
     }
 
