@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.rap2.Rap2Client;
-import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.config.YapiConfig;
 import io.yapix.config.rap2.Rap2ConfigurationDialog;
 import io.yapix.config.rap2.Rap2Settings;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Rap2上传入口动作.
  */
-public class Rap2UploadAction extends AbstractUploadAction {
+public class Rap2UploadAction extends AbstractAction {
 
     @Override
     boolean before(AnActionEvent event) {
@@ -64,13 +63,13 @@ public class Rap2UploadAction extends AbstractUploadAction {
                             .getPath());
                     try {
                         // 上传
-                        Rap2Interface rapi = uploader.upload(projectId, api);
+                        uploader.upload(projectId, api);
                     } catch (Exception e) {
                         notifyError("Rap2 Upload failed", ExceptionUtils.getStackTrace(e));
                     }
                     indicator.setFraction(indicator.getFraction() + step);
                 }
-                notifyInfo("Yapi Upload successful");
+                notifyInfo("Rap2 Upload successful");
             }
         });
     }

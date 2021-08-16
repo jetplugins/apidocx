@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 处理Yapi上传入口动作.
  */
-public class YapiUploadAction extends AbstractUploadAction {
+public class YapiUploadAction extends AbstractAction {
 
     @Override
     boolean before(AnActionEvent event) {

@@ -1,8 +1,8 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.1</version>
-    <vendor email="luokaiqiongmou@foxmail.com" url="https://github.com/jetplugins">Jetplugins</vendor>
+    <version>0.1</version>
+    <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
     Generate api document to any where, like yapi, rap2, eolinker, markdown etc <br>

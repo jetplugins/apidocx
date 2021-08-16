@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 /**
  * 处理Yapi上传入口动作.
  */
-public abstract class AbstractUploadAction extends AnAction {
+public abstract class AbstractAction extends AnAction {
 
     /**
      * 检查前操作
