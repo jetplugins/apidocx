@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 接口参数解析器
  *
- * @see #parse(PsiClass)
+ * @see #parse(PsiClass, PsiMethod)
  */
 public class ApiParser {
 
@@ -41,7 +41,7 @@ public class ApiParser {
     /**
      * 解析接口
      */
-    public List<Api> parse(PsiClass controller) {
+    public List<Api> parse(PsiClass controller, PsiMethod selectMethod) {
         // 过滤不处理得方法
         List<PsiMethod> methods = Arrays.stream(controller.getMethods())
                 .filter(m -> {
@@ -57,6 +57,9 @@ public class ApiParser {
         ControllerApiInfo controllerApiInfo = parseController(controller);
         List<Api> apis = Lists.newArrayListWithExpectedSize(methods.size());
         for (PsiMethod method : methods) {
+            if (selectMethod != null && method != selectMethod) {
+                continue;
+            }
             // 解析某个方法
             List<Api> methodApis = parseMethod(controllerApiInfo, method);
             apis.addAll(methodApis);

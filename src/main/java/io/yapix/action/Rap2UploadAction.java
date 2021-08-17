@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 public class Rap2UploadAction extends AbstractAction {
 
     @Override
-    boolean before(AnActionEvent event) {
+    public boolean before(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         // 账户模式获取token
         Rap2Settings settings = Rap2Settings.getInstance();
@@ -41,7 +41,7 @@ public class Rap2UploadAction extends AbstractAction {
     }
 
     @Override
-    void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
+    public void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
         Integer projectId = Integer.valueOf(config.getProjectId());
         Project project = event.getData(CommonDataKeys.PROJECT);
         Rap2Settings settings = Rap2Settings.getInstance();

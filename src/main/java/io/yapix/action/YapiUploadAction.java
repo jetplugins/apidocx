@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 public class YapiUploadAction extends AbstractAction {
 
     @Override
-    boolean before(AnActionEvent event) {
+    public boolean before(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         if (!settings.isValidate() || YapiTestValue.OK != settings.testSettings().getCode()) {
@@ -40,7 +40,7 @@ public class YapiUploadAction extends AbstractAction {
     }
 
     @Override
-    void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
+    public void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),

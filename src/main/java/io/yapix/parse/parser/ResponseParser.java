@@ -42,7 +42,7 @@ public class ResponseParser {
         }
 
         // 解析
-        Item item = CoreParser.parseType(method.getProject(), type, typeText);
+        Item item = KernelParser.parseType(method.getProject(), type, typeText);
         if (item != null) {
             item.setDescription(returnType.getCanonicalText());
         }

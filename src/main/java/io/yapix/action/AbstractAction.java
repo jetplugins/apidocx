@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.config.YapiConfig;
 import io.yapix.config.YapiConfigUtils;
@@ -33,12 +34,12 @@ public abstract class AbstractAction extends AnAction {
     /**
      * 检查前操作
      */
-    abstract boolean before(AnActionEvent event);
+    public abstract boolean before(AnActionEvent event);
 
     /**
      * 文档处理
      */
-    abstract void handle(AnActionEvent event, YapiConfig config, List<Api> apis);
+    public abstract void handle(AnActionEvent event, YapiConfig config, List<Api> apis);
 
 
     @Override
@@ -81,19 +82,20 @@ public abstract class AbstractAction extends AnAction {
     private List<Api> parse(AnActionEvent event, YapiConfig config) {
         Editor editor = event.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile file = event.getDataContext().getData(CommonDataKeys.PSI_FILE);
-        if (editor == null) {
+        if (editor == null || file == null) {
             return null;
         }
         PsiElement referenceAt = file.findElementAt(editor.getCaretModel().getOffset());
-        PsiClass theClass = (PsiClass) PsiTreeUtil.getContextOfType(referenceAt, new Class[]{PsiClass.class});
-        if (theClass == null) {
+        PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
+        PsiMethod selectMethod = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
+        if (selectClass == null) {
             return null;
         }
 
         ApiParseSettings parseSettings = new ApiParseSettings();
         parseSettings.setReturnClass(config.getReturnClass());
         ApiParser parser = new ApiParser(parseSettings);
-        return parser.parse(theClass);
+        return parser.parse(selectClass, selectMethod);
     }
 
 

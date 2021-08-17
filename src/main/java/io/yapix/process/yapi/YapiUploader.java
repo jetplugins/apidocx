@@ -14,6 +14,7 @@ import io.yapix.base.sdk.yapi.mode.YapiListInterfaceResponse;
 import io.yapix.model.Api;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -159,10 +160,17 @@ public class YapiUploader {
 
     public YapiInterface findOldParamByTitle(YapiInterface yapiInterface) {
         YapiListInterfaceResponse interfacesList = client.listInterfaceByCat(yapiInterface.getCatid(), 1, 1000);
-        for (InterfaceVo interfaceVo : interfacesList.getList()) {
-            if (interfaceVo.getTitle().equals(yapiInterface.getTitle())) {
-                return client.getInterface(interfaceVo.getId());
-            }
+        InterfaceVo originInterface = interfacesList.getList().stream()
+                .filter(o -> o.getTitle().equals(yapiInterface.getTitle()))
+                .findFirst().orElse(null);
+        if (originInterface == null) {
+            originInterface = interfacesList.getList().stream()
+                    .filter(o -> Objects.equals(o.getPath(), yapiInterface.getPath()) && Objects
+                            .equals(o.getMethod(), yapiInterface.getMethod()))
+                    .findFirst().orElse(null);
+        }
+        if (originInterface != null) {
+            return client.getInterface(originInterface.getId());
         }
         return null;
     }

@@ -91,7 +91,7 @@ public class RequestParser {
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
-            Item item = CoreParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
+            Item item = KernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
             return Lists.newArrayList(item);
         }
 
@@ -100,7 +100,7 @@ public class RequestParser {
         List<PsiParameter> fileParameters = parameters.stream()
                 .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
-            Item item = CoreParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
+            Item item = KernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
             items.add(item);
         }
         // 合并查询参数到表单
@@ -141,7 +141,7 @@ public class RequestParser {
      * 解析单个参数
      */
     private static Item doParseParameter(PsiParameter parameter) {
-        Item item = CoreParser
+        Item item = KernelParser
                 .parseType(parameter.getProject(), parameter.getType(), parameter.getType().getCanonicalText());
         // 参数类型
         PsiAnnotation annotation = null;

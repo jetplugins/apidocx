@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 解析一个完整的类型
  */
-public class CoreParser {
+public class KernelParser {
 
     public static Item parseType(Project project, PsiType psiType, String canonicalType) {
         return doParseType(project, psiType, canonicalType, Sets.newHashSet());
