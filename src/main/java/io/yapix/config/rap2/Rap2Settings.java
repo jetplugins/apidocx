@@ -5,6 +5,9 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
+import io.yapix.base.sdk.rap2.Rap2Client;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +41,10 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
     /**
      * 授权cookies的有效期.
      */
-    private volatile long cookiesTtl;
+    private long cookiesTtl;
+
+    /** 授权用户id */
+    private Long cookiesUserId;
 
     public static Rap2Settings getInstance() {
         return ServiceManager.getService(Rap2Settings.class);
@@ -60,6 +66,25 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
      */
     public boolean isValidate() {
         return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
+    }
+
+    public Rap2TestResult testSettings(String captcha, HttpSession captchaSession) {
+        Rap2Settings settings = this;
+        // 测试账户
+        try (Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId())) {
+            Rap2TestResult testResult = client.test(captcha, captchaSession);
+            Rap2TestResult.Code code = testResult.getCode();
+            if (code == Rap2TestResult.Code.OK) {
+                HttpSession authSession = client.getAuthSession();
+                if (authSession != null) {
+                    settings.setCookies(authSession.getCookies());
+                    settings.setCookiesTtl(authSession.getCookiesTtl());
+                    settings.setCookiesUserId(client.getCurrentUser().getId());
+                }
+            }
+            return testResult;
+        }
     }
 
     //----------------------generated----------------------//
@@ -102,6 +127,14 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
 
     public void setCookiesTtl(long cookiesTtl) {
         this.cookiesTtl = cookiesTtl;
+    }
+
+    public Long getCookiesUserId() {
+        return cookiesUserId;
+    }
+
+    public void setCookiesUserId(Long cookiesUserId) {
+        this.cookiesUserId = cookiesUserId;
     }
 
     @Override

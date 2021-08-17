@@ -11,9 +11,9 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.yapi.YapiClient;
-import io.yapix.base.sdk.yapi.mode.AuthCookies;
-import io.yapix.base.sdk.yapi.mode.YapiInterface;
-import io.yapix.base.sdk.yapi.response.YapiTestValue;
+import io.yapix.base.sdk.yapi.model.AuthCookies;
+import io.yapix.base.sdk.yapi.model.YapiInterface;
+import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import io.yapix.config.YapiConfig;
 import io.yapix.config.yapi.YapiSettings;
 import io.yapix.config.yapi.YapiSettingsDialog;
@@ -32,7 +32,7 @@ public class YapiUploadAction extends AbstractAction {
     public boolean before(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
-        if (!settings.isValidate() || YapiTestValue.OK != settings.testSettings().getCode()) {
+        if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
             YapiSettingsDialog dialog = YapiSettingsDialog.show(project);
             return !dialog.isCanceled();
         }

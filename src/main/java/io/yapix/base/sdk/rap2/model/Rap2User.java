@@ -20,6 +20,10 @@ public class Rap2User {
         this.email = email;
     }
 
+    public Rap2User(Long userId) {
+        this.id = userId;
+    }
+
     public Long getId() {
         return id;
     }

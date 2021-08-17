@@ -4,10 +4,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.DefaultConstants;
-import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
 import io.yapix.base.sdk.rap2.Rap2Client;
-import io.yapix.base.sdk.rap2.Rap2Exception;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -55,40 +55,37 @@ public class Rap2SettingsDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         this.canceled = false;
-        Rap2Settings data = form.get();
-        if (!data.isValidate()) {
+        Rap2Settings settings = form.get();
+        if (!settings.isValidate()) {
             return;
         }
 
         // 登录校验
         JTextField captchaField = form.getCaptchaField();
-        Rap2Client rap2Client = new Rap2Client(data.getUrl(), data.getAccount(), data.getPassword());
-        try {
-            rap2Client.login(captchaField.getText().trim(), form.getCaptchaSession());
-        } catch (Rap2Exception e) {
-            if (e.isCaptchaError()) {
-                CaptchaResponse captcha = rap2Client.getCaptcha();
+        Rap2TestResult testResult = settings.testSettings(captchaField.getText(), form.getCaptchaSession());
+        Code code = testResult.getCode();
+        if (code == Code.OK) {
+            settings.setCookies(testResult.getAuthCookies().getCookies());
+            settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
+            // 存储配置
+            Rap2Settings.getInstance().loadState(settings);
+            super.doOKAction();
+        }
+        if (code == Code.NETWORK_ERROR) {
+            setErrorText("Network error", form.getUrlField());
+        }
+        if (code == Code.AUTH_ERROR) {
+            setErrorText("Password incorrect", form.getPasswordField());
+        }
+        if (code == Code.AUTH_CAPTCHA_ERROR) {
+            try (Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                    settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId())) {
+                CaptchaResponse captcha = client.getCaptcha();
                 form.setCaptchaIcon(captcha);
-                setErrorText("验证码错误", form.getCaptchaField());
-                return;
-            } else if (e.isAccountPasswordError()) {
-                setErrorText("账号或密码错误", form.getPasswordField());
-                return;
             }
-            setErrorText("登录失败," + e.getMsg());
-            return;
-        } finally {
-            rap2Client.close();
+            form.getCaptchaField().setText("");
+            setErrorText("Captcha incorrect", form.getCaptchaField());
         }
-
-        // 存储授权信息
-        HttpSession authSession = rap2Client.getAuthSession();
-        if (authSession != null) {
-            data.setCookies(authSession.getCookies());
-            data.setCookiesTtl(authSession.getCookiesTtl());
-        }
-        Rap2Settings.getInstance().loadState(data);
-        super.doOKAction();
     }
 
     @Nullable
@@ -111,5 +108,9 @@ public class Rap2SettingsDialog extends DialogWrapper {
     public void doCancelAction() {
         this.canceled = true;
         super.doCancelAction();
+    }
+
+    public boolean isCanceled() {
+        return canceled;
     }
 }

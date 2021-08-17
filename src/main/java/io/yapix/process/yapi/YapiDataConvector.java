@@ -1,11 +1,11 @@
 package io.yapix.process.yapi;
 
 import com.google.common.collect.Lists;
-import io.yapix.base.sdk.yapi.mode.YapiInterface;
-import io.yapix.base.sdk.yapi.mode.YapiInterfaceStatus;
-import io.yapix.base.sdk.yapi.mode.YapiItem;
-import io.yapix.base.sdk.yapi.mode.YapiMock;
-import io.yapix.base.sdk.yapi.mode.YapiParameter;
+import io.yapix.base.sdk.yapi.model.YapiInterface;
+import io.yapix.base.sdk.yapi.model.YapiInterfaceStatus;
+import io.yapix.base.sdk.yapi.model.YapiItem;
+import io.yapix.base.sdk.yapi.model.YapiMock;
+import io.yapix.base.sdk.yapi.model.YapiParameter;
 import io.yapix.model.Api;
 import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;

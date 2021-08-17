@@ -1,4 +1,4 @@
-package io.yapix.base.sdk.yapi.mode;
+package io.yapix.base.sdk.yapi.model;
 
 /**
  * 表单参数

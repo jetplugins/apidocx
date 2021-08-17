@@ -7,7 +7,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
-import io.yapix.base.sdk.yapi.response.YapiTestValue;
+import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,8 +71,8 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         try (YapiClient yapiClient = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
                 settings.getCookies(), settings.getCookiesTtl())) {
             YapiTestResult testResult = yapiClient.test();
-            YapiTestValue code = testResult.getCode();
-            if (code == YapiTestValue.OK) {
+            Code code = testResult.getCode();
+            if (code == Code.OK) {
                 settings.setCookies(yapiClient.getAuthCookies().getCookies());
                 settings.setCookiesTtl(yapiClient.getAuthCookies().getTtl());
             }

@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
-import io.yapix.base.sdk.yapi.response.YapiTestValue;
+import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -60,18 +60,18 @@ public class YapiSettingsDialog extends DialogWrapper {
 
         // 测试账户
         YapiTestResult testResult = settings.testSettings();
-        YapiTestValue code = testResult.getCode();
-        if (code == YapiTestValue.OK) {
+        Code code = testResult.getCode();
+        if (code == Code.OK) {
             settings.setCookies(testResult.getAuthCookies().getCookies());
             settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
             // 存储配置
             YapiSettings.getInstance().loadState(settings);
             super.doOKAction();
         }
-        if (code == YapiTestValue.NETWORK_ERROR) {
+        if (code == Code.NETWORK_ERROR) {
             setErrorText("Network error", form.getUrlField());
         }
-        if (code == YapiTestValue.AUTH_ERROR) {
+        if (code == Code.AUTH_ERROR) {
             setErrorText("Password incorrect", form.getPasswordField());
         }
     }

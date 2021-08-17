@@ -11,6 +11,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.rap2.Rap2Client;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.config.YapiConfig;
 import io.yapix.config.rap2.Rap2Settings;
 import io.yapix.config.rap2.Rap2SettingsDialog;
@@ -28,14 +29,10 @@ public class Rap2UploadAction extends AbstractAction {
     @Override
     public boolean before(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
-        // 账户模式获取token
         Rap2Settings settings = Rap2Settings.getInstance();
-        if (!settings.isValidate()) {
-            Rap2SettingsDialog.show(project);
-            settings = Rap2Settings.getInstance();
-            if (!settings.isValidate()) {
-                return false;
-            }
+        if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {
+            Rap2SettingsDialog dialog = Rap2SettingsDialog.show(project);
+            return !dialog.isCanceled();
         }
         return true;
     }

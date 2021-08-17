@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.yapix.base.sdk.rap2.model.AuthCookies;
 import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.model.Rap2InterfaceBase;
 import io.yapix.base.sdk.rap2.model.Rap2Module;
@@ -14,6 +15,8 @@ import io.yapix.base.sdk.rap2.model.Rap2User;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
 import io.yapix.base.sdk.rap2.request.CreateModuleRequest;
 import io.yapix.base.sdk.rap2.request.LoginRequest;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult;
+import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.request.UpdatePropertiesRequest;
 import io.yapix.base.util.SvgUtils;
 import java.io.IOException;
@@ -68,16 +71,38 @@ public class Rap2Client extends AbstractClient {
         this.url = url;
         this.account = account;
         this.password = password;
-
     }
 
-    public Rap2Client(String url, String cookies, long cookiesTtl, Rap2User user) {
+    public Rap2Client(String url, String account, String password, String cookies, long cookiesTtl, Long userId) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         this.url = url;
-        this.account = null;
-        this.password = null;
+        this.account = account;
+        this.password = password;
         this.authSession = new HttpSession(cookies, cookiesTtl);
-        this.currentUser = user;
+        if (userId != null) {
+            this.currentUser = new Rap2User(userId);
+        }
+    }
+
+    public Rap2TestResult test(String captcha, HttpSession captchaSession) {
+        this.captcha = captcha;
+        this.captchaSession = captchaSession;
+        Rap2TestResult result = new Rap2TestResult();
+        try {
+            requestGet(Rap2Constants.AccountInfoPath);
+            result.setCode(Code.OK);
+            AuthCookies auth = new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
+            result.setAuthCookies(auth);
+        } catch (Rap2Exception e) {
+            if (e.isNeedAuth() || e.isAccountPasswordError()) {
+                result.setCode(Code.AUTH_ERROR);
+            } else if (e.isCaptchaError()) {
+                result.setCode(Code.AUTH_CAPTCHA_ERROR);
+            } else {
+                result.setCode(Code.NETWORK_ERROR);
+            }
+        }
+        return result;
     }
 
     /**
@@ -207,6 +232,13 @@ public class Rap2Client extends AbstractClient {
         request.setHeader("Content-type", "application/json;charset=utf-8");
         request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
         return doRequest(request);
+    }
+
+    /**
+     * 获取当前登录用户
+     */
+    public Rap2User getCurrentUser() {
+        return currentUser;
     }
 
     @Override

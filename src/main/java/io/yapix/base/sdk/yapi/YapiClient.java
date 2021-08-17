@@ -5,13 +5,13 @@ import static java.lang.String.format;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import io.yapix.base.sdk.yapi.mode.AuthCookies;
-import io.yapix.base.sdk.yapi.mode.YapiCategory;
-import io.yapix.base.sdk.yapi.mode.YapiCategoryAddRequest;
-import io.yapix.base.sdk.yapi.mode.YapiInterface;
-import io.yapix.base.sdk.yapi.mode.YapiListInterfaceResponse;
+import io.yapix.base.sdk.yapi.model.AuthCookies;
+import io.yapix.base.sdk.yapi.model.YapiCategory;
+import io.yapix.base.sdk.yapi.model.YapiCategoryAddRequest;
+import io.yapix.base.sdk.yapi.model.YapiInterface;
+import io.yapix.base.sdk.yapi.model.YapiListInterfaceResponse;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
-import io.yapix.base.sdk.yapi.response.YapiTestValue;
+import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -68,13 +68,13 @@ public class YapiClient extends AbstractClient {
         YapiTestResult result = new YapiTestResult();
         try {
             requestGet(YapiConstants.yapiUserStatus);
-            result.setCode(YapiTestValue.OK);
+            result.setCode(Code.OK);
             result.setAuthCookies(getAuthCookies());
         } catch (YapiException e) {
             if (e.isNeedAuth() || e.isAuthFailed()) {
-                result.setCode(YapiTestValue.AUTH_ERROR);
+                result.setCode(Code.AUTH_ERROR);
             } else {
-                result.setCode(YapiTestValue.NETWORK_ERROR);
+                result.setCode(Code.NETWORK_ERROR);
             }
         }
         return result;

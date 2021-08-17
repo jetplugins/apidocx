@@ -1,4 +1,4 @@
-package io.yapix.base.sdk.yapi.mode;
+package io.yapix.base.sdk.yapi.model;
 
 
 public class AuthCookies {

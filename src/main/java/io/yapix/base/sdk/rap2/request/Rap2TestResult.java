@@ -1,8 +1,9 @@
-package io.yapix.base.sdk.yapi.response;
+package io.yapix.base.sdk.rap2.request;
 
-import io.yapix.base.sdk.yapi.model.AuthCookies;
 
-public class YapiTestResult {
+import io.yapix.base.sdk.rap2.model.AuthCookies;
+
+public class Rap2TestResult {
 
     private Code code;
     private AuthCookies authCookies;
@@ -26,6 +27,7 @@ public class YapiTestResult {
     public enum Code {
         OK,
         AUTH_ERROR,
+        AUTH_CAPTCHA_ERROR,
         NETWORK_ERROR
     }
 }
