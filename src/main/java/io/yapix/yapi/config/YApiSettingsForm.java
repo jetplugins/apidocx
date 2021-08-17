@@ -1,4 +1,4 @@
-package io.yapix.config.yapi;
+package io.yapix.yapi.config;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;

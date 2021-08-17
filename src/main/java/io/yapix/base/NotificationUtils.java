@@ -1,4 +1,4 @@
-package io.yapix.base.util;
+package io.yapix.base;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
@@ -6,7 +6,7 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener.UrlOpeningListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import io.yapix.base.DefaultConstants;
+import io.yapix.config.DefaultConstants;
 
 /**
  * 消息通知工具类.

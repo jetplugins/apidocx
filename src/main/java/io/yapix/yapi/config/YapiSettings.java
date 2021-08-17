@@ -1,4 +1,4 @@
-package io.yapix.config.yapi;
+package io.yapix.yapi.config;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;

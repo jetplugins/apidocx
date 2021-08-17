@@ -1,4 +1,4 @@
-package io.yapix.config.rap2;
+package io.yapix.rap2.config;
 
 import com.intellij.openapi.options.Configurable;
 import javax.swing.JComponent;

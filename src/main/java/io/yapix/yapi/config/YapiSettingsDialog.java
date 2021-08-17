@@ -1,11 +1,11 @@
-package io.yapix.config.yapi;
+package io.yapix.yapi.config;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.config.DefaultConstants;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;

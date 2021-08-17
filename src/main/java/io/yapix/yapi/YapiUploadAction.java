@@ -1,7 +1,7 @@
-package io.yapix.action;
+package io.yapix.yapi;
 
-import static io.yapix.base.util.NotificationUtils.notifyError;
-import static io.yapix.base.util.NotificationUtils.notifyInfo;
+import static io.yapix.base.NotificationUtils.notifyError;
+import static io.yapix.base.NotificationUtils.notifyInfo;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -9,16 +9,17 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import io.yapix.base.DefaultConstants;
+import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.AuthCookies;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapiConfig;
-import io.yapix.config.yapi.YapiSettings;
-import io.yapix.config.yapi.YapiSettingsDialog;
 import io.yapix.model.Api;
-import io.yapix.process.yapi.YapiUploader;
+import io.yapix.yapi.config.YapiSettings;
+import io.yapix.yapi.config.YapiSettingsDialog;
+import io.yapix.yapi.process.YapiUploader;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;

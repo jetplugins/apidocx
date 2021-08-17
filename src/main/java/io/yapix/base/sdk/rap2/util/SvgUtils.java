@@ -1,4 +1,4 @@
-package io.yapix.base.util;
+package io.yapix.base.sdk.rap2.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

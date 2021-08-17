@@ -18,7 +18,7 @@ import io.yapix.base.sdk.rap2.request.LoginRequest;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.request.UpdatePropertiesRequest;
-import io.yapix.base.util.SvgUtils;
+import io.yapix.base.sdk.rap2.util.SvgUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -84,12 +84,17 @@ public class Rap2Client extends AbstractClient {
         }
     }
 
+    /**
+     * 测试登录信息
+     */
     public Rap2TestResult test(String captcha, HttpSession captchaSession) {
         this.captcha = captcha;
         this.captchaSession = captchaSession;
         Rap2TestResult result = new Rap2TestResult();
         try {
-            requestGet(Rap2Constants.AccountInfoPath);
+            HttpGet request = new HttpGet(this.url + Rap2Constants.AccountInfoPath);
+            doRequest(request, false);
+
             result.setCode(Code.OK);
             AuthCookies auth = new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
             result.setAuthCookies(auth);
@@ -165,7 +170,7 @@ public class Rap2Client extends AbstractClient {
         Rap2Module module = new Rap2Module();
         module.setRepositoryId(request.getRepositoryId());
         module.setName(request.getName());
-        module.setDescription(request.getDescription());
+        module.setDescription(request.getDescription() != null ? request.getDescription() : "");
         module.setCreatorId(this.currentUser.getId());
         module.setId(0L);
         module.setPriority(0L);
@@ -220,7 +225,7 @@ public class Rap2Client extends AbstractClient {
      */
     public String requestGet(String path) {
         HttpGet request = new HttpGet(this.url + path);
-        return doRequest(request);
+        return doRequest(request, true);
     }
 
     /**
@@ -231,7 +236,7 @@ public class Rap2Client extends AbstractClient {
         HttpPost request = new HttpPost(url + path);
         request.setHeader("Content-type", "application/json;charset=utf-8");
         request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
-        return doRequest(request);
+        return doRequest(request, true);
     }
 
     /**
@@ -242,23 +247,25 @@ public class Rap2Client extends AbstractClient {
     }
 
     @Override
-    void doFreshAuth(boolean force) {
+    public void doFreshAuth(boolean force) {
         LoginRequest authInfo = new LoginRequest();
         authInfo.setEmail(this.account);
         authInfo.setPassword(this.password);
         authInfo.setCaptcha(this.captcha);
         String json = gson.toJson(authInfo);
         HttpPost request = new HttpPost(url + Rap2Constants.LoginPath);
+        request.setHeader("Content-type", "application/json;charset=utf-8");
         if (this.captchaSession != null) {
-            request.addHeader("Cookie", this.captchaSession.getCookies());
+            request.setHeader("Cookie", this.captchaSession.getCookies());
         }
+
         request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
         String userInfo = execute(request, true);
         this.currentUser = gson.fromJson(userInfo, Rap2User.class);
     }
 
     @Override
-    String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
+    public String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
         HttpEntity resEntity = response.getEntity();
         String content = EntityUtils.toString(resEntity, StandardCharsets.UTF_8);
         int statusCode = response.getStatusLine().getStatusCode();

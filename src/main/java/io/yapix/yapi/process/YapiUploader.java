@@ -1,4 +1,4 @@
-package io.yapix.process.yapi;
+package io.yapix.yapi.process;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;

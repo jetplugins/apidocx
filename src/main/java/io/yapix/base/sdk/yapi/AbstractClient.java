@@ -118,9 +118,9 @@ public abstract class AbstractClient implements Closeable {
         Header[] headers = httpResponse.getHeaders("set-cookie");
         for (int i = 0; i < headers.length; i++) {
             Cookie cookie = ClientCookieDecoder.STRICT.decode(headers[i].getValue());
-            sb.append(cookie.name()).append("=").append(cookie.value());
+            sb.append(cookie.name().trim()).append("=").append(cookie.value().trim());
             if (i != headers.length - 1) {
-                sb.append(";");
+                sb.append("; ");
             }
             if (ttl == null) {
                 ttl = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cookie.maxAge() - 20);

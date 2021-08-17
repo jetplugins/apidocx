@@ -1,4 +1,4 @@
-package io.yapix.config.yapi;
+package io.yapix.yapi.config;
 
 import com.intellij.openapi.options.Configurable;
 import javax.swing.JComponent;

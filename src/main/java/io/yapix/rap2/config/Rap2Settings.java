@@ -1,4 +1,4 @@
-package io.yapix.config.rap2;
+package io.yapix.rap2.config;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -7,6 +7,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
 import io.yapix.base.sdk.rap2.Rap2Client;
+import io.yapix.base.sdk.rap2.model.AuthCookies;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,11 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
      * 服务地址
      */
     private String url;
+
+    /**
+     * 网页根地址
+     */
+    private String webUrl;
 
     /**
      * 用户名
@@ -65,22 +71,21 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
      * 配置是否有效
      */
     public boolean isValidate() {
-        return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
+        return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(webUrl)
+                && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
     }
 
     public Rap2TestResult testSettings(String captcha, HttpSession captchaSession) {
-        Rap2Settings settings = this;
         // 测试账户
-        try (Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId())) {
+        try (Rap2Client client = new Rap2Client(this.getUrl(), this.getAccount(), this.getPassword(),
+                this.getCookies(), this.getCookiesTtl(), this.getCookiesUserId())) {
             Rap2TestResult testResult = client.test(captcha, captchaSession);
             Rap2TestResult.Code code = testResult.getCode();
             if (code == Rap2TestResult.Code.OK) {
                 HttpSession authSession = client.getAuthSession();
                 if (authSession != null) {
-                    settings.setCookies(authSession.getCookies());
-                    settings.setCookiesTtl(authSession.getCookiesTtl());
-                    settings.setCookiesUserId(client.getCurrentUser().getId());
+                    testResult.setAuthCookies(new AuthCookies(authSession.getCookies(), authSession.getCookiesTtl()));
+                    testResult.setAuthUser(client.getCurrentUser());
                 }
             }
             return testResult;
@@ -137,6 +142,14 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
         this.cookiesUserId = cookiesUserId;
     }
 
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -151,9 +164,21 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
         if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
+        if (webUrl != null ? !webUrl.equals(that.webUrl) : that.webUrl != null) {
+            return false;
+        }
         if (account != null ? !account.equals(that.account) : that.account != null) {
             return false;
         }
         return password != null ? password.equals(that.password) : that.password == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = url != null ? url.hashCode() : 0;
+        result = 31 * result + (webUrl != null ? webUrl.hashCode() : 0);
+        result = 31 * result + (account != null ? account.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        return result;
     }
 }

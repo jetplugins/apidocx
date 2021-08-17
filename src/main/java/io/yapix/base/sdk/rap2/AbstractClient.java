@@ -37,15 +37,15 @@ public abstract class AbstractClient implements Closeable {
      *
      * @param force
      */
-    abstract void doFreshAuth(boolean force);
+    public abstract void doFreshAuth(boolean force);
 
     /** 处理网络请求响应 */
-    abstract String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException;
+    public abstract String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException;
 
     /**
      * 执行yapi请求，包括认证功能.
      */
-    protected String doRequest(HttpUriRequest request) {
+    protected String doRequest(HttpUriRequest request, boolean retry) {
         freshAuth(false);
         if (this.authSession != null) {
             request.addHeader("Cookie", this.authSession.getCookies());
@@ -53,7 +53,7 @@ public abstract class AbstractClient implements Closeable {
         try {
             return execute(request, false);
         } catch (Rap2Exception e) {
-            if (!e.isNeedAuth()) {
+            if (!retry || !e.isNeedAuth()) {
                 throw e;
             }
         }
@@ -122,11 +122,11 @@ public abstract class AbstractClient implements Closeable {
         Header[] headers = httpResponse.getHeaders("set-cookie");
         for (int i = 0; i < headers.length; i++) {
             Cookie cookie = ClientCookieDecoder.STRICT.decode(headers[i].getValue());
-            sb.append(cookie.name()).append("=").append(cookie.value());
+            sb.append(cookie.name().trim()).append("=").append(cookie.value().trim());
             if (i != headers.length - 1) {
-                sb.append(";");
+                sb.append("; ");
             }
-            if (ttl == null) {
+            if (ttl == null || ttl <= 0) {
                 ttl = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cookie.maxAge() - 20);
             }
         }

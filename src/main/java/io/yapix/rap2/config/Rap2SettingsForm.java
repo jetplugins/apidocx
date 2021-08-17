@@ -1,8 +1,8 @@
-package io.yapix.config.rap2;
+package io.yapix.rap2.config;
 
-import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
+import io.yapix.config.DefaultConstants;
 import javax.swing.ImageIcon;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -24,6 +24,7 @@ public class Rap2SettingsForm {
     private JLabel captchaImageLabel;
     private JTextField captchaField;
     private JLabel captchaLabel;
+    private JTextField webUrlField;
     private HttpSession captchaSession;
 
     public JPanel getPanel() {
@@ -32,7 +33,9 @@ public class Rap2SettingsForm {
 
     public void set(Rap2Settings data) {
         String url = StringUtils.isNotEmpty(data.getUrl()) ? data.getUrl() : DefaultConstants.RAP2_URL;
+        String webUrl = StringUtils.isNotEmpty(data.getWebUrl()) ? data.getWebUrl() : DefaultConstants.RAP2_WEB_URL;
         urlField.setText(url);
+        webUrlField.setText(webUrl);
         accountField.setText(data.getAccount());
         passwordField.setText(data.getPassword());
         captchaPanel.setVisible(false);
@@ -44,6 +47,7 @@ public class Rap2SettingsForm {
         data.setUrl(urlField.getText().trim());
         data.setAccount(accountField.getText().trim());
         data.setPassword(new String(passwordField.getPassword()).trim());
+        data.setWebUrl(webUrlField.getText().trim());
         return data;
     }
 
@@ -58,6 +62,10 @@ public class Rap2SettingsForm {
 
     public JTextField getUrlField() {
         return urlField;
+    }
+
+    public JTextField getWebUrlField() {
+        return webUrlField;
     }
 
     public JFormattedTextField getAccountField() {

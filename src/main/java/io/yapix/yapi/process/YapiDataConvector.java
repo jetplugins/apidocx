@@ -1,4 +1,4 @@
-package io.yapix.process.yapi;
+package io.yapix.yapi.process;
 
 import com.google.common.collect.Lists;
 import io.yapix.base.sdk.yapi.model.YapiInterface;

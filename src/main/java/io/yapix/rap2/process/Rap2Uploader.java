@@ -1,4 +1,4 @@
-package io.yapix.process.rap2;
+package io.yapix.rap2.process;
 
 import com.google.gson.Gson;
 import io.yapix.base.sdk.rap2.Rap2Client;

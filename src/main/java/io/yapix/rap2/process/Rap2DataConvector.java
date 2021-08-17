@@ -1,4 +1,4 @@
-package io.yapix.process.rap2;
+package io.yapix.rap2.process;
 
 import io.yapix.base.sdk.rap2.constant.BodyOption;
 import io.yapix.base.sdk.rap2.constant.PropertyScope;

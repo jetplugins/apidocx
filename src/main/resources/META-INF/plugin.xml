@@ -18,21 +18,21 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="io.yapix.config.yapi.YapiSettings"/>
-        <applicationService serviceImplementation="io.yapix.config.rap2.Rap2Settings"/>
+        <applicationService serviceImplementation="io.yapix.yapi.config.YapiSettings"/>
+        <applicationService serviceImplementation="io.yapix.rap2.config.Rap2Settings"/>
         <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixSettingsConfiguration">
-            <configurable displayName="Yapi" instance="io.yapix.config.yapi.YapiSettingsConfiguration"/>
-            <configurable displayName="Rap2" instance="io.yapix.config.rap2.Rap2SettingsConfiguration"/>
+            <configurable displayName="Yapi" instance="io.yapix.yapi.config.YapiSettingsConfiguration"/>
+            <configurable displayName="Rap2" instance="io.yapix.rap2.config.Rap2SettingsConfiguration"/>
         </applicationConfigurable>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToRap2" class="io.yapix.action.Rap2UploadAction" text="UploadToRap2"
+        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="UploadToRap2"
             description="UploadToRap2">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
         </action>
-        <action id="UploadToYapi" class="io.yapix.action.YapiUploadAction" text="UploadToYapi"
+        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="UploadToYapi"
             description="UploadToYapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
@@ -42,9 +42,9 @@
     <change-notes><![CDATA[
       <p>0.0.1</p>
       <ul>
-        <li>1.初始化提交</li>
-        <li>2.支持生成文档</li>
-        <li>3.支持上传到yapi平台</li>
+        <li>1.支持生成文档</li>
+        <li>2.支持上传到Yapi平台</li>
+        <li>2.支持上传到Rap2平台</li>
       </ul>
       ]]></change-notes>
 

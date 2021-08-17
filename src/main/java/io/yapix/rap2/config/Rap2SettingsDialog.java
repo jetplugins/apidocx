@@ -1,13 +1,13 @@
-package io.yapix.config.rap2;
+package io.yapix.rap2.config;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.rap2.Rap2Client;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
+import io.yapix.config.DefaultConstants;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -62,11 +62,12 @@ public class Rap2SettingsDialog extends DialogWrapper {
 
         // 登录校验
         JTextField captchaField = form.getCaptchaField();
-        Rap2TestResult testResult = settings.testSettings(captchaField.getText(), form.getCaptchaSession());
+        Rap2TestResult testResult = settings.testSettings(captchaField.getText().trim(), form.getCaptchaSession());
         Code code = testResult.getCode();
         if (code == Code.OK) {
             settings.setCookies(testResult.getAuthCookies().getCookies());
             settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
+            settings.setCookiesUserId(testResult.getAuthUser().getId());
             // 存储配置
             Rap2Settings.getInstance().loadState(settings);
             super.doOKAction();
@@ -94,6 +95,9 @@ public class Rap2SettingsDialog extends DialogWrapper {
         Rap2Settings data = form.get();
         if (StringUtils.isEmpty(data.getUrl())) {
             return new ValidationInfo("Rap2接口地址不能为空", form.getUrlField());
+        }
+        if (StringUtils.isEmpty(data.getWebUrl())) {
+            return new ValidationInfo("Rap2网页地址不能为空", form.getWebUrlField());
         }
         if (StringUtils.isEmpty(data.getAccount())) {
             return new ValidationInfo("账号不能为空", form.getAccountField());
