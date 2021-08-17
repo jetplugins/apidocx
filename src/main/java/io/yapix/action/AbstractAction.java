@@ -70,7 +70,10 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
 
-        before(event);
+        boolean isContinue = before(event);
+        if (!isContinue) {
+            return;
+        }
         List<Api> apis = parse(event, config);
         handle(event, config, apis);
     }

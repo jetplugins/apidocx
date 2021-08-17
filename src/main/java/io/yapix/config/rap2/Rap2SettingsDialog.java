@@ -16,19 +16,21 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Rap2配置对话框.
  */
-public class Rap2ConfigurationDialog extends DialogWrapper {
+public class Rap2SettingsDialog extends DialogWrapper {
 
-    private Rap2ConfigurationForm form;
+    private Rap2SettingsForm form;
+    private boolean canceled;
 
     /**
      * 显示弹框
      */
-    public static void show(Project project) {
-        Rap2ConfigurationDialog dialog = new Rap2ConfigurationDialog(project);
+    public static Rap2SettingsDialog show(Project project) {
+        Rap2SettingsDialog dialog = new Rap2SettingsDialog(project);
         dialog.show();
+        return dialog;
     }
 
-    Rap2ConfigurationDialog(@Nullable Project project) {
+    Rap2SettingsDialog(@Nullable Project project) {
         super(project);
         setTitle(DefaultConstants.NAME);
         init();
@@ -45,13 +47,14 @@ public class Rap2ConfigurationDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         if (form == null) {
-            form = new Rap2ConfigurationForm();
+            form = new Rap2SettingsForm();
         }
         return form.getPanel();
     }
 
     @Override
     protected void doOKAction() {
+        this.canceled = false;
         Rap2Settings data = form.get();
         if (!data.isValidate()) {
             return;
@@ -102,5 +105,11 @@ public class Rap2ConfigurationDialog extends DialogWrapper {
             return new ValidationInfo("密码不能为空", form.getPasswordField());
         }
         return null;
+    }
+
+    @Override
+    public void doCancelAction() {
+        this.canceled = true;
+        super.doCancelAction();
     }
 }

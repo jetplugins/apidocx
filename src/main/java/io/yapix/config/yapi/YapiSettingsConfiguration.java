@@ -9,9 +9,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 应用级别配置界面.
  */
-public class YapiConfigurationSettings implements Configurable {
+public class YapiSettingsConfiguration implements Configurable {
 
-    private YApiConfigurationForm form;
+    private YApiSettingsForm form;
 
     @Nls(capitalization = Capitalization.Title)
     @Override
@@ -23,7 +23,7 @@ public class YapiConfigurationSettings implements Configurable {
     @Override
     public JComponent createComponent() {
         if (form == null) {
-            form = new YApiConfigurationForm();
+            form = new YApiSettingsForm();
         }
         return form.getPanel();
     }

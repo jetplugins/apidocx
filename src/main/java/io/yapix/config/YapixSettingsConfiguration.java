@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 应用级别配置界面.
  */
-public class YapixConfigurationSettings implements Configurable {
+public class YapixSettingsConfiguration implements Configurable {
 
 
     @Nls(capitalization = Capitalization.Title)

@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Rap2配置菜单界面
  */
-public class Rap2ConfigurationForm {
+public class Rap2SettingsForm {
 
     private JTextField urlField;
     private JFormattedTextField accountField;

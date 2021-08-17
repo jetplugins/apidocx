@@ -93,9 +93,13 @@ public abstract class AbstractClient implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (this.httpClient != null) {
-            this.httpClient.close();
+            try {
+                this.httpClient.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
@@ -131,7 +135,7 @@ public abstract class AbstractClient implements Closeable {
     public static class HttpSession {
 
         private String cookies;
-        private long cookiesTtl;
+        private Long cookiesTtl;
 
         public HttpSession() {
         }
@@ -142,7 +146,7 @@ public abstract class AbstractClient implements Closeable {
         }
 
         public boolean isValid() {
-            return StringUtils.isNotEmpty(cookies) && cookiesTtl > System.currentTimeMillis();
+            return StringUtils.isNotEmpty(cookies) && cookiesTtl != null && cookiesTtl > System.currentTimeMillis();
         }
 
         //-------------------generated-----------------//

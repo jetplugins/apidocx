@@ -1,5 +1,7 @@
 package io.yapix.base.sdk.yapi;
 
+import java.util.Objects;
+
 /**
  * Yapi客户端基异常
  */
@@ -26,6 +28,13 @@ public class YapiException extends RuntimeException {
      */
     public boolean isNeedAuth() {
         return Integer.valueOf(40011).equals(this.code);
+    }
+
+    /**
+     * 认证失败，账户或密码错误
+     */
+    public boolean isAuthFailed() {
+        return Objects.equals(path, YapiConstants.yapiLogin) && Integer.valueOf(400).equals(code);
     }
 
     public String getPath() {

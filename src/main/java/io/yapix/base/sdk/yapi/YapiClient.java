@@ -10,6 +10,8 @@ import io.yapix.base.sdk.yapi.mode.YapiCategory;
 import io.yapix.base.sdk.yapi.mode.YapiCategoryAddRequest;
 import io.yapix.base.sdk.yapi.mode.YapiInterface;
 import io.yapix.base.sdk.yapi.mode.YapiListInterfaceResponse;
+import io.yapix.base.sdk.yapi.response.YapiTestResult;
+import io.yapix.base.sdk.yapi.response.YapiTestValue;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -60,12 +62,22 @@ public class YapiClient extends AbstractClient {
     }
 
     /**
-     * 获取项目访问授权token
+     * 测试是否正常
      */
-    public String getProjectToken(int projectId) {
-        String path = "/api/project/token?project_id=" + projectId;
-        String json = requestGet(path);
-        return gson.fromJson(json, String.class);
+    public YapiTestResult test() {
+        YapiTestResult result = new YapiTestResult();
+        try {
+            requestGet(YapiConstants.yapiUserStatus);
+            result.setCode(YapiTestValue.OK);
+            result.setAuthCookies(getAuthCookies());
+        } catch (YapiException e) {
+            if (e.isNeedAuth() || e.isAuthFailed()) {
+                result.setCode(YapiTestValue.AUTH_ERROR);
+            } else {
+                result.setCode(YapiTestValue.NETWORK_ERROR);
+            }
+        }
+        return result;
     }
 
     /**
@@ -148,7 +160,7 @@ public class YapiClient extends AbstractClient {
 
     @Override
     void doFreshAuth(boolean force) {
-        String path = "/api/user/login";
+        String path = YapiConstants.yapiLogin;
         JsonObject params = new JsonObject();
         params.addProperty("email", this.account);
         params.addProperty("password", this.password);

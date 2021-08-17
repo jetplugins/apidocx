@@ -8,7 +8,7 @@ import javax.swing.JTextField;
 /**
  * Yapi配置菜单界面
  */
-public class YApiConfigurationForm {
+public class YApiSettingsForm {
 
     private JTextField urlField;
     private JFormattedTextField accountField;

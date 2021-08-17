@@ -13,9 +13,10 @@ import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.mode.AuthCookies;
 import io.yapix.base.sdk.yapi.mode.YapiInterface;
+import io.yapix.base.sdk.yapi.response.YapiTestValue;
 import io.yapix.config.YapiConfig;
-import io.yapix.config.yapi.YapiConfigurationDialog;
 import io.yapix.config.yapi.YapiSettings;
+import io.yapix.config.yapi.YapiSettingsDialog;
 import io.yapix.model.Api;
 import io.yapix.process.yapi.YapiUploader;
 import java.util.List;
@@ -30,14 +31,10 @@ public class YapiUploadAction extends AbstractAction {
     @Override
     boolean before(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
-        // 账户模式获取token
         YapiSettings settings = YapiSettings.getInstance();
-        if (!settings.isValidate()) {
-            YapiConfigurationDialog.show(project);
-            settings = YapiSettings.getInstance();
-            if (!settings.isValidate()) {
-                return false;
-            }
+        if (!settings.isValidate() || YapiTestValue.OK != settings.testSettings().getCode()) {
+            YapiSettingsDialog dialog = YapiSettingsDialog.show(project);
+            return !dialog.isCanceled();
         }
         return true;
     }

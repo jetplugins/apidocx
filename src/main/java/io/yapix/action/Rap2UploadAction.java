@@ -12,8 +12,8 @@ import com.intellij.openapi.project.Project;
 import io.yapix.base.DefaultConstants;
 import io.yapix.base.sdk.rap2.Rap2Client;
 import io.yapix.config.YapiConfig;
-import io.yapix.config.rap2.Rap2ConfigurationDialog;
 import io.yapix.config.rap2.Rap2Settings;
+import io.yapix.config.rap2.Rap2SettingsDialog;
 import io.yapix.model.Api;
 import io.yapix.process.rap2.Rap2Uploader;
 import java.util.List;
@@ -31,7 +31,7 @@ public class Rap2UploadAction extends AbstractAction {
         // 账户模式获取token
         Rap2Settings settings = Rap2Settings.getInstance();
         if (!settings.isValidate()) {
-            Rap2ConfigurationDialog.show(project);
+            Rap2SettingsDialog.show(project);
             settings = Rap2Settings.getInstance();
             if (!settings.isValidate()) {
                 return false;

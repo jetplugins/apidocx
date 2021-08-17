@@ -9,9 +9,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Rap2应用级别配置界面.
  */
-public class Rap2ConfigurationSettings implements Configurable {
+public class Rap2SettingsConfiguration implements Configurable {
 
-    private Rap2ConfigurationForm form;
+    private Rap2SettingsForm form;
 
     @Nls(capitalization = Capitalization.Title)
     @Override
@@ -23,7 +23,7 @@ public class Rap2ConfigurationSettings implements Configurable {
     @Override
     public JComponent createComponent() {
         if (form == null) {
-            form = new Rap2ConfigurationForm();
+            form = new Rap2SettingsForm();
         }
         return form.getPanel();
     }

@@ -139,7 +139,7 @@ public abstract class AbstractClient implements Closeable {
     public static class HttpSession {
 
         private String cookies;
-        private long cookiesTtl;
+        private Long cookiesTtl;
 
         public HttpSession() {
         }
@@ -150,7 +150,7 @@ public abstract class AbstractClient implements Closeable {
         }
 
         public boolean isValid() {
-            return StringUtils.isNotEmpty(cookies) && cookiesTtl > System.currentTimeMillis();
+            return StringUtils.isNotEmpty(cookies) && cookiesTtl != null && cookiesTtl > System.currentTimeMillis();
         }
 
         //-------------------generated-----------------//

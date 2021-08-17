@@ -5,6 +5,9 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import io.yapix.base.sdk.yapi.YapiClient;
+import io.yapix.base.sdk.yapi.response.YapiTestResult;
+import io.yapix.base.sdk.yapi.response.YapiTestValue;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +65,21 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
     }
 
+    public YapiTestResult testSettings() {
+        YapiSettings settings = this;
+        // 测试账户
+        try (YapiClient yapiClient = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                settings.getCookies(), settings.getCookiesTtl())) {
+            YapiTestResult testResult = yapiClient.test();
+            YapiTestValue code = testResult.getCode();
+            if (code == YapiTestValue.OK) {
+                settings.setCookies(yapiClient.getAuthCookies().getCookies());
+                settings.setCookiesTtl(yapiClient.getAuthCookies().getTtl());
+            }
+            return testResult;
+        }
+    }
+
     //----------------------generated----------------------//
 
     public String getUrl() {
@@ -100,7 +118,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         return cookiesTtl;
     }
 
-    public void setCookiesTtl(long cookiesTtl) {
+    public void setCookiesTtl(Long cookiesTtl) {
         this.cookiesTtl = cookiesTtl;
     }
 
