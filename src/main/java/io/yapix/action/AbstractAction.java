@@ -1,6 +1,6 @@
 package io.yapix.action;
 
-import static io.yapix.base.NotificationUtils.notifyError;
+import static io.yapix.base.util.NotificationUtils.notifyError;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -15,10 +15,9 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.YapiConfig;
 import io.yapix.config.YapiConfigUtils;
 import io.yapix.model.Api;
@@ -26,9 +25,7 @@ import io.yapix.parse.ApiParseSettings;
 import io.yapix.parse.ApiParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -55,13 +52,7 @@ public abstract class AbstractAction extends AnAction {
         if (project == null || psiFiles == null) {
             return;
         }
-
-        PsiManager psiManager = PsiManager.getInstance(project);
-        List<PsiJavaFile> psiJavaFiles = Arrays.stream(psiFiles)
-                .map(psiManager::findFile)
-                .filter(f -> f instanceof PsiJavaFile)
-                .map(f -> (PsiJavaFile) f)
-                .collect(Collectors.toList());
+        List<PsiJavaFile> psiJavaFiles = PsiFileUtils.getPsiJavaFiles(project, psiFiles);
         if (psiJavaFiles.size() == 0) {
             return;
         }
@@ -94,7 +85,7 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
 
-        List<PsiClass> psiClasses = null;
+        List<PsiClass> psiClasses;
         PsiMethod selectMethod = null;
 
         Editor editor = event.getDataContext().getData(CommonDataKeys.EDITOR);
@@ -105,9 +96,8 @@ public abstract class AbstractAction extends AnAction {
             psiClasses = Lists.newArrayList(selectClass);
             selectMethod = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
         } else {
-            psiClasses = resolvePsiClassByFile(psiJavaFiles);
+            psiClasses = PsiFileUtils.getPsiClassByFile(psiJavaFiles);
         }
-
         List<Api> apis = parse(config, psiClasses, selectMethod);
         handle(event, config, apis);
     }
@@ -126,17 +116,6 @@ public abstract class AbstractAction extends AnAction {
             }
         }
         return apis;
-    }
-
-    private List<PsiClass> resolvePsiClassByFile(List<PsiJavaFile> psiJavaFiles) {
-        List<PsiClass> psiClassList = Lists.newArrayListWithCapacity(psiJavaFiles.size());
-        for (PsiJavaFile psiJavaFile : psiJavaFiles) {
-            Arrays.stream(psiJavaFile.getClasses())
-                    .filter(o -> o.getModifierList() != null && o.getModifierList()
-                            .hasModifierProperty(PsiModifier.PUBLIC))
-                    .findFirst().ifPresent(psiClassList::add);
-        }
-        return psiClassList;
     }
 
 

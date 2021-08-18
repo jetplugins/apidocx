@@ -1,7 +1,7 @@
 package io.yapix.rap2;
 
-import static io.yapix.base.NotificationUtils.notifyError;
-import static io.yapix.base.NotificationUtils.notifyInfo;
+import static io.yapix.base.util.NotificationUtils.notifyError;
+import static io.yapix.base.util.NotificationUtils.notifyInfo;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;

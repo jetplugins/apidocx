@@ -32,7 +32,6 @@ public class YapiUploader {
 
     public YapiInterface upload(Integer projectId, Api api) {
         YapiInterface data = YapiDataConvector.convert(projectId, api);
-
         Integer categoryId = getCatIdOrCreate(data.getProjectId(), data.getMenu());
         data.setCatid(String.valueOf(categoryId));
         addOrUpdate(data);
@@ -44,49 +43,48 @@ public class YapiUploader {
      * 获取或者创建分类
      */
     public Integer getCatIdOrCreate(Integer projectId, String menu) {
-        Integer catId = menuCatIdCache.get(menu);
-        if (catId != null) {
-            return catId;
-        }
-        try {
-            List<YapiCategory> list = client.getCategories(projectId);
-            String[] menus = menu.split("/");
-            // 循环多级菜单，判断是否存在，如果不存在就创建
-            //  解决多级菜单创建问题
-            Integer parent_id = -1;
-            Integer now_id = null;
-            for (int i = 0; i < menus.length; i++) {
-                if (Strings.isNullOrEmpty(menus[i])) {
-                    continue;
-                }
-                boolean needAdd = true;
-                now_id = null;
-                for (YapiCategory yapiCategory : list) {
-                    if (yapiCategory.getName().equals(menus[i])) {
-                        needAdd = false;
-                        now_id = yapiCategory.getId();
-                        break;
+        return menuCatIdCache.computeIfAbsent(menu, key -> {
+            Integer catId = menuCatIdCache.get(menu);
+            if (catId != null) {
+                return catId;
+            }
+            try {
+                List<YapiCategory> list = client.getCategories(projectId);
+                String[] menus = menu.split("/");
+                // 循环多级菜单，判断是否存在，如果不存在就创建
+                //  解决多级菜单创建问题
+                Integer parent_id = -1;
+                Integer now_id = null;
+                for (int i = 0; i < menus.length; i++) {
+                    if (Strings.isNullOrEmpty(menus[i])) {
+                        continue;
+                    }
+                    boolean needAdd = true;
+                    now_id = null;
+                    for (YapiCategory yapiCategory : list) {
+                        if (yapiCategory.getName().equals(menus[i])) {
+                            needAdd = false;
+                            now_id = yapiCategory.getId();
+                            break;
+                        }
+                    }
+                    if (needAdd) {
+                        now_id = this.addCategory(projectId, parent_id, menus[i]);
+                    }
+                    if (i == (menus.length - 1)) {
+                        catId = now_id;
+                    } else {
+                        parent_id = now_id;
                     }
                 }
-                if (needAdd) {
-                    now_id = this.addCategory(projectId, parent_id, menus[i]);
-                }
-                if (i == (menus.length - 1)) {
-                    catId = now_id;
-                } else {
-                    parent_id = now_id;
-                }
+            } catch (YapiException e) {
+                //出现这种情况可能是yapi 版本不支持
             }
-        } catch (YapiException e) {
-            //出现这种情况可能是yapi 版本不支持
-        }
-        if (catId == null) {
-            catId = addCategory(projectId, -1, menu);
-        }
-        if (catId != null) {
-            menuCatIdCache.put(menu, catId);
-        }
-        return catId;
+            if (catId == null) {
+                catId = addCategory(projectId, -1, menu);
+            }
+            return catId;
+        });
     }
 
     /**
