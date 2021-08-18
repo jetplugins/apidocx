@@ -175,6 +175,10 @@ public class YapiClient extends AbstractClient {
     String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
         HttpEntity resEntity = response.getEntity();
         String content = EntityUtils.toString(resEntity, StandardCharsets.UTF_8);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode < 200 || statusCode > 299) {
+            throw new YapiException(request.getURI().getPath(), content, null);
+        }
         YapiResponse yapiResponse = gson.fromJson(content, YapiResponse.class);
         if (!yapiResponse.isOk()) {
             throw new YapiException(request.getURI().getPath(), yapiResponse.getErrcode(),

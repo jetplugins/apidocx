@@ -28,14 +28,13 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="UploadToRap2"
-            description="UploadToRap2">
+        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="UploadToRap2" description="UploadToRap2">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="UploadToYapi"
-            description="UploadToYapi">
+        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="UploadToYapi" description="UploadToYapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
     </actions>
 
