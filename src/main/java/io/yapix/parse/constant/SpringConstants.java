@@ -32,4 +32,8 @@ public interface SpringConstants {
 
     String JsonProperty = "com.fasterxml.jackson.annotation.JsonProperty";
 
+    String Mono = "reactor.core.publisher.Mono";
+
+    String Flux = "reactor.core.publisher.Flux";
+
 }

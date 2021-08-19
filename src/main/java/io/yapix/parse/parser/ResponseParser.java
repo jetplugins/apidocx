@@ -8,9 +8,12 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.model.Item;
 import io.yapix.parse.ApiParseSettings;
+import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -34,11 +37,19 @@ public class ResponseParser {
         PsiType type = returnType;
         String typeText = returnType.getCanonicalText();
 
-        // 包装类处理
-        PsiClass returnClass = getWrapperPsiClass(method);
-        if (returnClass != null) {
-            type = PsiTypesUtil.getClassType(returnClass);
-            typeText = type.getCanonicalText() + "<" + returnType.getCanonicalText() + ">";
+        String unwrappedType = getUnwrapType(returnType);
+        if (unwrappedType != null) {
+            String[] types = splitTypeAndGenericPair(unwrappedType);
+            PsiClass psiClass = PsiUtils.findPsiClass(method.getProject(), types[0]);
+            type = PsiTypesUtil.getClassType(psiClass);
+            typeText = unwrappedType;
+        } else {
+            // 包装类处理
+            PsiClass returnClass = getWrapperPsiClass(method);
+            if (returnClass != null) {
+                type = PsiTypesUtil.getClassType(returnClass);
+                typeText = type.getCanonicalText() + "<" + returnType.getCanonicalText() + ">";
+            }
         }
 
         // 解析
@@ -47,6 +58,16 @@ public class ResponseParser {
             item.setDescription(returnType.getCanonicalText());
         }
         return item;
+    }
+
+    private String getUnwrapType(PsiType type) {
+        String[] unwrapTypes = {SpringConstants.Flux, SpringConstants.Mono};
+        String[] types = splitTypeAndGenericPair(type.getCanonicalText());
+        Optional<String> unwrapOpt = Arrays.stream(unwrapTypes).filter(t -> t.equals(types[0])).findAny();
+        if (unwrapOpt.isPresent()) {
+            return types[1];
+        }
+        return null;
     }
 
     /**
