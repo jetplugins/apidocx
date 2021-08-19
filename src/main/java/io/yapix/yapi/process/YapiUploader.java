@@ -112,7 +112,7 @@ public class YapiUploader {
         for (InterfaceVo interfaceVo : apis) {
             if (api.getPath().equals(interfaceVo.getPath()) && api.getMethod()
                     .equals(interfaceVo.getMethod())) {
-                api.setId(String.valueOf(interfaceVo.getId()));
+                api.setId(interfaceVo.getId());
                 return YapiInterfaceStatus.done.name().equals(interfaceVo.getStatus());
             }
         }

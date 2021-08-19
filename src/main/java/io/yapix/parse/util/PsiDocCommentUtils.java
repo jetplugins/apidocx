@@ -48,7 +48,11 @@ public class PsiDocCommentUtils {
         if (comment != null) {
             PsiDocTag tag = comment.findTagByName(tagName);
             if (tag != null && tag.getValueElement() != null) {
-                text = tag.getValueElement().getText().trim();
+                StringBuilder sb = new StringBuilder();
+                for (PsiElement e : tag.getDataElements()) {
+                    sb.append(e.getText().trim());
+                }
+                text = sb.toString();
             }
         }
         return text;

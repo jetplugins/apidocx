@@ -83,7 +83,9 @@ public class YapiUploadAction extends AbstractAction {
                                 indicator.setText(text);
                                 return uploader.upload(projectId, api);
                             } catch (Exception e) {
-                                notifyError("Yapi Upload failed", ExceptionUtils.getStackTrace(e));
+                                notifyError(
+                                        String.format("Yapi Upload failed: [%s %s]", api.getMethod(), api.getPath()),
+                                        ExceptionUtils.getStackTrace(e));
                             } finally {
                                 indicator.setFraction(fraction.addAndGet(step));
                                 semaphore.release();
@@ -98,9 +100,9 @@ public class YapiUploadAction extends AbstractAction {
                 } finally {
                     if (interfaces != null && interfaces.size() > 0) {
                         YapiInterface yapi = interfaces.get(0);
-                        String url = interfaces.size() > 1 ?
-                                client.calculateCatUrl(yapi.getProjectId(), yapi.getCatid())
-                                : client.calculateInterfaceUrl(yapi.getProjectId(), yapi.getId());
+                        String url = interfaces.size() == 1 && yapi.getId() != null ?
+                                client.calculateInterfaceUrl(yapi.getProjectId(), yapi.getId())
+                                : client.calculateCatUrl(yapi.getProjectId(), yapi.getCatid());
                         notifyInfo("Yapi Upload successful", format("<a href=\"%s\">%s</a>", url, url));
                     }
                     client.close();

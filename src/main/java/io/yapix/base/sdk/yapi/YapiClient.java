@@ -3,6 +3,7 @@ package io.yapix.base.sdk.yapi;
 import static java.lang.String.format;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.yapix.base.sdk.yapi.model.AuthCookies;
@@ -111,7 +112,12 @@ public class YapiClient extends AbstractClient {
      * 新增分类
      */
     public void saveInterface(YapiInterface request) {
-        requestPost(YapiConstants.yapiSave, request);
+        String data = requestPost(YapiConstants.yapiSave, request);
+        JsonArray dataArray = gson.fromJson(data, JsonArray.class);
+        if (dataArray != null && dataArray.size() > 0) {
+            int apiId = dataArray.get(0).getAsJsonObject().get("_id").getAsInt();
+            request.setId(apiId);
+        }
     }
 
     /**
@@ -134,8 +140,8 @@ public class YapiClient extends AbstractClient {
     /**
      * 计算接口访问地址
      */
-    public String calculateInterfaceUrl(Integer projectId, String id) {
-        return format("%s/project/%d/interface/api/%s", url, projectId, id);
+    public String calculateInterfaceUrl(Integer projectId, Integer id) {
+        return format("%s/project/%d/interface/api/%d", url, projectId, id);
     }
 
     /**

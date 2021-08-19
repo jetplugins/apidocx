@@ -101,6 +101,8 @@ public class RequestParser {
                 .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
             Item item = KernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
+            item.setName(p.getName());
+            item.setRequired(true);
             items.add(item);
         }
         // 合并查询参数到表单
@@ -160,7 +162,7 @@ public class RequestParser {
         }
 
         // 字段名称
-        boolean required = false;
+        Boolean required = null;
         String name = null;
         if (annotation != null) {
             name = AnnotationUtil.getStringAttributeValue(annotation, "name");
@@ -172,10 +174,13 @@ public class RequestParser {
         if (StringUtils.isEmpty(name)) {
             name = parameter.getName();
         }
+        if (required == null) {
+            required = ParseHelper.getAnnotationRequired(parameter);
+        }
 
         item.setIn(in);
         item.setName(name);
-        item.setRequired(required);
+        item.setRequired(required != null ? required : false);
         return item;
     }
 

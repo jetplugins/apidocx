@@ -35,86 +35,56 @@ public class YapiDataConvector {
         if (api.getDeprecated()) {
             yapi.setStatus(YapiInterfaceStatus.deprecated.name());
         }
-        yapi.setReqHeaders(resolveReqHeaders(api));
-        yapi.setReqQuery(resolveReqQuery(api));
-        yapi.setReqBodyType(api.getRequestBodyType() != null ? api.getRequestBodyType().name() : null);
+        yapi.setReqHeaders(resolveParameter(api, ParameterIn.header));
+        yapi.setReqQuery(resolveParameter(api, ParameterIn.query));
+        yapi.setReqBodyType(resolveReqBodyType(api));
         yapi.setReqBodyForm(resolveReqBodyForm(api));
         yapi.setReqBodyOther(resolveReqBody(api));
         yapi.setReqBodyIsJsonSchema(api.getRequestBodyType() == RequestBodyType.json);
-        yapi.setReqParams(resolveReqParams(api));
+        yapi.setReqParams(resolveParameter(api, ParameterIn.path));
         yapi.setResBody(resolveResBody(api));
         return yapi;
     }
 
+    private static String resolveReqBodyType(Api api) {
+        RequestBodyType type = api.getRequestBodyType();
+        if (type == RequestBodyType.form_data) {
+            type = RequestBodyType.form;
+        }
+        return type != null ? type.name() : null;
+    }
+
     /**
      * 解析请求参数
      */
-    private static List<YapiParameter> resolveReqQuery(Api api) {
+    private static List<YapiParameter> resolveParameter(Api api, ParameterIn in) {
         if (api.getParameters() == null) {
             return Collections.emptyList();
         }
 
         List<Item> parameters = api.getParameters().stream()
-                .filter(p -> ParameterIn.query == p.getIn()).collect(Collectors.toList());
-        return parameters.stream().map(p -> {
+                .filter(p -> p.getIn() == in).collect(Collectors.toList());
+        List<YapiParameter> data = parameters.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
             parameter.setName(p.getName());
+            parameter.setType(p.getType());
             parameter.setDesc(p.getDescription());
             parameter.setExample(p.getExample());
             parameter.setRequired(p.isRequired() ? "1" : "0");
-            return parameter;
-        }).collect(Collectors.toList());
-    }
-
-
-    /**
-     * 解析请求参数
-     */
-    private static List<YapiParameter> resolveReqHeaders(Api api) {
-        if (api.getParameters() == null) {
-            return Collections.emptyList();
-        }
-
-        List<Item> parameters = api.getParameters().stream()
-                .filter(p -> ParameterIn.header == p.getIn()).collect(Collectors.toList());
-        List<YapiParameter> headers = parameters.stream().map(p -> {
-            YapiParameter parameter = new YapiParameter();
-            parameter.setName(p.getName());
-            parameter.setDesc(p.getDescription());
-            parameter.setExample(p.getExample());
             parameter.setValue(p.getDefaultValue());
             return parameter;
         }).collect(Collectors.toList());
 
         // 请求头
-        if (api.getRequestBodyType() != null) {
+        if (in == ParameterIn.header && api.getRequestBodyType() != null) {
             YapiParameter contentType = new YapiParameter();
             contentType.setName("Content-Type");
             contentType.setValue(api.getRequestBodyType().getContentType());
-            headers.add(contentType);
+            data.add(contentType);
         }
-        return headers;
+        return data;
     }
 
-    /**
-     * 解析路径参数
-     */
-    private static List<YapiParameter> resolveReqParams(Api api) {
-        if (api.getParameters() == null) {
-            return Collections.emptyList();
-        }
-
-        List<Item> parameters = api.getParameters().stream()
-                .filter(p -> ParameterIn.path == p.getIn()).collect(Collectors.toList());
-        return parameters.stream().map(p -> {
-            YapiParameter parameter = new YapiParameter();
-            parameter.setName(p.getName());
-            parameter.setDesc(p.getDescription());
-            parameter.setExample(p.getExample());
-            parameter.setRequired("1");
-            return parameter;
-        }).collect(Collectors.toList());
-    }
 
     /**
      * 解析请求体表单
@@ -127,9 +97,11 @@ public class YapiDataConvector {
         return items.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
             parameter.setName(p.getName());
+            parameter.setType(p.getType());
             parameter.setDesc(p.getDescription());
             parameter.setRequired(p.isRequired() ? "1" : "0");
             parameter.setExample(p.getExample());
+            parameter.setDesc(p.getDescription());
             return parameter;
         }).collect(Collectors.toList());
     }

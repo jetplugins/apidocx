@@ -9,6 +9,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiJvmModifiersOwner;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.javadoc.PsiDocComment;
@@ -162,6 +163,14 @@ public class ParseHelper {
      * 字段是否必填
      */
     public static boolean getFiledRequired(PsiField field) {
+        Boolean required = getAnnotationRequired(field);
+        return required == null ? false : required;
+    }
+
+    /**
+     * 字段是否必填
+     */
+    public static Boolean getAnnotationRequired(PsiJvmModifiersOwner field) {
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty};
         for (String annotation : annotations) {
             PsiAnnotation target = field.getAnnotation(annotation);
@@ -169,8 +178,12 @@ public class ParseHelper {
                 return true;
             }
         }
-        return false;
+        return null;
     }
+
+    /**
+     * 获取字段描述
+     */
 
     /**
      * 获取字段描述

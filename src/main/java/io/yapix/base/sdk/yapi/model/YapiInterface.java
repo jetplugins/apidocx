@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class YapiInterface implements Serializable {
 
-    private String id;
+    private Integer id;
 
     /**
      项目id
@@ -143,11 +143,11 @@ public class YapiInterface implements Serializable {
     private String desc;
 
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
