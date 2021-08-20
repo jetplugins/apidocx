@@ -1,6 +1,6 @@
 package io.yapix.base.sdk.rap2.request;
 
-public class CreateModuleRequest {
+public class ModuleCreateRequest {
 
     private Long repositoryId;
 

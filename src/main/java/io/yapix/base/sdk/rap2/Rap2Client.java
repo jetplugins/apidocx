@@ -13,11 +13,13 @@ import io.yapix.base.sdk.rap2.model.Rap2Module;
 import io.yapix.base.sdk.rap2.model.Rap2Repository;
 import io.yapix.base.sdk.rap2.model.Rap2User;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
-import io.yapix.base.sdk.rap2.request.CreateModuleRequest;
+import io.yapix.base.sdk.rap2.request.InterfaceCreateResponse;
+import io.yapix.base.sdk.rap2.request.InterfacePropertiesUpdateRequest;
+import io.yapix.base.sdk.rap2.request.InterfaceUpdateRequest;
 import io.yapix.base.sdk.rap2.request.LoginRequest;
+import io.yapix.base.sdk.rap2.request.ModuleCreateRequest;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
-import io.yapix.base.sdk.rap2.request.UpdatePropertiesRequest;
 import io.yapix.base.sdk.rap2.util.SvgUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -163,7 +165,7 @@ public class Rap2Client extends AbstractClient {
     /**
      * 新增分类
      */
-    public Rap2Module createModule(CreateModuleRequest request) {
+    public Rap2Module createModule(ModuleCreateRequest request) {
         checkArgument(request.getRepositoryId() != null, "repositoryId can't be null");
         checkArgument(StringUtils.isNotEmpty(request.getName()), "name must not be empty");
 
@@ -195,16 +197,15 @@ public class Rap2Client extends AbstractClient {
         checkArgument(request.getModuleId() != null, "moduleId can't be null");
 
         String data = requestPost(Rap2Constants.CreateInterfacePath, request);
-        return gson.fromJson(data, Rap2Interface.class);
+        InterfaceCreateResponse response = gson.fromJson(data, InterfaceCreateResponse.class);
+        return response.getItf();
     }
 
     /**
      * 更新接口
      */
-    public Rap2InterfaceBase updateInterface(Rap2InterfaceBase request) {
+    public Rap2InterfaceBase updateInterface(InterfaceUpdateRequest request) {
         checkArgument(request.getId() != null, "id can't be null");
-        checkArgument(request.getRepositoryId() != null, "repositoryId can't be null");
-        checkArgument(request.getModuleId() != null, "moduleId can't be null");
 
         String data = requestPost(Rap2Constants.UpdateInterfacePath, request);
         return gson.fromJson(data, Rap2Interface.class);
@@ -213,10 +214,10 @@ public class Rap2Client extends AbstractClient {
     /**
      * 更新接口
      */
-    public Rap2InterfaceBase updateInterfaceProperties(UpdatePropertiesRequest request) {
+    public Rap2InterfaceBase updateInterfaceProperties(InterfacePropertiesUpdateRequest request) {
         checkArgument(request.getInterfaceId() != null, "interfaceId can't be null");
-
-        String data = requestPost(Rap2Constants.UpdateInterfacePropertiesPath, request);
+        String path = Rap2Constants.UpdateInterfacePropertiesPath + "?itf=" + request.getInterfaceId();
+        String data = requestPost(path, request);
         return gson.fromJson(data, Rap2Interface.class);
     }
 

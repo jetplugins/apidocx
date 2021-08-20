@@ -3,7 +3,7 @@ package io.yapix.base.sdk.rap2.request;
 import io.yapix.base.sdk.rap2.model.Rap2Property;
 import java.util.List;
 
-public class UpdatePropertiesRequest {
+public class InterfacePropertiesUpdateRequest {
 
     private Long interfaceId;
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Rap2Property {
 
-    private Long id;
+    private String id;
 
     private String scope;
     private String type;
@@ -15,7 +15,7 @@ public class Rap2Property {
     private String rule;
     private String value;
     private String description;
-    private Long parentId;
+    private String parentId;
     private Long priority;
     private Long interfaceId;
     private Long creatorId;
@@ -23,16 +23,17 @@ public class Rap2Property {
     private Long repositoryId;
     private Boolean required;
     private Integer depth;
-    private List<String> children;
+    private Boolean memory;
+    private List<Rap2Property> children;
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -92,11 +93,11 @@ public class Rap2Property {
         this.description = description;
     }
 
-    public Long getParentId() {
+    public String getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(String parentId) {
         this.parentId = parentId;
     }
 
@@ -156,11 +157,11 @@ public class Rap2Property {
         this.depth = depth;
     }
 
-    public List<String> getChildren() {
+    public List<Rap2Property> getChildren() {
         return children;
     }
 
-    public void setChildren(List<String> children) {
+    public void setChildren(List<Rap2Property> children) {
         this.children = children;
     }
 
@@ -186,5 +187,13 @@ public class Rap2Property {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public Boolean getMemory() {
+        return memory;
+    }
+
+    public void setMemory(Boolean memory) {
+        this.memory = memory;
     }
 }

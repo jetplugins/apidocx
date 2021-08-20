@@ -12,7 +12,7 @@ public class Rap2WebUrlCalculator {
      * 计算仓库编辑地址
      */
     public String calculateEditorUrl(long repositoryId, Long moduleId, Long interfaceId) {
-        StringBuilder sb = new StringBuilder(url).append("?id=").append(repositoryId);
+        StringBuilder sb = new StringBuilder(url).append("/repository/editor?id=").append(repositoryId);
         if (moduleId != null) {
             sb.append("&mod=").append(moduleId);
         }
