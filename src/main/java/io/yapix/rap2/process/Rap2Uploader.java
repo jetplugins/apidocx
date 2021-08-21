@@ -1,5 +1,7 @@
 package io.yapix.rap2.process;
 
+import static java.util.Objects.nonNull;
+
 import io.yapix.base.sdk.rap2.Rap2Client;
 import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.model.Rap2InterfaceBase;
@@ -11,6 +13,7 @@ import io.yapix.base.sdk.rap2.request.InterfacePropertiesUpdateRequest.Summary;
 import io.yapix.base.sdk.rap2.request.InterfaceUpdateRequest;
 import io.yapix.base.sdk.rap2.request.ModuleCreateRequest;
 import io.yapix.model.Api;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,6 +23,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Yapi上传
+ *
+ * @see #upload(long, Api)
  */
 public class Rap2Uploader {
 
@@ -42,7 +47,7 @@ public class Rap2Uploader {
         // 接口基本信息
         Rap2InterfaceBase originRapApi = findInterface(module, rapApi);
         if (originRapApi != null) {
-            InterfaceUpdateRequest request = doResolveUpdateInterfaceRequest(rapApi, originRapApi);
+            InterfaceUpdateRequest request = doConvertUpdateInterfaceRequest(rapApi, originRapApi);
             client.updateInterface(request);
         } else {
             originRapApi = client.createInterface(rapApi);
@@ -52,14 +57,18 @@ public class Rap2Uploader {
         rapApi.setRepositoryId(originRapApi.getRepositoryId());
 
         // 接口参数信息
-        if (CollectionUtils.isNotEmpty(rapApi.getProperties())) {
-            setProperties(rapApi, rapApi.getProperties());
-            InterfacePropertiesUpdateRequest propertiesRequest = new InterfacePropertiesUpdateRequest();
-            propertiesRequest.setInterfaceId(rapApi.getId());
-            propertiesRequest.setProperties(rapApi.getProperties());
-            propertiesRequest.setSummary(new Summary(rapApi.getBodyOption(), 0));
-            client.updateInterfaceProperties(propertiesRequest);
-        }
+        List<Rap2Property> properties =
+                nonNull(rapApi.getProperties()) ? rapApi.getProperties() : Collections.emptyList();
+        properties.forEach(p -> {
+            p.setInterfaceId(rapApi.getId());
+            p.setModuleId(rapApi.getModuleId());
+            p.setRepositoryId(rapApi.getRepositoryId());
+        });
+        InterfacePropertiesUpdateRequest propertiesRequest = new InterfacePropertiesUpdateRequest();
+        propertiesRequest.setInterfaceId(rapApi.getId());
+        propertiesRequest.setProperties(properties);
+        propertiesRequest.setSummary(new Summary(rapApi.getBodyOption(), 0));
+        client.updateInterfaceProperties(propertiesRequest);
         return rapApi;
     }
 
@@ -97,6 +106,7 @@ public class Rap2Uploader {
             return interfaceOpt.get();
         }
 
+        // 比较条件: 路径，请求方式
         interfaceOpt = module.getInterfaces().stream()
                 .filter(item -> Objects.equals(item.getUrl(), rapApi.getUrl())
                         && Objects.equals(item.getMethod(), rapApi.getMethod()))
@@ -105,17 +115,14 @@ public class Rap2Uploader {
             return interfaceOpt.get();
         }
 
+        // 比较条件: 标题
         interfaceOpt = module.getInterfaces().stream()
                 .filter(item -> Objects.equals(item.getName(), rapApi.getName()))
                 .findFirst();
-        if (interfaceOpt.isPresent()) {
-            return interfaceOpt.get();
-        }
-
-        return null;
+        return interfaceOpt.orElse(null);
     }
 
-    private InterfaceUpdateRequest doResolveUpdateInterfaceRequest(Rap2Interface rapApi,
+    private InterfaceUpdateRequest doConvertUpdateInterfaceRequest(Rap2Interface rapApi,
             Rap2InterfaceBase originRapApi) {
         InterfaceUpdateRequest request = new InterfaceUpdateRequest();
         request.setId(originRapApi.getId());
@@ -125,17 +132,6 @@ public class Rap2Uploader {
         request.setUrl(rapApi.getUrl());
         request.setStatus(rapApi.getStatus());
         return request;
-    }
-
-    private void setProperties(Rap2Interface rapApi, List<Rap2Property> properties) {
-        if (properties == null) {
-            return;
-        }
-        properties.forEach(p -> {
-            p.setInterfaceId(rapApi.getId());
-            p.setModuleId(rapApi.getModuleId());
-            p.setRepositoryId(rapApi.getRepositoryId());
-        });
     }
 
 }

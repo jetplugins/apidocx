@@ -11,11 +11,13 @@ import io.yapix.model.DataTypes;
 import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.RequestBodyType;
+import io.yapix.parse.util.PropertiesLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
  * Rap2数据转换
  */
 public class Rap2DataConvector {
+
+    private static final String PROPERTIES_FILE = "rap2types.properties";
 
     public static Rap2Interface convert(Integer projectId, Api api) {
         Rap2Interface rapApi = new Rap2Interface();
@@ -49,14 +53,15 @@ public class Rap2DataConvector {
         properties.addAll(responseProperties);
         for (int i = 0; i < properties.size(); i++) {
             properties.get(i).setPriority(i + 1L);
-            properties.get(i).setMemory(true);
         }
         rapApi.setProperties(properties);
-
         return rapApi;
     }
 
-    public static String getBodyOption(Api api) {
+    /**
+     * 获取请求体类型
+     */
+    private static String getBodyOption(Api api) {
         RequestBodyType type = api.getRequestBodyType();
         if (type == null) {
             return null;
@@ -71,24 +76,38 @@ public class Rap2DataConvector {
     }
 
     /**
-     * 解析响应参数
+     * 获取响应参数
      */
     private static List<Rap2Property> getResponseProperties(Integer repositoryId, Api api) {
         Item item = api.getResponses();
         if (item == null) {
             return Lists.newArrayList();
         }
-        Rap2Property property = doResolveBeanProperties(item, repositoryId, PropertyScope.response, PropertyPos.QUERY);
-        if (StringUtils.isEmpty(property.getName())) {
-            property.setName("root");
-        }
+        List<Rap2Property> properties = doResolveBeanPropertiesUnwrapRoot(item, repositoryId, PropertyScope.response,
+                PropertyPos.QUERY);
         List<Rap2Property> container = Lists.newArrayList();
-        flatRap2Property(container, property);
+        for (Rap2Property property : properties) {
+            flatRap2Property(container, property);
+        }
         return container;
     }
 
+    private static List<Rap2Property> doResolveBeanPropertiesUnwrapRoot(Item item, long repositoryId,
+            PropertyScope scope, long propertyPos) {
+        List<Rap2Property> data = Lists.newArrayList();
+        // 解除顶层root
+        if (DataTypes.OBJECT.equals(item.getType()) && item.getProperties() != null) {
+            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+                Rap2Property property = doResolveBeanProperties(entry.getValue(), repositoryId, scope, propertyPos);
+                property.setName(entry.getKey());
+                data.add(property);
+            }
+        }
+        return data;
+    }
+
     /**
-     * 解析请求参数
+     * 获取请求参数
      */
     private static List<Rap2Property> getRequestProperties(long repositoryId, Api api) {
         if (api.getParameters() == null) {
@@ -105,10 +124,20 @@ public class Rap2DataConvector {
         properties.addAll(properties2);
         // 请求体json
         if (api.getRequestBodyType() == RequestBodyType.json) {
-            List<Rap2Property> properties3 = resolveRequestBodyProperties(api.getRequestBody(), repositoryId);
+            List<Rap2Property> properties3 = doResolveRequestBodyProperties(api.getRequestBody(), repositoryId);
             properties.addAll(properties3);
         }
         return properties;
+    }
+
+    private static List<Rap2Property> doResolveRequestBodyProperties(Item item, long repositoryId) {
+        Rap2Property property = doResolveBeanProperties(item, repositoryId, PropertyScope.request, PropertyPos.BODY);
+        if (StringUtils.isEmpty(property.getName())) {
+            property.setName("root");
+        }
+        List<Rap2Property> container = Lists.newArrayList();
+        flatRap2Property(container, property);
+        return container;
     }
 
     private static List<Rap2Property> doGetRequestParameterProperties(List<Item> items, Long repositoryId,
@@ -121,30 +150,12 @@ public class Rap2DataConvector {
         posMap.put(ParameterIn.header, PropertyPos.HEADER);
         posMap.put(ParameterIn.query, PropertyPos.QUERY);
         return items.stream().map(p -> {
-            Rap2Property property = new Rap2Property();
+            Rap2Property property = copyToRap2Property(p, scope);
             property.setRepositoryId(repositoryId);
-            property.setScope(scope.name());
-            property.setName(p.getName());
-            property.setType(p.getType());
-            property.setDescription(p.getDescription());
-            property.setRequired(p.isRequired());
-            property.setValue(p.getDefaultValue());
-            property.setDepth(1);
-            property.setParentId("-1");
-            property.setChildren(Collections.emptyList());
             property.setPos(posMap.getOrDefault(p.getIn(), defaultPos));
+            property.setChildren(Collections.emptyList());
             return property;
         }).collect(Collectors.toList());
-    }
-
-    private static List<Rap2Property> resolveRequestBodyProperties(Item item, long repositoryId) {
-        Rap2Property property = doResolveBeanProperties(item, repositoryId, PropertyScope.request, PropertyPos.BODY);
-        if (StringUtils.isEmpty(property.getName())) {
-            property.setName("root");
-        }
-        List<Rap2Property> container = Lists.newArrayList();
-        flatRap2Property(container, property);
-        return container;
     }
 
     /**
@@ -152,21 +163,30 @@ public class Rap2DataConvector {
      */
     private static Rap2Property doResolveBeanProperties(Item item, long repositoryId, PropertyScope scope,
             long propertyPos) {
-        Rap2Property property = new Rap2Property();
-        property.setId(UUID.randomUUID().toString());
+        Rap2Property property = copyToRap2Property(item, scope);
         property.setRepositoryId(repositoryId);
-        property.setScope(scope.name());
-        property.setName(item.getName());
-        property.setType(item.getType());
-        property.setDescription(item.getDescription());
-        property.setRequired(item.isRequired());
-        property.setValue(item.getDefaultValue());
-        property.setDepth(1);
-        property.setParentId("-1");
-
+        property.setPos(propertyPos);
         List<Rap2Property> children = Lists.newArrayList();
-        if (DataTypes.OBJECT.equals(item.getType()) && item.getProperties() != null) {
-            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+        property.setChildren(children);
+
+        Map<String, Item> objectProperties = null;
+        if (DataTypes.OBJECT.equals(item.getType())) {
+            objectProperties = item.getProperties();
+        } else {
+            Item arrayItem = item.getItems();
+            if (DataTypes.ARRAY.equals(item.getType()) && arrayItem != null) {
+                // 由于rap2只支持对象数组: 解对象数组
+                if (DataTypes.OBJECT.equals(arrayItem.getType())) {
+                    objectProperties = arrayItem.getProperties();
+                } else {
+                    Rap2Property propertyChild = doResolveBeanProperties(arrayItem, repositoryId, scope, propertyPos);
+                    propertyChild.setParentId(property.getId());
+                    children.add(propertyChild);
+                }
+            }
+        }
+        if (objectProperties != null) {
+            for (Entry<String, Item> entry : objectProperties.entrySet()) {
                 String key = entry.getKey();
                 Item childItem = entry.getValue();
                 Rap2Property propertyChild = doResolveBeanProperties(childItem, repositoryId, scope, propertyPos);
@@ -174,13 +194,29 @@ public class Rap2DataConvector {
                 propertyChild.setParentId(property.getId());
                 children.add(propertyChild);
             }
-        } else if (DataTypes.ARRAY.equals(item.getType()) && item.getItems() != null) {
-            Rap2Property propertyChild = doResolveBeanProperties(item.getItems(), repositoryId, scope, propertyPos);
-            propertyChild.setParentId(property.getId());
-            children.add(propertyChild);
         }
-        property.setChildren(children);
-        property.setPos(propertyPos);
+        return property;
+    }
+
+    /**
+     * 标准模型item转化为简单得Rap2Property属性
+     */
+    private static Rap2Property copyToRap2Property(Item item, PropertyScope scope) {
+        Properties types = PropertiesLoader.getProperties(PROPERTIES_FILE);
+        String type = types.getProperty(item.getType(), item.getType());
+
+        Rap2Property property = new Rap2Property();
+        property.setId(UUID.randomUUID().toString());
+        property.setScope(scope.name());
+        property.setName(item.getName());
+        property.setType(type);
+        property.setDescription(item.getDescription());
+        property.setRequired(item.isRequired());
+        property.setValue(item.getDefaultValue());
+        property.setDepth(1);
+        property.setParentId("-1");
+        property.setMemory(true);
+        property.setPriority(1L);
         return property;
     }
 
