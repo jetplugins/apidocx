@@ -151,12 +151,17 @@ public class ApiParser {
         config.setReturnWrapType(settings.getReturnWrapType());
 
         List<String> returnUnwrapTypes = Lists.newArrayList();
-        returnUnwrapTypes.addAll(settings.getReturnUnwrapTypes());
         returnUnwrapTypes.addAll(internal.getReturnUnwrapTypes());
+        if (settings.getReturnUnwrapTypes() != null) {
+            returnUnwrapTypes.addAll(settings.getReturnUnwrapTypes());
+        }
         config.setReturnUnwrapTypes(returnUnwrapTypes);
 
         List<String> parameterIgnoreTypes = Lists.newArrayList();
-        parameterIgnoreTypes.addAll(settings.getParameterIgnoreTypes());
+        if (settings.getParameterIgnoreTypes() != null) {
+            config.setReturnUnwrapTypes(returnUnwrapTypes);
+            parameterIgnoreTypes.addAll(settings.getParameterIgnoreTypes());
+        }
         parameterIgnoreTypes.addAll(internal.getParameterIgnoreTypes());
         config.setParameterIgnoreTypes(parameterIgnoreTypes);
         return config;

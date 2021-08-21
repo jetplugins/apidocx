@@ -1,16 +1,18 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.1.20210821001</version>
+    <version>0.0.1</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
-    Generate api document to any where, like yapi, rap2, eolinker, markdown etc <br>
-    一键生成接口文档, 上传到yapi, rap2, eolinker等 <br>
+        <a href="https://github.com/jetplugins/yapix">GitHub</a> |
+        <a href="https://github.com/jetplugins/yapix/issues">Issues</a><br>
+        Generate api document to any where, like yapi, rap2, eolinker, markdown etc <br>
+        一键生成接口文档, 上传到yapi, rap2, eolinker等 <br>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="145.0"/>
+    <idea-version since-build="182.5262.2"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -43,9 +45,10 @@
     <change-notes><![CDATA[
       <p>0.0.1</p>
       <ul>
-        <li>1.支持生成文档</li>
-        <li>2.支持上传到Yapi平台</li>
-        <li>2.支持上传到Rap2平台</li>
+        <li>1.一键从源代码生成api文档</li>
+        <li>2.支持外部配置文件</li>
+        <li>3.支持上传到Yapi平台</li>
+        <li>4.支持上传到Rap2平台</li>
       </ul>
       ]]></change-notes>
 

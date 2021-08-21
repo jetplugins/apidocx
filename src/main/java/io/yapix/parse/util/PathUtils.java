@@ -7,18 +7,26 @@ public class PathUtils {
      */
     public static String path(String path) {
         if (path == null || path.equals("")) {
-            return path;
+            return null;
         }
-        if (path.startsWith("/") && !path.endsWith("/")) {
-            return path;
+        if (path.startsWith("/")) {
+            return path.trim();
         }
-        return "/" + path;
+        return "/" + path.trim();
     }
 
     /**
      * 路径拼接
      */
     public static String path(String path, String subPath) {
+        path = path(path);
+        subPath = path(subPath);
+        if (path == null) {
+            return path(subPath);
+        }
+        if (subPath == null) {
+            return path;
+        }
         return path(path) + path(subPath);
     }
 

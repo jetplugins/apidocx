@@ -82,10 +82,13 @@ public abstract class AbstractAction extends AnAction {
         Editor editor = event.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile editorFile = event.getDataContext().getData(CommonDataKeys.PSI_FILE);
         if (editor != null && editorFile != null) {
+            psiClasses = Lists.newArrayList();
             PsiElement referenceAt = editorFile.findElementAt(editor.getCaretModel().getOffset());
             PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
-            psiClasses = Lists.newArrayList(selectClass);
-            selectMethod = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
+            if (selectClass != null) {
+                psiClasses.add(selectClass);
+                selectMethod = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
+            }
         } else {
             psiClasses = PsiFileUtils.getPsiClassByFile(psiJavaFiles);
         }

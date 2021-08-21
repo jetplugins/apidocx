@@ -175,7 +175,7 @@ public class RequestParser {
             name = parameter.getName();
         }
         if (required == null) {
-            required = ParseHelper.getAnnotationRequired(parameter);
+            required = ParseHelper.getParameterRequired(parameter);
         }
 
         item.setIn(in);

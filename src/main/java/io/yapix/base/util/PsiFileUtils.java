@@ -46,8 +46,9 @@ public class PsiFileUtils {
         List<PsiClass> psiClassList = Lists.newArrayListWithCapacity(psiJavaFiles.size());
         for (PsiJavaFile psiJavaFile : psiJavaFiles) {
             Arrays.stream(psiJavaFile.getClasses())
-                    .filter(o -> o.getModifierList() != null && o.getModifierList()
-                            .hasModifierProperty(PsiModifier.PUBLIC))
+                    .filter(o -> !o.isInterface()
+                            && o.getModifierList() != null
+                            && o.getModifierList().hasModifierProperty(PsiModifier.PUBLIC))
                     .findFirst().ifPresent(psiClassList::add);
         }
         return psiClassList;

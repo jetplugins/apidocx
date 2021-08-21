@@ -32,9 +32,7 @@ public class YapiDataConvector {
         yapi.setMethod(api.getMethod().name());
         yapi.setDesc(api.getDescription());
         yapi.setMenu(api.getCategory());
-        if (api.getDeprecated()) {
-            yapi.setStatus(YapiInterfaceStatus.deprecated.name());
-        }
+        yapi.setStatus(YapiInterfaceStatus.undone.name());
         yapi.setReqHeaders(resolveParameter(api, ParameterIn.header));
         yapi.setReqQuery(resolveParameter(api, ParameterIn.query));
         yapi.setReqBodyType(resolveReqBodyType(api));
@@ -97,7 +95,7 @@ public class YapiDataConvector {
         return items.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
             parameter.setName(p.getName());
-            parameter.setType(p.getType());
+            parameter.setType("file".equals(p.getType()) ? "file" : "text");
             parameter.setDesc(p.getDescription());
             parameter.setRequired(p.isRequired() ? "1" : "0");
             parameter.setExample(p.getExample());
