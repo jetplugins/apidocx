@@ -24,16 +24,8 @@ public interface SpringConstants {
 
     String PathVariable = "org.springframework.web.bind.annotation.PathVariable";
 
-    String BindingResult = "org.springframework.validation.BindingResult";
-
     String MultipartFile = "org.springframework.web.multipart.MultipartFile";
 
-    String Pageable = "org.springframework.data.domain.Pageable";
-
     String JsonProperty = "com.fasterxml.jackson.annotation.JsonProperty";
-
-    String Mono = "reactor.core.publisher.Mono";
-
-    String Flux = "reactor.core.publisher.Flux";
 
 }

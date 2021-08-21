@@ -13,10 +13,6 @@ public interface JavaConstants {
 
     String NotBlank = "javax.validation.constraints.NotBlank";
 
-    String HttpServletRequest = "javax.servlet.http.HttpServletRequest";
-
-    String HttpServletResponse = "javax.servlet.http.HttpServletResponse";
-
     String Deprecate = "java.lang.Deprecated";
 
     String Enum = "java.lang.Enum";

@@ -1,0 +1,3 @@
+returnUnwrapTypes=reactor.core.publisher.Flux, reactor.core.publisher.Mono
+parameterIgnoreTypes=javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, \
+    org.springframework.validation.BindingResult, org.springframework.data.domain.Pageable

@@ -17,16 +17,25 @@ public class PropertiesLoader {
     private PropertiesLoader() {
     }
 
+    /**
+     * 获取properties内部缓存
+     */
     public static Properties getProperties(String file) {
-        return cache.computeIfAbsent(file, key -> {
-            InputStream is = MockParser.class.getClassLoader().getResourceAsStream(file);
-            Properties properties = new Properties();
-            try {
-                properties.load(is);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return properties;
-        });
+        return cache.computeIfAbsent(file, key -> readProperties(file));
     }
+
+    /**
+     * 读取properties不会缓存
+     */
+    public static Properties readProperties(String file) {
+        InputStream is = MockParser.class.getClassLoader().getResourceAsStream(file);
+        Properties properties = new Properties();
+        try {
+            properties.load(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties;
+    }
+
 }

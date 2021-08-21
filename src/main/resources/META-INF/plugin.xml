@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.1.20210820001</version>
+    <version>0.0.1.20210821001</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -28,11 +28,13 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="UploadToRap2" description="UploadToRap2">
+        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2"
+            description="UploadToRap2">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="UploadToYapi" description="UploadToYapi">
+        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="Upload To Yapi"
+            description="UploadToYapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>

@@ -1,5 +1,7 @@
 package io.yapix.config;
 
+import static io.yapix.config.DefaultConstants.FILE_NAME;
+
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -23,28 +25,36 @@ import org.xml.sax.SAXException;
 
 /**
  * 配置处理工具类.
+ * <p>
+ * 备注: 配置文件读取使用.ypix文件, 但是内部兼容了公司原定制配置方式.
  */
-public final class YapiConfigUtils {
+public final class YapixConfigUtils {
 
-    private YapiConfigUtils() {
+    private YapixConfigUtils() {
     }
 
     /**
-     * 查找配置文件yapi.xml
+     * 查找配置文件
      */
     public static VirtualFile findConfigFile(Project project, Module module) {
         VirtualFile yapiConfigFile = null;
         if (module != null) {
             VirtualFile[] moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots();
             if (moduleContentRoots.length > 0) {
-                yapiConfigFile = moduleContentRoots[0].findFileByRelativePath("src/main/resources/yapi.xml");
-                if (yapiConfigFile == null) {
+                yapiConfigFile = moduleContentRoots[0].findFileByRelativePath(FILE_NAME);
+                if (yapiConfigFile == null || !yapiConfigFile.exists()) {
+                    yapiConfigFile = moduleContentRoots[0].findFileByRelativePath("src/main/resources/yapi.xml");
+                }
+                if (yapiConfigFile == null || !yapiConfigFile.exists()) {
                     yapiConfigFile = moduleContentRoots[0].findFileByRelativePath("yapi.xml");
                 }
             }
         }
         if (yapiConfigFile == null || !yapiConfigFile.exists()) {
-            yapiConfigFile = project.getBaseDir().findFileByRelativePath("src/main/resources/yapi.xml");
+            yapiConfigFile = project.getBaseDir().findFileByRelativePath(FILE_NAME);
+            if (yapiConfigFile == null || !yapiConfigFile.exists()) {
+                yapiConfigFile = project.getBaseDir().findFileByRelativePath("src/main/resources/yapi.xml");
+            }
             if (yapiConfigFile == null || !yapiConfigFile.exists()) {
                 yapiConfigFile = project.getBaseDir().findFileByRelativePath("yapi.xml");
             }
@@ -55,33 +65,24 @@ public final class YapiConfigUtils {
         return yapiConfigFile;
     }
 
-    /**
-     * 读取配置(properties)
-     */
-    public static YapiConfig readFromProperties(String props) throws IOException {
-        Properties properties = new Properties();
-        properties.load(new StringReader(props));
-
-        YapiConfig config = new YapiConfig();
-        config.setProjectId(StringUtils.trim(properties.getProperty("projectId")));
-        config.setProjectType(StringUtils.trim(properties.getProperty("projectType")));
-        config.setReturnClass(StringUtils.trim(properties.getProperty("returnClass")));
-        config.setAttachUpload(StringUtils.trim(properties.getProperty("attachUpload")));
-        return config;
+    public static YapixConfig readYapixConfig(VirtualFile vf, String moduleName)
+            throws IOException, ParserConfigurationException, SAXException {
+        String content = new String(vf.contentsToByteArray(), StandardCharsets.UTF_8);
+        if (FILE_NAME.equals(vf.getName())) {
+            // 新版配置文件
+            Properties properties = new Properties();
+            properties.load(new StringReader(content));
+            return YapixConfig.fromProperties(properties);
+        } else {
+            // 兼容公司定制配置
+            return readFromXml(content, moduleName);
+        }
     }
 
     /**
      * 读取配置(xml)
      */
-    public static YapiConfig readFromXml(String xml)
-            throws ParserConfigurationException, IOException, SAXException {
-        return readFromXml(xml, null);
-    }
-
-    /**
-     * 读取配置(xml)
-     */
-    public static YapiConfig readFromXml(String xml, String moduleName)
+    private static YapixConfig readFromXml(String xml, String moduleName)
             throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
@@ -91,7 +92,7 @@ public final class YapiConfigUtils {
             return doReadXmlYapiProjectConfigByOldVersion(doc);
         } else {
             NodeList nodes = root.getChildNodes();
-            YapiConfig rootConfig = doReadXmlYapiProjectConfigByNodeList(nodes);
+            YapixConfig rootConfig = doReadXmlYapiProjectConfigByNodeList(nodes);
 
             if (StringUtils.isNotEmpty(moduleName)) {
                 for (int i = 0; i < nodes.getLength(); i++) {
@@ -102,7 +103,7 @@ public final class YapiConfigUtils {
                     NamedNodeMap attributes = node.getAttributes();
                     String projectTagName = attributes.getNamedItem("name").getNodeValue();
                     if (moduleName.equalsIgnoreCase(projectTagName)) {
-                        YapiConfig moduleConfig = doReadXmlYapiProjectConfigByNodeList(node.getChildNodes());
+                        YapixConfig moduleConfig = doReadXmlYapiProjectConfigByNodeList(node.getChildNodes());
                         mergeToFirst(rootConfig, moduleConfig);
                         break;
                     }
@@ -112,8 +113,8 @@ public final class YapiConfigUtils {
         }
     }
 
-    private static YapiConfig doReadXmlYapiProjectConfigByOldVersion(Document doc) {
-        YapiConfig config = new YapiConfig();
+    private static YapixConfig doReadXmlYapiProjectConfigByOldVersion(Document doc) {
+        YapixConfig config = new YapixConfig();
         NodeList nodes = doc.getElementsByTagName("option");
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
@@ -122,14 +123,8 @@ public final class YapiConfigUtils {
                 case "projectId":
                     config.setProjectId(node.getTextContent().trim());
                     break;
-                case "projectType":
-                    config.setProjectType(node.getTextContent().trim());
-                    break;
                 case "returnClass":
-                    config.setReturnClass(node.getTextContent().trim());
-                    break;
-                case "attachUpload":
-                    config.setAttachUpload(node.getTextContent().trim());
+                    config.setReturnWrapType(node.getTextContent().trim());
                     break;
             }
         }
@@ -137,22 +132,16 @@ public final class YapiConfigUtils {
     }
 
     @NotNull
-    private static YapiConfig doReadXmlYapiProjectConfigByNodeList(NodeList nodes) {
-        YapiConfig config = new YapiConfig();
+    private static YapixConfig doReadXmlYapiProjectConfigByNodeList(NodeList nodes) {
+        YapixConfig config = new YapixConfig();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             switch (node.getNodeName()) {
                 case "projectId":
                     config.setProjectId(node.getTextContent().trim());
                     break;
-                case "projectType":
-                    config.setProjectType(node.getTextContent().trim());
-                    break;
                 case "returnClass":
-                    config.setReturnClass(node.getTextContent().trim());
-                    break;
-                case "attachUpload":
-                    config.setAttachUpload(node.getTextContent().trim());
+                    config.setReturnWrapType(node.getTextContent().trim());
                     break;
             }
         }
@@ -162,19 +151,13 @@ public final class YapiConfigUtils {
     /**
      * 配置合并.
      */
-    public static void mergeToFirst(YapiConfig a, YapiConfig b) {
+    public static void mergeToFirst(YapixConfig a, YapixConfig b) {
         if (b != null) {
             if (StringUtils.isNotEmpty(b.getProjectId())) {
                 a.setProjectId(b.getProjectId());
             }
-            if (StringUtils.isNotEmpty(b.getProjectType())) {
-                a.setProjectType(b.getProjectType());
-            }
-            if (StringUtils.isNotEmpty(b.getReturnClass())) {
-                a.setReturnClass(b.getReturnClass());
-            }
-            if (StringUtils.isNotEmpty(b.getAttachUpload())) {
-                a.setAttachUpload(b.getAttachUpload());
+            if (StringUtils.isNotEmpty(b.getReturnWrapType())) {
+                a.setReturnWrapType(b.getReturnWrapType());
             }
         }
 

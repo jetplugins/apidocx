@@ -16,8 +16,10 @@ import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.base.util.NotificationUtils;
+import io.yapix.config.ApiPlatformType;
 import io.yapix.config.DefaultConstants;
-import io.yapix.config.YapiConfig;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.yapi.config.YapiSettings;
 import io.yapix.yapi.config.YapiSettingsDialog;
@@ -38,7 +40,11 @@ import org.jetbrains.annotations.NotNull;
 public class YapiUploadAction extends AbstractAction {
 
     @Override
-    public boolean before(AnActionEvent event) {
+    public boolean before(AnActionEvent event, YapixConfig config) {
+        boolean check = checkConfig(config);
+        if (!check) {
+            return false;
+        }
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
@@ -49,7 +55,8 @@ public class YapiUploadAction extends AbstractAction {
     }
 
     @Override
-    public void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
+    public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
+        Integer projectId = Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.YAPI));
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         // 异步处理
@@ -60,7 +67,6 @@ public class YapiUploadAction extends AbstractAction {
                 YapiSettings settings = YapiSettings.getInstance();
                 YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
                         settings.getCookies(), settings.getCookiesTtl());
-                Integer projectId = Integer.valueOf(config.getProjectId());
                 YapiUploader uploader = new YapiUploader(client);
                 // 进度和并发
                 Semaphore semaphore = new Semaphore(3);
@@ -125,6 +131,17 @@ public class YapiUploadAction extends AbstractAction {
             }
         }
         return values;
+    }
+
+    private boolean checkConfig(YapixConfig config) {
+        try {
+            Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.YAPI));
+            return true;
+        } catch (NumberFormatException e) {
+            NotificationUtils
+                    .notifyError("Yapix config file error", "projectId or yapiProjectId must be integer number.");
+        }
+        return false;
     }
 
 }

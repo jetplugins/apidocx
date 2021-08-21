@@ -18,13 +18,11 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.util.PsiFileUtils;
-import io.yapix.config.YapiConfig;
-import io.yapix.config.YapiConfigUtils;
+import io.yapix.config.YapixConfig;
+import io.yapix.config.YapixConfigUtils;
 import io.yapix.model.Api;
-import io.yapix.parse.ApiParseSettings;
 import io.yapix.parse.ApiParser;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -37,12 +35,12 @@ public abstract class AbstractAction extends AnAction {
     /**
      * 检查前操作
      */
-    public abstract boolean before(AnActionEvent event);
+    public abstract boolean before(AnActionEvent event, YapixConfig config);
 
     /**
      * 文档处理
      */
-    public abstract void handle(AnActionEvent event, YapiConfig config, List<Api> apis);
+    public abstract void handle(AnActionEvent event, YapixConfig config, List<Api> apis);
 
 
     @Override
@@ -57,30 +55,23 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
 
-        // 查找配置文件
+        // 配置文件解析
         VirtualFile file = psiFiles[0];
         Module module = ModuleUtil.findModuleForFile(file, project);
-        VirtualFile yapiConfigFile = YapiConfigUtils.findConfigFile(project, module);
+        VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(project, module);
         if (yapiConfigFile == null || !yapiConfigFile.exists()) {
-            notifyError("Not found config file yapi.xml.");
+            notifyError("Not found config file .yapi or yapi.xml");
             return;
         }
-        // 获取配置
-        YapiConfig config = null;
+        YapixConfig config;
         try {
-            String projectConfig = new String(yapiConfigFile.contentsToByteArray(), StandardCharsets.UTF_8);
-            config = YapiConfigUtils.readFromXml(projectConfig, module != null ? module.getName() : null);
+            config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             notifyError(String.format("Config file error: %s", e.getMessage()));
             return;
         }
-        // 配置校验
-        if (!config.isValidate()) {
-            notifyError("Yapi config required, please check config,[projectId,projectType]");
-            return;
-        }
 
-        boolean isContinue = before(event);
+        boolean isContinue = before(event, config);
         if (!isContinue) {
             return;
         }
@@ -102,12 +93,11 @@ public abstract class AbstractAction extends AnAction {
         handle(event, config, apis);
     }
 
-    private List<Api> parse(YapiConfig config, List<PsiClass> controllers,
-            PsiMethod selectMethod) {
-        ApiParseSettings parseSettings = new ApiParseSettings();
-        parseSettings.setReturnClass(config.getReturnClass());
-        ApiParser parser = new ApiParser(parseSettings);
-
+    /**
+     * 解析文档模型数据
+     */
+    private List<Api> parse(YapixConfig config, List<PsiClass> controllers, PsiMethod selectMethod) {
+        ApiParser parser = new ApiParser(config);
         List<Api> apis = Lists.newLinkedList();
         for (PsiClass controller : controllers) {
             List<Api> controllerApis = parser.parse(controller, selectMethod);

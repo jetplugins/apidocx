@@ -10,6 +10,9 @@ public interface DefaultConstants {
      */
     String NAME = "Yapi X";
 
+    String FILE_NAME = ".yapix";
+
     String RAP2_URL = "http://rap2api.taobao.org";
-    String RAP2_WEB_URL = "http://rap.taobao.org";
+
+    String RAP2_WEB_URL = "http://rap2.taobao.org";
 }

@@ -6,12 +6,11 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.Item;
-import io.yapix.parse.ApiParseSettings;
-import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -23,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ResponseParser {
 
-    private final ApiParseSettings settings;
+    private final YapixConfig settings;
 
-    public ResponseParser(ApiParseSettings settings) {
+    public ResponseParser(YapixConfig settings) {
         this.settings = settings;
     }
 
@@ -61,9 +60,9 @@ public class ResponseParser {
     }
 
     private String getUnwrapType(PsiType type) {
-        String[] unwrapTypes = {SpringConstants.Flux, SpringConstants.Mono};
+        List<String> unwrapTypes = settings.getReturnUnwrapTypes();
         String[] types = splitTypeAndGenericPair(type.getCanonicalText());
-        Optional<String> unwrapOpt = Arrays.stream(unwrapTypes).filter(t -> t.equals(types[0])).findAny();
+        Optional<String> unwrapOpt = unwrapTypes.stream().filter(t -> t.equals(types[0])).findAny();
         if (unwrapOpt.isPresent()) {
             return types[1];
         }
@@ -74,10 +73,10 @@ public class ResponseParser {
      * 返回需要需要的包装类
      */
     private PsiClass getWrapperPsiClass(PsiMethod method) {
-        if (StringUtils.isEmpty(settings.getReturnClass())) {
+        if (StringUtils.isEmpty(settings.getReturnWrapType())) {
             return null;
         }
-        PsiClass returnClass = PsiUtils.findPsiClass(method.getProject(), settings.getReturnClass());
+        PsiClass returnClass = PsiUtils.findPsiClass(method.getProject(), settings.getReturnWrapType());
         if (returnClass == null) {
             return null;
         }

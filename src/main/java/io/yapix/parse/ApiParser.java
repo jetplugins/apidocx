@@ -1,6 +1,7 @@
 package io.yapix.parse;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.yapix.config.DefaultConstants.FILE_NAME;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -8,6 +9,7 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.model.ControllerApiInfo;
@@ -18,9 +20,11 @@ import io.yapix.parse.parser.PathParser;
 import io.yapix.parse.parser.RequestParser;
 import io.yapix.parse.parser.ResponseParser;
 import io.yapix.parse.util.PathUtils;
+import io.yapix.parse.util.PropertiesLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -30,12 +34,15 @@ import java.util.stream.Collectors;
  */
 public class ApiParser {
 
-    private final ApiParseSettings settings;
     private static final Gson gson = new Gson();
+    private final RequestParser requestParser;
+    private final ResponseParser responseParser;
 
-    public ApiParser(ApiParseSettings settings) {
+    public ApiParser(YapixConfig settings) {
         checkNotNull(settings);
-        this.settings = settings;
+        settings = getMergeSettings(settings);
+        this.requestParser = new RequestParser(settings);
+        this.responseParser = new ResponseParser(settings);
     }
 
     /**
@@ -121,13 +128,37 @@ public class ApiParser {
         api.setDescription(ParseHelper.getApiDescription(method));
         api.setDeprecated(ParseHelper.isDeprecated(method));
 
-        RequestParseInfo requestInfo = RequestParser.parse(method, mapping.getMethod());
+        RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
         api.setParameters(requestInfo.getParameters());
         api.setRequestBodyType(requestInfo.getRequestBodyType());
         api.setRequestBody(requestInfo.getRequestBody());
         api.setRequestBodyForm(requestInfo.getRequestBodyForm());
-        api.setResponses((new ResponseParser(settings)).parse(method));
+        api.setResponses(responseParser.parse(method));
         return api;
     }
 
+    /**
+     * 合并内部配置
+     */
+    private YapixConfig getMergeSettings(YapixConfig settings) {
+        Properties properties = PropertiesLoader.getProperties(FILE_NAME);
+        YapixConfig internal = YapixConfig.fromProperties(properties);
+
+        YapixConfig config = new YapixConfig();
+        config.setProjectId(settings.getProjectId());
+        config.setYapiProjectId(settings.getYapiProjectId());
+        config.setRap2ProjectId(settings.getRap2ProjectId());
+        config.setReturnWrapType(settings.getReturnWrapType());
+
+        List<String> returnUnwrapTypes = Lists.newArrayList();
+        returnUnwrapTypes.addAll(settings.getReturnUnwrapTypes());
+        returnUnwrapTypes.addAll(internal.getReturnUnwrapTypes());
+        config.setReturnUnwrapTypes(returnUnwrapTypes);
+
+        List<String> parameterIgnoreTypes = Lists.newArrayList();
+        parameterIgnoreTypes.addAll(settings.getParameterIgnoreTypes());
+        parameterIgnoreTypes.addAll(internal.getParameterIgnoreTypes());
+        config.setParameterIgnoreTypes(parameterIgnoreTypes);
+        return config;
+    }
 }

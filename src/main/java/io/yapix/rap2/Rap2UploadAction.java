@@ -17,8 +17,10 @@ import io.yapix.base.sdk.rap2.Rap2Client;
 import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.util.Rap2WebUrlCalculator;
+import io.yapix.base.util.NotificationUtils;
+import io.yapix.config.ApiPlatformType;
 import io.yapix.config.DefaultConstants;
-import io.yapix.config.YapiConfig;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.rap2.config.Rap2Settings;
 import io.yapix.rap2.config.Rap2SettingsDialog;
@@ -39,7 +41,11 @@ import org.jetbrains.annotations.NotNull;
 public class Rap2UploadAction extends AbstractAction {
 
     @Override
-    public boolean before(AnActionEvent event) {
+    public boolean before(AnActionEvent event, YapixConfig config) {
+        boolean check = checkConfig(config);
+        if (!check) {
+            return false;
+        }
         Project project = event.getData(CommonDataKeys.PROJECT);
         Rap2Settings settings = Rap2Settings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {
@@ -50,7 +56,8 @@ public class Rap2UploadAction extends AbstractAction {
     }
 
     @Override
-    public void handle(AnActionEvent event, YapiConfig config, List<Api> apis) {
+    public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
+        Integer projectId = Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.RAP2));
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         // 异步处理
@@ -61,7 +68,6 @@ public class Rap2UploadAction extends AbstractAction {
                 Rap2Settings settings = Rap2Settings.getInstance();
                 Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
                         settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId());
-                Integer projectId = Integer.valueOf(config.getProjectId());
                 Rap2Uploader uploader = new Rap2Uploader(client);
                 Rap2WebUrlCalculator urlCalculator = new Rap2WebUrlCalculator(settings.getWebUrl());
                 // 进度和并发
@@ -128,6 +134,18 @@ public class Rap2UploadAction extends AbstractAction {
             }
         }
         return values;
+    }
+
+
+    private boolean checkConfig(YapixConfig config) {
+        try {
+            Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.RAP2));
+            return true;
+        } catch (NumberFormatException e) {
+            NotificationUtils
+                    .notifyError("Yapix config file error", "projectId or rap2ProjectId must be integer number.");
+        }
+        return false;
     }
 
 }

@@ -1,10 +1,6 @@
 package io.yapix.parse.parser;
 
-import static io.yapix.parse.constant.JavaConstants.HttpServletRequest;
-import static io.yapix.parse.constant.JavaConstants.HttpServletResponse;
-import static io.yapix.parse.constant.SpringConstants.BindingResult;
 import static io.yapix.parse.constant.SpringConstants.MultipartFile;
-import static io.yapix.parse.constant.SpringConstants.Pageable;
 import static io.yapix.parse.constant.SpringConstants.PathVariable;
 import static io.yapix.parse.constant.SpringConstants.RequestAttribute;
 import static io.yapix.parse.constant.SpringConstants.RequestBody;
@@ -18,6 +14,7 @@ import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.HttpMethod;
 import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
@@ -40,10 +37,13 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RequestParser {
 
-    private RequestParser() {
+    private YapixConfig settings;
+
+    public RequestParser(YapixConfig settings) {
+        this.settings = settings;
     }
 
-    public static RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
+    public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
         List<PsiParameter> parameters = filterIgnoreParameter(method.getParameterList().getParameters());
         List<Item> requestParameters = doParseParameters(method, parameters);
         RequestBodyType requestBodyType = doParseRequestBodyType(parameters, httpMethod);
@@ -63,7 +63,7 @@ public class RequestParser {
     /**
      * 解析请求方式
      */
-    private static RequestBodyType doParseRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
+    private RequestBodyType doParseRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
         if (!method.isAllowBody()) {
             return null;
         }
@@ -81,7 +81,7 @@ public class RequestParser {
     /**
      * 解析请求体内容
      */
-    private static List<Item> doParseRequestBody(List<PsiParameter> parameters, HttpMethod method,
+    private List<Item> doParseRequestBody(List<PsiParameter> parameters, HttpMethod method,
             List<Item> requestParameters, RequestBodyType requestBodyType) {
         if (!method.isAllowBody()) {
             return Lists.newArrayList();
@@ -121,7 +121,7 @@ public class RequestParser {
     /**
      * 解析普通参数
      */
-    public static List<Item> doParseParameters(PsiMethod method, List<PsiParameter> allParameters) {
+    public List<Item> doParseParameters(PsiMethod method, List<PsiParameter> allParameters) {
         List<PsiParameter> parameters = allParameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
                 .filter(p -> !MultipartFile.equals(p.getType().getCanonicalText()))
@@ -142,7 +142,7 @@ public class RequestParser {
     /**
      * 解析单个参数
      */
-    private static Item doParseParameter(PsiParameter parameter) {
+    private Item doParseParameter(PsiParameter parameter) {
         Item item = KernelParser
                 .parseType(parameter.getProject(), parameter.getType(), parameter.getType().getCanonicalText());
         // 参数类型
@@ -187,7 +187,7 @@ public class RequestParser {
     /**
      * 解析Item为扁平结构的parameter
      */
-    private static List<Item> resolveItemToParameters(Item item) {
+    private List<Item> resolveItemToParameters(Item item) {
         if (item == null) {
             return Collections.emptyList();
         }
@@ -203,8 +203,8 @@ public class RequestParser {
     /**
      * 过滤无需处理的参数
      */
-    private static List<PsiParameter> filterIgnoreParameter(PsiParameter[] parameters) {
-        Set<String> ignoreTypes = Sets.newHashSet(HttpServletRequest, HttpServletResponse, BindingResult, Pageable);
+    private List<PsiParameter> filterIgnoreParameter(PsiParameter[] parameters) {
+        Set<String> ignoreTypes = Sets.newHashSet(settings.getParameterIgnoreTypes());
         return Arrays.stream(parameters)
                 .filter(p -> {
                     String type = p.getType().getCanonicalText();
