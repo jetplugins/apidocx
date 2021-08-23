@@ -1,14 +1,25 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
-        <a href="https://github.com/jetplugins/yapix">GitHub</a> |
-        <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
-        <p>Generate api document to any where, like yapi, rap2, eolinker, markdown etc</p>
-        <p>一键生成接口文档, 上传到yapi, rap2, eolinker等</p>
+        Generate API documents to any place: YAPI, RAP2, Eolinker, etc.<br>
+        一键生成接口文档, 上传到yapi, rap2, eolinker等<br>
+        <p>
+            <a href="https://github.com/jetplugins/yapix">GitHub</a> |
+            <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
+        </p>
+        <h2>Features</h2>
+        <ul>
+            <li>Generate API documents from Java source code.</li>
+            <li>Upload to YAPI platform.</li>
+            <li>Upload to RAP2 platform.</li>
+            <li>Upload to Eolinker platform.</li>
+            <li>Generate to markdown document.</li>
+        </ul>
+        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/screenshots.gif" >
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -22,21 +33,25 @@
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="io.yapix.yapi.config.YapiSettings"/>
         <applicationService serviceImplementation="io.yapix.rap2.config.Rap2Settings"/>
+        <applicationService serviceImplementation="io.yapix.eolinker.config.EolinkerSettings"/>
         <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixSettingsConfiguration">
             <configurable displayName="Yapi" instance="io.yapix.yapi.config.YapiSettingsConfiguration"/>
             <configurable displayName="Rap2" instance="io.yapix.rap2.config.Rap2SettingsConfiguration"/>
+            <configurable displayName="Eolinker" instance="io.yapix.eolinker.config.EolinkerSettingsConfiguration"/>
         </applicationConfigurable>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2"
-            description="UploadToRap2">
+        <action id="UploadToEolinker" class="io.yapix.eolinker.EolinkerUploadAction" text="Upload To Eolinker">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="Upload To Yapi"
-            description="UploadToYapi">
+        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="Upload To Yapi">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
@@ -45,10 +60,10 @@
     <change-notes><![CDATA[
       <p>0.0.1</p>
       <ul>
-        <li>1.一键从源代码生成api文档</li>
-        <li>2.支持外部配置文件</li>
-        <li>3.支持上传到Yapi平台</li>
-        <li>4.支持上传到Rap2平台</li>
+        <li>1.Generate API documents from Java source code.</li>
+        <li>2.Upload to YAPI platform.</li>
+        <li>3.Upload to RAP2 platform.</li>
+        <li>4.Upload to Eolinker platform.</li>
       </ul>
       ]]></change-notes>
 

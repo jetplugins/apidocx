@@ -16,8 +16,8 @@ import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.base.util.ConcurrentUtils;
 import io.yapix.base.util.NotificationUtils;
-import io.yapix.config.ApiPlatformType;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
@@ -25,7 +25,6 @@ import io.yapix.yapi.config.YapiSettings;
 import io.yapix.yapi.config.YapiSettingsDialog;
 import io.yapix.yapi.process.YapiUploader;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -56,7 +55,7 @@ public class YapiUploadAction extends AbstractAction {
 
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
-        Integer projectId = Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.YAPI));
+        Integer projectId = Integer.valueOf(config.getYapiProjectId());
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         // 异步处理
@@ -100,7 +99,7 @@ public class YapiUploadAction extends AbstractAction {
                         });
                         futures.add(future);
                     }
-                    interfaces = waitFuturesSilence(futures);
+                    interfaces = ConcurrentUtils.waitFuturesSilence(futures);
                 } catch (InterruptedException e) {
                     // ignore
                 } finally {
@@ -118,24 +117,9 @@ public class YapiUploadAction extends AbstractAction {
         });
     }
 
-    private static <T> List<T> waitFuturesSilence(List<Future<T>> futures) {
-        List<T> values = Lists.newArrayListWithExpectedSize(futures.size());
-        for (Future<T> future : futures) {
-            try {
-                T value = future.get();
-                if (value != null) {
-                    values.add(value);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                // ignore
-            }
-        }
-        return values;
-    }
-
     private boolean checkConfig(YapixConfig config) {
         try {
-            Integer.valueOf(config.getProjectIdByPlatform(ApiPlatformType.YAPI));
+            Integer.valueOf(config.getYapiProjectId());
             return true;
         } catch (NumberFormatException e) {
             NotificationUtils

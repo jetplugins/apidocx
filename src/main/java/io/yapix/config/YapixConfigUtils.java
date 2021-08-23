@@ -121,7 +121,7 @@ public final class YapixConfigUtils {
             String attributeName = node.getAttributes().getNamedItem("name").getNodeValue();
             switch (attributeName) {
                 case "projectId":
-                    config.setProjectId(node.getTextContent().trim());
+                    config.setYapiProjectId(node.getTextContent().trim());
                     break;
                 case "returnClass":
                     config.setReturnWrapType(node.getTextContent().trim());
@@ -138,7 +138,7 @@ public final class YapixConfigUtils {
             Node node = nodes.item(i);
             switch (node.getNodeName()) {
                 case "projectId":
-                    config.setProjectId(node.getTextContent().trim());
+                    config.setYapiProjectId(node.getTextContent().trim());
                     break;
                 case "returnClass":
                     config.setReturnWrapType(node.getTextContent().trim());
@@ -153,8 +153,8 @@ public final class YapixConfigUtils {
      */
     public static void mergeToFirst(YapixConfig a, YapixConfig b) {
         if (b != null) {
-            if (StringUtils.isNotEmpty(b.getProjectId())) {
-                a.setProjectId(b.getProjectId());
+            if (StringUtils.isNotEmpty(b.getYapiProjectId())) {
+                a.setYapiProjectId(b.getYapiProjectId());
             }
             if (StringUtils.isNotEmpty(b.getReturnWrapType())) {
                 a.setReturnWrapType(b.getReturnWrapType());

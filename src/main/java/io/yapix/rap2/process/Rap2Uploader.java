@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
- * Yapi上传
+ * Rap2上传
  *
  * @see #upload(long, Api)
  */

@@ -145,9 +145,9 @@ public class ApiParser {
         YapixConfig internal = YapixConfig.fromProperties(properties);
 
         YapixConfig config = new YapixConfig();
-        config.setProjectId(settings.getProjectId());
         config.setYapiProjectId(settings.getYapiProjectId());
         config.setRap2ProjectId(settings.getRap2ProjectId());
+        config.setEolinkerProjectId(settings.getEolinkerProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
 
         List<String> returnUnwrapTypes = Lists.newArrayList();

@@ -3,21 +3,20 @@ package io.yapix.config;
 import com.google.common.base.Splitter;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Yapix配置类, 对应文件.yapix
  */
 public class YapixConfig {
 
-    /** 项目id */
-    private String projectId;
-
     /** yapi项目id */
     private String yapiProjectId;
 
     /** rap2项目id */
     private String rap2ProjectId;
+
+    /** eolinker项目hashKey */
+    private String eolinkerProjectId;
 
     /** 返回值包装类 */
     private String returnWrapType;
@@ -33,43 +32,22 @@ public class YapixConfig {
         String projectId = properties.getProperty("projectId", "");
         String yapiProjectId = properties.getProperty("yapiProjectId", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
+        String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");
         String returnUnwrapTypes = properties.getProperty("returnUnwrapTypes", "");
         String parameterIgnoreTypes = properties.getProperty("parameterIgnoreTypes", "");
 
         YapixConfig config = new YapixConfig();
-        config.projectId = projectId;
         config.yapiProjectId = yapiProjectId.trim();
         config.rap2ProjectId = rap2ProjectId.trim();
+        config.eolinkerProjectId = eolinkerProjectId.trim();
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
         return config;
     }
 
-    /**
-     * 获取项目id
-     */
-    public String getProjectIdByPlatform(ApiPlatformType type) {
-        if (type == ApiPlatformType.YAPI && StringUtils.isNotEmpty(yapiProjectId)) {
-            return yapiProjectId;
-        }
-        if (type == ApiPlatformType.RAP2 && StringUtils.isNotEmpty(rap2ProjectId)) {
-            return rap2ProjectId;
-        }
-        return projectId;
-    }
-
     //-----------------------generated------------------------------//
-
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
 
     public String getYapiProjectId() {
         return yapiProjectId;
@@ -109,5 +87,13 @@ public class YapixConfig {
 
     public void setParameterIgnoreTypes(List<String> parameterIgnoreTypes) {
         this.parameterIgnoreTypes = parameterIgnoreTypes;
+    }
+
+    public String getEolinkerProjectId() {
+        return eolinkerProjectId;
+    }
+
+    public void setEolinkerProjectId(String eolinkerProjectId) {
+        this.eolinkerProjectId = eolinkerProjectId;
     }
 }

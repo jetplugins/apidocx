@@ -1,4 +1,4 @@
-package io.yapix.rap2;
+package io.yapix.eolinker;
 
 import static io.yapix.base.util.NotificationUtils.notifyError;
 import static io.yapix.base.util.NotificationUtils.notifyInfo;
@@ -13,42 +13,43 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import io.yapix.action.AbstractAction;
-import io.yapix.base.sdk.rap2.Rap2Client;
-import io.yapix.base.sdk.rap2.model.Rap2Interface;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
-import io.yapix.base.sdk.rap2.util.Rap2WebUrlCalculator;
+import io.yapix.base.sdk.eolinker.AbstractClient.HttpSession;
+import io.yapix.base.sdk.eolinker.EolinkerClient;
+import io.yapix.base.sdk.eolinker.model.EolinkerApiInfo;
+import io.yapix.base.sdk.eolinker.request.EolinkerTestResult;
 import io.yapix.base.util.ConcurrentUtils;
-import io.yapix.base.util.NotificationUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
+import io.yapix.eolinker.config.EolinkerSettings;
+import io.yapix.eolinker.config.EolinkerSettingsDialog;
+import io.yapix.eolinker.process.EolinkerUploader;
 import io.yapix.model.Api;
-import io.yapix.rap2.config.Rap2Settings;
-import io.yapix.rap2.config.Rap2SettingsDialog;
-import io.yapix.rap2.process.Rap2Uploader;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Rap2上传入口动作.
+ * Eolinker上传入口动作.
  */
-public class Rap2UploadAction extends AbstractAction {
+public class EolinkerUploadAction extends AbstractAction {
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
-        boolean check = checkConfig(config);
-        if (!check) {
+        String projectId = config.getEolinkerProjectId();
+        if (StringUtils.isEmpty(projectId)) {
+            notifyError("Eolinker config file error", "projectId or eolinkerProjectId must not be empty.");
             return false;
         }
         Project project = event.getData(CommonDataKeys.PROJECT);
-        Rap2Settings settings = Rap2Settings.getInstance();
-        if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {
-            Rap2SettingsDialog dialog = Rap2SettingsDialog.show(project);
+        EolinkerSettings settings = EolinkerSettings.getInstance();
+        if (!settings.isValidate() || EolinkerTestResult.Code.OK != settings.testSettings().getCode()) {
+            EolinkerSettingsDialog dialog = EolinkerSettingsDialog.show(project);
             return !dialog.isCanceled();
         }
         return true;
@@ -56,7 +57,7 @@ public class Rap2UploadAction extends AbstractAction {
 
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
-        Integer projectId = Integer.valueOf(config.getRap2ProjectId());
+        String projectId = config.getEolinkerProjectId();
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         // 异步处理
@@ -64,11 +65,13 @@ public class Rap2UploadAction extends AbstractAction {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setIndeterminate(false);
-                Rap2Settings settings = Rap2Settings.getInstance();
-                Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                        settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId());
-                Rap2Uploader uploader = new Rap2Uploader(client);
-                Rap2WebUrlCalculator urlCalculator = new Rap2WebUrlCalculator(settings.getWebUrl());
+                EolinkerSettings settings = EolinkerSettings.getInstance();
+                HttpSession session = new HttpSession(settings.getCookies(), settings.getCookiesTtl(),
+                        settings.getSpaceKey());
+                EolinkerClient client = new EolinkerClient(settings.getLoginUrl(), settings.getUrl(),
+                        settings.getAccount(), settings.getPassword(), session);
+                EolinkerUploader uploader = new EolinkerUploader(client);
+
                 // 进度和并发
                 Semaphore semaphore = new Semaphore(3);
                 ExecutorService threadPool = Executors.newFixedThreadPool(3);
@@ -76,13 +79,13 @@ public class Rap2UploadAction extends AbstractAction {
                 AtomicInteger count = new AtomicInteger();
                 AtomicDouble fraction = new AtomicDouble();
 
-                List<Rap2Interface> interfaces = null;
+                List<EolinkerApiInfo> interfaces = null;
                 try {
-                    List<Future<Rap2Interface>> futures = Lists.newArrayListWithExpectedSize(apis.size());
+                    List<Future<EolinkerApiInfo>> futures = Lists.newArrayListWithExpectedSize(apis.size());
                     for (int i = 0; i < apis.size() && !indicator.isCanceled(); i++) {
                         Api api = apis.get(i);
                         semaphore.acquire();
-                        Future<Rap2Interface> future = threadPool.submit(() -> {
+                        Future<EolinkerApiInfo> future = threadPool.submit(() -> {
                             try {
                                 // 上传
                                 String text = format("[%d/%d] %s %s", count.incrementAndGet(), apis.size(),
@@ -91,7 +94,8 @@ public class Rap2UploadAction extends AbstractAction {
                                 return uploader.upload(projectId, api);
                             } catch (Exception e) {
                                 notifyError(
-                                        String.format("Rap2 Upload failed: [%s %s]", api.getMethod(), api.getPath()),
+                                        String.format("Eolinker Upload failed: [%s %s]", api.getMethod(),
+                                                api.getPath()),
                                         ExceptionUtils.getStackTrace(e));
                             } finally {
                                 indicator.setFraction(fraction.addAndGet(step));
@@ -106,30 +110,15 @@ public class Rap2UploadAction extends AbstractAction {
                     // ignore
                 } finally {
                     if (interfaces != null && interfaces.size() > 0) {
-                        Rap2Interface rapi = interfaces.get(0);
-                        String url = interfaces.size() == 1 && rapi.getId() != null ?
-                                urlCalculator
-                                        .calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), rapi.getId())
-                                : urlCalculator.calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), null);
-                        notifyInfo("Rap2 Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                        EolinkerApiInfo api = interfaces.get(0);
+                        String url = client.calculateApiListUrl(projectId, api.getBaseInfo().getGroupID());
+                        notifyInfo("Eolinker Upload successful", format("<a href=\"%s\">%s</a>", url, url));
                     }
                     client.close();
                     threadPool.shutdown();
                 }
             }
         });
-    }
-
-
-    private boolean checkConfig(YapixConfig config) {
-        try {
-            Integer.valueOf(config.getRap2ProjectId());
-            return true;
-        } catch (NumberFormatException e) {
-            NotificationUtils
-                    .notifyError("Yapix config file error", "projectId or rap2ProjectId must be integer number.");
-        }
-        return false;
     }
 
 }

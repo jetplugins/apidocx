@@ -75,7 +75,7 @@ public class Rap2Client extends AbstractClient {
         this.password = password;
     }
 
-    public Rap2Client(String url, String account, String password, String cookies, long cookiesTtl, Long userId) {
+    public Rap2Client(String url, String account, String password, String cookies, Long cookiesTtl, Long userId) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         this.url = url;
         this.account = account;
@@ -248,7 +248,7 @@ public class Rap2Client extends AbstractClient {
     }
 
     @Override
-    public void doFreshAuth(boolean force) {
+    public void doFreshAuth() {
         LoginRequest authInfo = new LoginRequest();
         authInfo.setEmail(this.account);
         authInfo.setPassword(this.password);

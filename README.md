@@ -5,12 +5,12 @@
 - [x] 支持外部配置文件
 - [x] 上传到Yapi平台
 - [x] 上传到Rap2平台
-- [ ] 上传到Eolinker平台
+- [x] 上传到Eolinker平台
 - [ ] 生成markdown接口文档
 
 <img src="screenshots.gif" height="360">
 
-原理：这是一个Idea插件，从源码解析标准Javadoc文档, 结合spring注解解析出api接口文档.
+原理：这是一个Idea插件，从源码解析标准Javadoc文档, 并结合spring等常见注解.
 
 ## 轮子
 我一直在使用[YapiUpload](https://github.com/diwand/YapiIdeaUploadPlugin) 插件生成文档非常方便，
@@ -29,9 +29,9 @@
 ## 配置文件(.yapix)
 ```properties
 # 项目id
-projectId=
 yapiProjectId=
 rap2ProjectId=
+eolinkerProjectId=
 # 包装类全称: String
 returnWrapType=
 # 解包装类型全称: List<String>

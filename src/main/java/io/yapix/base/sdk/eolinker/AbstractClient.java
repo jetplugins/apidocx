@@ -1,21 +1,33 @@
-package io.yapix.base.sdk.rap2;
+package io.yapix.base.sdk.eolinker;
 
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.yapix.base.sdk.eolinker.request.LoginResponse;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 
 @SuppressWarnings("ALL")
 public abstract class AbstractClient implements Closeable {
@@ -34,8 +46,6 @@ public abstract class AbstractClient implements Closeable {
 
     /**
      * 刷新登录信息
-     *
-     * @param force
      */
     public abstract void doFreshAuth();
 
@@ -52,7 +62,7 @@ public abstract class AbstractClient implements Closeable {
         }
         try {
             return execute(request, false);
-        } catch (Rap2Exception e) {
+        } catch (EolinkerException e) {
             if (!retry || !e.isNeedAuth()) {
                 throw e;
             }
@@ -61,6 +71,22 @@ public abstract class AbstractClient implements Closeable {
         freshAuth(true);
         request.addHeader("Cookie", this.authSession.getCookies());
         return execute(request, false);
+    }
+
+    private void setRequestSpaceKey(HttpUriRequest request) {
+        if (this.authSession == null || StringUtils.isEmpty(this.authSession.spaceKey)) {
+            return;
+        }
+
+        if (request instanceof HttpPost) {
+            HttpPost postRequest = (HttpPost) request;
+            HttpEntity entity = (postRequest).getEntity();
+            if (entity != null && entity instanceof CustomUrlEncodedFormEntity) {
+                CustomUrlEncodedFormEntity newEntity = ((CustomUrlEncodedFormEntity) entity)
+                        .getNewFormEntity(new BasicNameValuePair("spaceKey", this.authSession.spaceKey));
+                postRequest.setEntity(newEntity);
+            }
+        }
     }
 
     /**
@@ -82,14 +108,17 @@ public abstract class AbstractClient implements Closeable {
      * 执行网络请求
      */
     protected String execute(HttpUriRequest request, boolean isStoreAuth) {
+        setRequestSpaceKey(request);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             String data = doHandleResponse(request, response);
             if (isStoreAuth) {
                 this.authSession = getSession(response);
+                LoginResponse loginResponse = (new Gson()).fromJson(data, LoginResponse.class);
+                this.authSession.spaceKey = loginResponse.getSpaceKey();
             }
             return data;
         } catch (IOException e) {
-            throw new Rap2Exception(request.getURI().getPath(), e.getMessage(), e);
+            throw new EolinkerException(request.getURI().getPath(), e.getMessage(), e);
         }
     }
 
@@ -136,21 +165,26 @@ public abstract class AbstractClient implements Closeable {
         return session;
     }
 
+
     public static class HttpSession {
 
         private String cookies;
         private Long cookiesTtl;
+        private String spaceKey;
 
         public HttpSession() {
         }
 
-        public HttpSession(String cookies, long cookiesTtl) {
+        public HttpSession(String cookies, Long cookiesTtl, String spaceKey) {
             this.cookies = cookies;
             this.cookiesTtl = cookiesTtl;
+            this.spaceKey = spaceKey;
         }
 
         public boolean isValid() {
-            return StringUtils.isNotEmpty(cookies) && cookiesTtl != null && cookiesTtl > System.currentTimeMillis();
+            return StringUtils.isNotEmpty(cookies)
+                    && cookiesTtl != null && cookiesTtl > System.currentTimeMillis()
+                    && StringUtils.isNotEmpty(spaceKey);
         }
 
         //-------------------generated-----------------//
@@ -169,6 +203,47 @@ public abstract class AbstractClient implements Closeable {
 
         public void setCookiesTtl(Long cookiesTtl) {
             this.cookiesTtl = cookiesTtl;
+        }
+
+        public String getSpaceKey() {
+            return spaceKey;
+        }
+
+        public void setSpaceKey(String spaceKey) {
+            this.spaceKey = spaceKey;
+        }
+    }
+
+    /**
+     * 自定义
+     */
+    public static class CustomUrlEncodedFormEntity extends UrlEncodedFormEntity {
+
+        private final Charset charset;
+
+        public CustomUrlEncodedFormEntity(Iterable<? extends NameValuePair> parameters, Charset charset) {
+            super(parameters, charset);
+            this.charset = charset;
+        }
+
+        public CustomUrlEncodedFormEntity getNewFormEntity(NameValuePair pair) {
+
+            List<NameValuePair> pairs = null;
+            try {
+                pairs = URLEncodedUtils.parse(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            List<NameValuePair> parameters = Lists.newArrayListWithExpectedSize(pairs.size() + 1);
+            for (NameValuePair item : pairs) {
+                if (!Objects.equals(item.getName(), pair.getName())) {
+                    parameters.add(item);
+                } else {
+                    parameters.add(pair);
+                }
+            }
+            return new CustomUrlEncodedFormEntity(parameters, this.charset);
         }
     }
 }

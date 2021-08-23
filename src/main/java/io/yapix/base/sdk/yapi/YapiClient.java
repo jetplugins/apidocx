@@ -44,11 +44,7 @@ public class YapiClient extends AbstractClient {
 
     private final Gson gson = new Gson();
 
-    public YapiClient(String url, String account, String password) {
-        this(url, account, password, null, 0);
-    }
-
-    public YapiClient(String url, String account, String password, String cookies, long cookiesTtl) {
+    public YapiClient(String url, String account, String password, String cookies, Long cookiesTtl) {
         this.url = url;
         this.account = account;
         this.password = password;
@@ -165,7 +161,7 @@ public class YapiClient extends AbstractClient {
 
 
     @Override
-    void doFreshAuth(boolean force) {
+    void doFreshAuth() {
         String path = YapiConstants.yapiLogin;
         JsonObject params = new JsonObject();
         params.addProperty("email", this.account);

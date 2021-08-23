@@ -37,7 +37,7 @@ public abstract class AbstractClient implements Closeable {
      *
      * @param force
      */
-    abstract void doFreshAuth(boolean force);
+    abstract void doFreshAuth();
 
     /** 处理网络请求响应 */
     abstract String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException;
@@ -74,7 +74,7 @@ public abstract class AbstractClient implements Closeable {
             if (!force && authSession != null && authSession.isValid()) {
                 return;
             }
-            doFreshAuth(force);
+            doFreshAuth();
         }
     }
 
