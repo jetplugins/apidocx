@@ -6,9 +6,9 @@
 
     <description><![CDATA[
         <a href="https://github.com/jetplugins/yapix">GitHub</a> |
-        <a href="https://github.com/jetplugins/yapix/issues">Issues</a><br>
-        Generate api document to any where, like yapi, rap2, eolinker, markdown etc <br>
-        一键生成接口文档, 上传到yapi, rap2, eolinker等 <br>
+        <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
+        <p>Generate api document to any where, like yapi, rap2, eolinker, markdown etc</p>
+        <p>一键生成接口文档, 上传到yapi, rap2, eolinker等</p>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
