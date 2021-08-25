@@ -17,9 +17,8 @@
             <li>Upload to YAPI platform.</li>
             <li>Upload to RAP2 platform.</li>
             <li>Upload to Eolinker platform.</li>
-            <li>Generate to markdown document.</li>
         </ul>
-        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/screenshots.gif" >
+        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/screenshots.gif" height="360">
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -58,7 +57,7 @@
     </actions>
 
     <change-notes><![CDATA[
-      <p>0.0.1</p>
+      <p>0.0.2</p>
       <ul>
         <li>1.Generate API documents from Java source code.</li>
         <li>2.Upload to YAPI platform.</li>
