@@ -3,6 +3,7 @@ package io.yapix.base.sdk.eolinker;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiBase;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiGroup;
@@ -53,7 +54,7 @@ public class EolinkerClient extends AbstractClient {
     /** 密码 */
     private final String password;
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public EolinkerClient(String loginUrl, String url, String account, String password, HttpSession authSession) {
         checkArgument(StringUtils.isNotEmpty(loginUrl), "loginUrl can't be null");
