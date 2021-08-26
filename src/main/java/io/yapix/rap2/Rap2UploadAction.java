@@ -18,7 +18,6 @@ import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.util.Rap2WebUrlCalculator;
 import io.yapix.base.util.ConcurrentUtils;
-import io.yapix.base.util.NotificationUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
@@ -41,10 +40,6 @@ public class Rap2UploadAction extends AbstractAction {
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
-        boolean check = checkConfig(config);
-        if (!check) {
-            return false;
-        }
         Project project = event.getData(CommonDataKeys.PROJECT);
         Rap2Settings settings = Rap2Settings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {
@@ -118,18 +113,6 @@ public class Rap2UploadAction extends AbstractAction {
                 }
             }
         });
-    }
-
-
-    private boolean checkConfig(YapixConfig config) {
-        try {
-            Integer.valueOf(config.getRap2ProjectId());
-            return true;
-        } catch (NumberFormatException e) {
-            NotificationUtils
-                    .notifyError("Yapix config file error", "projectId or rap2ProjectId must be integer number.");
-        }
-        return false;
     }
 
 }

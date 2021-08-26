@@ -20,11 +20,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
+import io.yapix.eolinker.EolinkerUploadAction;
 import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
+import io.yapix.rap2.Rap2UploadAction;
+import io.yapix.yapi.YapiUploadAction;
 import java.io.IOException;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 /**
@@ -70,6 +74,9 @@ public abstract class AbstractAction extends AnAction {
             notifyError(String.format("Config file error: %s", e.getMessage()));
             return;
         }
+        if (!checkConfig(config)) {
+            return;
+        }
 
         boolean isContinue = before(event, config);
         if (!isContinue) {
@@ -109,6 +116,37 @@ public abstract class AbstractAction extends AnAction {
             }
         }
         return apis;
+    }
+
+    /**
+     * 配置检查
+     */
+    private boolean checkConfig(YapixConfig config) {
+        // yapi
+        if (this.getClass() == YapiUploadAction.class) {
+            String projectId = config.getYapiProjectId();
+            if (StringUtils.isEmpty(projectId)) {
+                notifyError("Config file error", "yapiProjectId must not be empty.");
+                return false;
+            }
+        }
+        // rap2
+        if (this.getClass() == Rap2UploadAction.class) {
+            String projectId = config.getRap2ProjectId();
+            if (StringUtils.isEmpty(projectId)) {
+                notifyError("Config file error", "rap2ProjectId must not be empty.");
+                return false;
+            }
+        }
+        // eolinker
+        if (this.getClass() == EolinkerUploadAction.class) {
+            String projectId = config.getEolinkerProjectId();
+            if (StringUtils.isEmpty(projectId)) {
+                notifyError("Config file error", "eolinkerProjectId must not be empty.");
+                return false;
+            }
+        }
+        return true;
     }
 
 

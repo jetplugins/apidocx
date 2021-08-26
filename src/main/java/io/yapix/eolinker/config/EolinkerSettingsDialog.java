@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.sdk.eolinker.request.EolinkerTestResult;
-import io.yapix.config.DefaultConstants;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +27,7 @@ public class EolinkerSettingsDialog extends DialogWrapper {
 
     EolinkerSettingsDialog(@Nullable Project project) {
         super(project);
-        setTitle(DefaultConstants.NAME);
+        setTitle("Eolinker");
         init();
     }
 

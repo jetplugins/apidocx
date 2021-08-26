@@ -1,7 +1,6 @@
 package io.yapix.config;
 
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
@@ -12,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class YapixSettingsConfiguration implements Configurable {
 
+    private YapixSettingsForm form;
 
     @Nls(capitalization = Capitalization.Title)
     @Override
@@ -22,16 +22,22 @@ public class YapixSettingsConfiguration implements Configurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        return null;
+        if (form == null) {
+            form = new YapixSettingsForm();
+        }
+        return form.getPanel();
     }
 
     @Override
     public boolean isModified() {
-        return false;
+        YapixSettings originSettings = YapixSettings.getInstance();
+        YapixSettings newSettings = form.get();
+        return !originSettings.equals(newSettings);
     }
 
     @Override
-    public void apply() throws ConfigurationException {
-
+    public void apply() {
+        YapixSettings settings = form.get();
+        YapixSettings.getInstance().loadState(settings);
     }
 }

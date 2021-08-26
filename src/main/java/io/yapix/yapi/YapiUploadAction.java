@@ -17,7 +17,6 @@ import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import io.yapix.base.util.ConcurrentUtils;
-import io.yapix.base.util.NotificationUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
@@ -40,10 +39,6 @@ public class YapiUploadAction extends AbstractAction {
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
-        boolean check = checkConfig(config);
-        if (!check) {
-            return false;
-        }
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
@@ -116,16 +111,4 @@ public class YapiUploadAction extends AbstractAction {
             }
         });
     }
-
-    private boolean checkConfig(YapixConfig config) {
-        try {
-            Integer.valueOf(config.getYapiProjectId());
-            return true;
-        } catch (NumberFormatException e) {
-            NotificationUtils
-                    .notifyError("Yapix config file error", "projectId or yapiProjectId must be integer number.");
-        }
-        return false;
-    }
-
 }

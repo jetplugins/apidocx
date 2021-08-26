@@ -18,7 +18,6 @@
 - 支持账户密码登录
 - 几乎兼容YapiUpload规则
 - 代码逻辑简单，易于二次开发
-- ...
 
 ## 使用
 1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: `Yapi X`

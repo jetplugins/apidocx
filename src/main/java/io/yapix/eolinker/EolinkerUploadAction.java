@@ -30,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,11 +40,6 @@ public class EolinkerUploadAction extends AbstractAction {
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
-        String projectId = config.getEolinkerProjectId();
-        if (StringUtils.isEmpty(projectId)) {
-            notifyError("Eolinker config file error", "projectId or eolinkerProjectId must not be empty.");
-            return false;
-        }
         Project project = event.getData(CommonDataKeys.PROJECT);
         EolinkerSettings settings = EolinkerSettings.getInstance();
         if (!settings.isValidate() || EolinkerTestResult.Code.OK != settings.testSettings().getCode()) {

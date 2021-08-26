@@ -7,7 +7,6 @@ import io.yapix.base.sdk.rap2.Rap2Client;
 import io.yapix.base.sdk.rap2.request.CaptchaResponse;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult;
 import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
-import io.yapix.config.DefaultConstants;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +31,7 @@ public class Rap2SettingsDialog extends DialogWrapper {
 
     Rap2SettingsDialog(@Nullable Project project) {
         super(project);
-        setTitle(DefaultConstants.NAME);
+        setTitle("Rap2");
         init();
     }
 

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.2</version>
+    <version>0.0.2.2021082601</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -30,6 +30,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <applicationService serviceImplementation="io.yapix.config.YapixSettings"/>
         <applicationService serviceImplementation="io.yapix.yapi.config.YapiSettings"/>
         <applicationService serviceImplementation="io.yapix.rap2.config.Rap2Settings"/>
         <applicationService serviceImplementation="io.yapix.eolinker.config.EolinkerSettings"/>
@@ -42,18 +43,18 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="UploadToEolinker" class="io.yapix.eolinker.EolinkerUploadAction" text="Upload To Eolinker">
+        <action id="yapix.YapixAction" class="io.yapix.action.YapixAction">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
-        <action id="UploadToRap2" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2">
-            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+        <group id="yapix.ActionGroup" text="Yapi X" popup="true">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
-        <action id="UploadToYapi" class="io.yapix.yapi.YapiUploadAction" text="Upload To Yapi">
-            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
+            <action id="yapix.YapiUploadAction" class="io.yapix.yapi.YapiUploadAction" text="Upload To YApi"/>
+            <action id="yapix.Rap2UploadAction" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2"/>
+            <action id="yapix.EolinkerUploadAction" class="io.yapix.eolinker.EolinkerUploadAction"
+                text="Upload To Eolinker"/>
+        </group>
     </actions>
 
     <change-notes><![CDATA[

@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
-import io.yapix.config.DefaultConstants;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -21,7 +20,7 @@ public class YapiSettingsDialog extends DialogWrapper {
 
     public YapiSettingsDialog(@Nullable Project project) {
         super(project);
-        setTitle(DefaultConstants.NAME);
+        setTitle("YApi");
         init();
     }
 
