@@ -1,6 +1,7 @@
 package io.yapix.config;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,9 +28,11 @@ public class YapixConfig {
     /** 参数忽略类 */
     private List<String> parameterIgnoreTypes;
 
+    /**
+     * 解析配置
+     */
     public static YapixConfig fromProperties(Properties properties) {
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
-        String projectId = properties.getProperty("projectId", "");
         String yapiProjectId = properties.getProperty("yapiProjectId", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
         String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
@@ -44,6 +47,33 @@ public class YapixConfig {
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
+        return config;
+    }
+
+    /**
+     * 合并配置
+     */
+    public static YapixConfig getMergeSettings(YapixConfig settings, YapixConfig internal) {
+        YapixConfig config = new YapixConfig();
+        config.setYapiProjectId(settings.getYapiProjectId());
+        config.setRap2ProjectId(settings.getRap2ProjectId());
+        config.setEolinkerProjectId(settings.getEolinkerProjectId());
+        config.setReturnWrapType(settings.getReturnWrapType());
+
+        List<String> returnUnwrapTypes = Lists.newArrayList();
+        returnUnwrapTypes.addAll(internal.getReturnUnwrapTypes());
+        if (settings.getReturnUnwrapTypes() != null) {
+            returnUnwrapTypes.addAll(settings.getReturnUnwrapTypes());
+        }
+        config.setReturnUnwrapTypes(returnUnwrapTypes);
+
+        List<String> parameterIgnoreTypes = Lists.newArrayList();
+        if (settings.getParameterIgnoreTypes() != null) {
+            config.setReturnUnwrapTypes(returnUnwrapTypes);
+            parameterIgnoreTypes.addAll(settings.getParameterIgnoreTypes());
+        }
+        parameterIgnoreTypes.addAll(internal.getParameterIgnoreTypes());
+        config.setParameterIgnoreTypes(parameterIgnoreTypes);
         return config;
     }
 

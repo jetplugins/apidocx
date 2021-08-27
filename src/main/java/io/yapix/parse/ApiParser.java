@@ -143,27 +143,6 @@ public class ApiParser {
     private YapixConfig getMergeSettings(YapixConfig settings) {
         Properties properties = PropertiesLoader.getProperties(FILE_NAME);
         YapixConfig internal = YapixConfig.fromProperties(properties);
-
-        YapixConfig config = new YapixConfig();
-        config.setYapiProjectId(settings.getYapiProjectId());
-        config.setRap2ProjectId(settings.getRap2ProjectId());
-        config.setEolinkerProjectId(settings.getEolinkerProjectId());
-        config.setReturnWrapType(settings.getReturnWrapType());
-
-        List<String> returnUnwrapTypes = Lists.newArrayList();
-        returnUnwrapTypes.addAll(internal.getReturnUnwrapTypes());
-        if (settings.getReturnUnwrapTypes() != null) {
-            returnUnwrapTypes.addAll(settings.getReturnUnwrapTypes());
-        }
-        config.setReturnUnwrapTypes(returnUnwrapTypes);
-
-        List<String> parameterIgnoreTypes = Lists.newArrayList();
-        if (settings.getParameterIgnoreTypes() != null) {
-            config.setReturnUnwrapTypes(returnUnwrapTypes);
-            parameterIgnoreTypes.addAll(settings.getParameterIgnoreTypes());
-        }
-        parameterIgnoreTypes.addAll(internal.getParameterIgnoreTypes());
-        config.setParameterIgnoreTypes(parameterIgnoreTypes);
-        return config;
+        return YapixConfig.getMergeSettings(settings, internal);
     }
 }
