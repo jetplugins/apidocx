@@ -1,9 +1,18 @@
 package io.yapix.config;
 
+import static io.yapix.config.DefaultConstants.FILE_NAME;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import io.yapix.parse.util.PropertiesLoader;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Yapix配置类, 对应文件.yapix
@@ -29,6 +38,13 @@ public class YapixConfig {
     private List<String> parameterIgnoreTypes;
 
     /**
+     * 自定义bean配置
+     */
+    private Map<String, BeanCustom> beans;
+
+    private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
+
+    /**
      * 解析配置
      */
     public static YapixConfig fromProperties(Properties properties) {
@@ -47,19 +63,43 @@ public class YapixConfig {
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
+
+        // 解析自定义bean配置: beans[xxx].json=xxx
+        Gson gson = new Gson();
+        Map<String, BeanCustom> beans = Maps.newHashMap();
+        config.setBeans(beans);
+        for (String p : properties.stringPropertyNames()) {
+            String propertyValue = properties.getProperty(p);
+            if (StringUtils.isEmpty(propertyValue)) {
+                continue;
+            }
+            Matcher matcher = BEANS_PATTERN.matcher(p);
+            if (!matcher.matches()) {
+                continue;
+            }
+            String beanType = matcher.group(1);
+            BeanCustom beanCustom = gson.fromJson(propertyValue, BeanCustom.class);
+            beans.put(beanType, beanCustom);
+        }
+
         return config;
     }
 
     /**
      * 合并配置
      */
-    public static YapixConfig getMergeSettings(YapixConfig settings, YapixConfig internal) {
+    public YapixConfig getMergedInternalConfig() {
+        Properties properties = PropertiesLoader.getProperties(FILE_NAME);
+        YapixConfig internal = YapixConfig.fromProperties(properties);
+        YapixConfig settings = this;
+
         YapixConfig config = new YapixConfig();
         config.setYapiProjectId(settings.getYapiProjectId());
         config.setRap2ProjectId(settings.getRap2ProjectId());
         config.setEolinkerProjectId(settings.getEolinkerProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
 
+        // 解包装类型
         List<String> returnUnwrapTypes = Lists.newArrayList();
         returnUnwrapTypes.addAll(internal.getReturnUnwrapTypes());
         if (settings.getReturnUnwrapTypes() != null) {
@@ -67,6 +107,7 @@ public class YapixConfig {
         }
         config.setReturnUnwrapTypes(returnUnwrapTypes);
 
+        // 忽略参数类型
         List<String> parameterIgnoreTypes = Lists.newArrayList();
         if (settings.getParameterIgnoreTypes() != null) {
             config.setReturnUnwrapTypes(returnUnwrapTypes);
@@ -74,6 +115,16 @@ public class YapixConfig {
         }
         parameterIgnoreTypes.addAll(internal.getParameterIgnoreTypes());
         config.setParameterIgnoreTypes(parameterIgnoreTypes);
+
+        // 自定义bean配置
+        Map<String, BeanCustom> beans = Maps.newHashMap();
+        if (internal.getBeans() != null) {
+            beans.putAll(internal.getBeans());
+        }
+        if (settings.getBeans() != null) {
+            beans.putAll(settings.getBeans());
+        }
+        config.setBeans(beans);
         return config;
     }
 
@@ -125,5 +176,13 @@ public class YapixConfig {
 
     public void setEolinkerProjectId(String eolinkerProjectId) {
         this.eolinkerProjectId = eolinkerProjectId;
+    }
+
+    public Map<String, BeanCustom> getBeans() {
+        return beans;
+    }
+
+    public void setBeans(Map<String, BeanCustom> beans) {
+        this.beans = beans;
     }
 }

@@ -109,7 +109,7 @@ public class EolinkerDataConvector {
             EolinkerHeaderProperty parameter = new EolinkerHeaderProperty();
             parameter.setHeaderName(p.getName());
             parameter.setParamName(p.getDescription());
-            parameter.setParamNotNull(p.isRequired() ? EolinkerRequired.YES : EolinkerRequired.NO);
+            parameter.setParamNotNull(p.getRequired() ? EolinkerRequired.YES : EolinkerRequired.NO);
             parameter.setHeaderValue(p.getDefaultValue());
             return parameter;
         }).collect(Collectors.toList());
@@ -212,7 +212,7 @@ public class EolinkerDataConvector {
         property.setParamKey(item.getName());
         property.setParamType(type);
         property.setParamName(item.getDescription());
-        property.setParamNotNull(item.isRequired() ? EolinkerRequired.YES : EolinkerRequired.NO);
+        property.setParamNotNull(item.getRequired() ? EolinkerRequired.YES : EolinkerRequired.NO);
         property.setDefaultValue(item.getDefaultValue());
         return property;
     }

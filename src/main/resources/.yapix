@@ -1,3 +1,23 @@
 returnUnwrapTypes=reactor.core.publisher.Flux, reactor.core.publisher.Mono
 parameterIgnoreTypes=javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, \
-    org.springframework.validation.BindingResult, org.springframework.data.domain.Pageable
+    org.springframework.validation.BindingResult
+# 自定义bean配置
+beans[org.springframework.data.domain.Pageable]=\
+	{ \
+		"includes": ["pageNumber", "pageSize", "sort"], \
+		"fields": { \
+			"pageNumber": { \
+				"name": "page", \
+				"description": "page size" \
+			}, \
+			"pageSize": { \
+				"name": "size", \
+				"description": "page number" \
+			}, \
+			"sort": { \
+				"name": "sort", \
+				"type": "string", \
+				"description": "sort" \
+			} \
+		} \
+	}

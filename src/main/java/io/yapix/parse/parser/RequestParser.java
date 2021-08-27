@@ -37,10 +37,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RequestParser {
 
-    private YapixConfig settings;
+    private final YapixConfig settings;
+    private final KernelParser kernelParser;
 
     public RequestParser(YapixConfig settings) {
         this.settings = settings;
+        this.kernelParser = new KernelParser(settings);
     }
 
     public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
@@ -94,7 +96,7 @@ public class RequestParser {
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
-            Item item = KernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
+            Item item = kernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
             return Lists.newArrayList(item);
         }
 
@@ -103,7 +105,7 @@ public class RequestParser {
         List<PsiParameter> fileParameters = parameters.stream()
                 .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
-            Item item = KernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
+            Item item = kernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
             item.setName(p.getName());
             item.setRequired(true);
             items.add(item);
@@ -146,7 +148,7 @@ public class RequestParser {
      * 解析单个参数
      */
     private Item doParseParameter(PsiParameter parameter) {
-        Item item = KernelParser
+        Item item = kernelParser
                 .parseType(parameter.getProject(), parameter.getType(), parameter.getType().getCanonicalText());
         // 参数类型
         PsiAnnotation annotation = null;

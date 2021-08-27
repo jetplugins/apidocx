@@ -25,11 +25,8 @@ import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
 import io.yapix.rap2.Rap2UploadAction;
 import io.yapix.yapi.YapiUploadAction;
-import java.io.IOException;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
 
 /**
  * 处理Yapi上传入口动作.
@@ -72,7 +69,7 @@ public abstract class AbstractAction extends AnAction {
         YapixConfig config;
         try {
             config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+        } catch (Exception e) {
             notifyError(String.format("Config file error: %s", e.getMessage()));
             return;
         }

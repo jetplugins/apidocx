@@ -68,7 +68,7 @@ public class YapiDataConvector {
             parameter.setType(p.getType());
             parameter.setDesc(p.getDescription());
             parameter.setExample(p.getExample());
-            parameter.setRequired(p.isRequired() ? "1" : "0");
+            parameter.setRequired(p.getRequired() ? "1" : "0");
             parameter.setValue(p.getDefaultValue());
             return parameter;
         }).collect(Collectors.toList());
@@ -97,7 +97,7 @@ public class YapiDataConvector {
             parameter.setName(p.getName());
             parameter.setType("file".equals(p.getType()) ? "file" : "text");
             parameter.setDesc(p.getDescription());
-            parameter.setRequired(p.isRequired() ? "1" : "0");
+            parameter.setRequired(p.getRequired() ? "1" : "0");
             parameter.setExample(p.getExample());
             parameter.setDesc(p.getDescription());
             return parameter;
@@ -137,7 +137,7 @@ public class YapiDataConvector {
         List<String> required = Lists.newArrayList();
         if (item.getProperties() != null) {
             for (Entry<String, Item> entry : item.getProperties().entrySet()) {
-                if (entry.getValue().isRequired()) {
+                if (entry.getValue().getRequired()) {
                     required.add(entry.getKey());
                 }
             }
@@ -153,7 +153,7 @@ public class YapiDataConvector {
             for (Entry<String, Item> entry : item.getProperties().entrySet()) {
                 String key = entry.getKey();
                 Item value = entry.getValue();
-                if (value.isRequired()) {
+                if (value.getRequired()) {
                     required.add(key);
                 }
                 yapiProperties.put(key, copyItem(value));

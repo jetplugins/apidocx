@@ -1,7 +1,6 @@
 package io.yapix.parse;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.yapix.config.DefaultConstants.FILE_NAME;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -20,11 +19,9 @@ import io.yapix.parse.parser.PathParser;
 import io.yapix.parse.parser.RequestParser;
 import io.yapix.parse.parser.ResponseParser;
 import io.yapix.parse.util.PathUtils;
-import io.yapix.parse.util.PropertiesLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -40,9 +37,9 @@ public class ApiParser {
 
     public ApiParser(YapixConfig settings) {
         checkNotNull(settings);
-        settings = getMergeSettings(settings);
-        this.requestParser = new RequestParser(settings);
-        this.responseParser = new ResponseParser(settings);
+        YapixConfig mergedSettings = settings.getMergedInternalConfig();
+        this.requestParser = new RequestParser(mergedSettings);
+        this.responseParser = new ResponseParser(mergedSettings);
     }
 
     /**
@@ -135,14 +132,5 @@ public class ApiParser {
         api.setRequestBodyForm(requestInfo.getRequestBodyForm());
         api.setResponses(responseParser.parse(method));
         return api;
-    }
-
-    /**
-     * 合并内部配置
-     */
-    private YapixConfig getMergeSettings(YapixConfig settings) {
-        Properties properties = PropertiesLoader.getProperties(FILE_NAME);
-        YapixConfig internal = YapixConfig.fromProperties(properties);
-        return YapixConfig.getMergeSettings(settings, internal);
     }
 }

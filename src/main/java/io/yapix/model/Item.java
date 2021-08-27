@@ -1,6 +1,7 @@
 package io.yapix.model;
 
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 参数
@@ -20,10 +21,10 @@ public class Item {
     private ParameterIn in;
 
     /** 是否必须 */
-    private boolean required;
+    private Boolean required;
 
     /** 是否标记过期 */
-    private boolean deprecated;
+    private Boolean deprecated;
 
     /** 当type为object */
     private Map<String, Item> properties;
@@ -48,6 +49,36 @@ public class Item {
 
     public boolean isObjectType() {
         return DataTypes.OBJECT.equals(type);
+    }
+
+    /**
+     * 合并自定义配置, 自定义优先
+     */
+    public void mergeCustom(Item custom) {
+        if (StringUtils.isNotEmpty(custom.getName())) {
+            this.name = custom.getName();
+        }
+        if (StringUtils.isNotEmpty(custom.getType())) {
+            this.type = custom.getType();
+        }
+        if (StringUtils.isNotEmpty(custom.getDescription())) {
+            this.description = custom.getDescription();
+        }
+        if (custom.getRequired() != null) {
+            this.required = custom.getRequired();
+        }
+        if (custom.getDeprecated() != null) {
+            this.deprecated = custom.getDeprecated();
+        }
+        if (StringUtils.isNotEmpty(custom.getDefaultValue())) {
+            this.defaultValue = custom.getDefaultValue();
+        }
+        if (StringUtils.isNotEmpty(custom.getExample())) {
+            this.example = custom.getExample();
+        }
+        if (StringUtils.isNotEmpty(custom.getMock())) {
+            this.mock = custom.getMock();
+        }
     }
 
     //---------------------------generated-------------------------------//
@@ -85,19 +116,19 @@ public class Item {
         this.in = in;
     }
 
-    public boolean isRequired() {
+    public Boolean getRequired() {
         return required;
     }
 
-    public void setRequired(boolean required) {
+    public void setRequired(Boolean required) {
         this.required = required;
     }
 
-    public boolean isDeprecated() {
+    public Boolean getDeprecated() {
         return deprecated;
     }
 
-    public void setDeprecated(boolean deprecated) {
+    public void setDeprecated(Boolean deprecated) {
         this.deprecated = deprecated;
     }
 

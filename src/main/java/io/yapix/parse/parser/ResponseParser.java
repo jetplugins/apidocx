@@ -23,9 +23,11 @@ import org.apache.commons.lang3.StringUtils;
 public class ResponseParser {
 
     private final YapixConfig settings;
+    private final KernelParser kernelParser;
 
     public ResponseParser(YapixConfig settings) {
         this.settings = settings;
+        this.kernelParser = new KernelParser(settings);
     }
 
     public Item parse(PsiMethod method) {
@@ -52,7 +54,7 @@ public class ResponseParser {
         }
 
         // 解析
-        Item item = KernelParser.parseType(method.getProject(), type, typeText);
+        Item item = kernelParser.parseType(method.getProject(), type, typeText);
         if (item != null) {
             item.setDescription(returnType.getCanonicalText());
         }
