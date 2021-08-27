@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 参数
  */
-public class Item {
+public class Property {
 
     /** 名称 */
     private String name;
@@ -27,10 +27,10 @@ public class Item {
     private Boolean deprecated;
 
     /** 当type为object */
-    private Map<String, Item> properties;
+    private Map<String, Property> properties;
 
     /** 当type为array */
-    private Item items;
+    private Property items;
 
     /**
      * 请求示例
@@ -54,7 +54,7 @@ public class Item {
     /**
      * 合并自定义配置, 自定义优先
      */
-    public void mergeCustom(Item custom) {
+    public void mergeCustom(Property custom) {
         if (StringUtils.isNotEmpty(custom.getName())) {
             this.name = custom.getName();
         }
@@ -132,19 +132,19 @@ public class Item {
         this.deprecated = deprecated;
     }
 
-    public Map<String, Item> getProperties() {
+    public Map<String, Property> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, Item> properties) {
+    public void setProperties(Map<String, Property> properties) {
         this.properties = properties;
     }
 
-    public Item getItems() {
+    public Property getItems() {
         return items;
     }
 
-    public void setItems(Item items) {
+    public void setItems(Property items) {
         this.items = items;
     }
 

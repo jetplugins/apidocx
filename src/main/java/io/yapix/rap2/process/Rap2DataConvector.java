@@ -8,8 +8,8 @@ import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.model.Rap2Property;
 import io.yapix.model.Api;
 import io.yapix.model.DataTypes;
-import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.util.PropertiesLoader;
 import java.util.Collections;
@@ -79,7 +79,7 @@ public class Rap2DataConvector {
      * 获取响应参数
      */
     private static List<Rap2Property> getResponseProperties(Integer repositoryId, Api api) {
-        Item item = api.getResponses();
+        Property item = api.getResponses();
         if (item == null) {
             return Lists.newArrayList();
         }
@@ -92,12 +92,12 @@ public class Rap2DataConvector {
         return container;
     }
 
-    private static List<Rap2Property> doResolveBeanPropertiesUnwrapRoot(Item item, long repositoryId,
+    private static List<Rap2Property> doResolveBeanPropertiesUnwrapRoot(Property item, long repositoryId,
             PropertyScope scope, long propertyPos) {
         List<Rap2Property> data = Lists.newArrayList();
         // 解除顶层root
         if (DataTypes.OBJECT.equals(item.getType()) && item.getProperties() != null) {
-            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
                 Rap2Property property = doResolveBeanProperties(entry.getValue(), repositoryId, scope, propertyPos);
                 property.setName(entry.getKey());
                 data.add(property);
@@ -130,7 +130,7 @@ public class Rap2DataConvector {
         return properties;
     }
 
-    private static List<Rap2Property> doResolveRequestBodyProperties(Item item, long repositoryId) {
+    private static List<Rap2Property> doResolveRequestBodyProperties(Property item, long repositoryId) {
         Rap2Property property = doResolveBeanProperties(item, repositoryId, PropertyScope.request, PropertyPos.BODY);
         if (StringUtils.isEmpty(property.getName())) {
             property.setName("root");
@@ -140,7 +140,7 @@ public class Rap2DataConvector {
         return container;
     }
 
-    private static List<Rap2Property> doGetRequestParameterProperties(List<Item> items, Long repositoryId,
+    private static List<Rap2Property> doGetRequestParameterProperties(List<Property> items, Long repositoryId,
             PropertyScope scope,
             long defaultPos) {
         if (items == null || items.isEmpty()) {
@@ -161,7 +161,7 @@ public class Rap2DataConvector {
     /**
      * 解析标准接口模型到Rap2Property树结构
      */
-    private static Rap2Property doResolveBeanProperties(Item item, long repositoryId, PropertyScope scope,
+    private static Rap2Property doResolveBeanProperties(Property item, long repositoryId, PropertyScope scope,
             long propertyPos) {
         Rap2Property property = copyToRap2Property(item, scope);
         property.setRepositoryId(repositoryId);
@@ -169,11 +169,11 @@ public class Rap2DataConvector {
         List<Rap2Property> children = Lists.newArrayList();
         property.setChildren(children);
 
-        Map<String, Item> objectProperties = null;
+        Map<String, Property> objectProperties = null;
         if (DataTypes.OBJECT.equals(item.getType())) {
             objectProperties = item.getProperties();
         } else {
-            Item arrayItem = item.getItems();
+            Property arrayItem = item.getItems();
             if (DataTypes.ARRAY.equals(item.getType()) && arrayItem != null) {
                 // 由于rap2只支持对象数组: 解对象数组
                 if (DataTypes.OBJECT.equals(arrayItem.getType())) {
@@ -186,9 +186,9 @@ public class Rap2DataConvector {
             }
         }
         if (objectProperties != null) {
-            for (Entry<String, Item> entry : objectProperties.entrySet()) {
+            for (Entry<String, Property> entry : objectProperties.entrySet()) {
                 String key = entry.getKey();
-                Item childItem = entry.getValue();
+                Property childItem = entry.getValue();
                 Rap2Property propertyChild = doResolveBeanProperties(childItem, repositoryId, scope, propertyPos);
                 propertyChild.setName(key);
                 propertyChild.setParentId(property.getId());
@@ -201,7 +201,7 @@ public class Rap2DataConvector {
     /**
      * 标准模型item转化为简单得Rap2Property属性
      */
-    private static Rap2Property copyToRap2Property(Item item, PropertyScope scope) {
+    private static Rap2Property copyToRap2Property(Property item, PropertyScope scope) {
         Properties types = PropertiesLoader.getProperties(PROPERTIES_FILE);
         String type = types.getProperty(item.getType(), item.getType());
 

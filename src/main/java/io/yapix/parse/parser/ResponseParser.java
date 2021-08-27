@@ -7,7 +7,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.config.YapixConfig;
-import io.yapix.model.Item;
+import io.yapix.model.Property;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ResponseParser {
         this.kernelParser = new KernelParser(settings);
     }
 
-    public Item parse(PsiMethod method) {
+    public Property parse(PsiMethod method) {
         PsiType returnType = method.getReturnType();
         if (returnType == null) {
             return null;
@@ -54,7 +54,7 @@ public class ResponseParser {
         }
 
         // 解析
-        Item item = kernelParser.parseType(method.getProject(), type, typeText);
+        Property item = kernelParser.parseType(method.getProject(), type, typeText);
         if (item != null) {
             item.setDescription(returnType.getCanonicalText());
         }

@@ -4,8 +4,8 @@ import static java.util.Objects.nonNull;
 
 import io.yapix.base.util.ItemUtils;
 import io.yapix.model.Api;
-import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ public class CurlGenerator {
         StringBuilder sb = new StringBuilder("curl --location --request ");
         sb.append(api.getMethod().name()).append(" '").append(getUrl(api)).append("' \\\n");
         // 请求头
-        for (Item p : api.getParametersByIn(ParameterIn.header)) {
+        for (Property p : api.getParametersByIn(ParameterIn.header)) {
             sb.append("--header '").append(p.getName()).append(": ' \\\n");
         }
         RequestBodyType bodyType = api.getRequestBodyType();
@@ -31,7 +31,7 @@ public class CurlGenerator {
                     .append("' \\\n");
         }
         // 表单数据
-        for (Item p : api.getRequestBodyForm()) {
+        for (Property p : api.getRequestBodyForm()) {
             sb.append("--data-urlencode '").append(p.getName())
                     .append("=").append(nonNull(p.getDefaultValue()) ? p.getDefaultValue() : "")
                     .append("' \\\n");
@@ -50,11 +50,11 @@ public class CurlGenerator {
      * 获取地址，包括参数拼接
      */
     private String getUrl(Api api) {
-        List<Item> queries = api.getParametersByIn(ParameterIn.query);
+        List<Property> queries = api.getParametersByIn(ParameterIn.query);
         StringBuilder sb = new StringBuilder(api.getPath());
         if (queries.size() > 0) {
             sb.append("?");
-            for (Item q : queries) {
+            for (Property q : queries) {
                 sb.append(q.getName())
                         .append("=").append(nonNull(q.getDefaultValue()) ? q.getDefaultValue() : "")
                         .append("&");

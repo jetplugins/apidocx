@@ -7,8 +7,8 @@ import io.yapix.base.sdk.yapi.model.YapiItem;
 import io.yapix.base.sdk.yapi.model.YapiMock;
 import io.yapix.base.sdk.yapi.model.YapiParameter;
 import io.yapix.model.Api;
-import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.util.JsonUtils;
 import java.util.Collections;
@@ -60,7 +60,7 @@ public class YapiDataConvector {
             return Collections.emptyList();
         }
 
-        List<Item> parameters = api.getParameters().stream()
+        List<Property> parameters = api.getParameters().stream()
                 .filter(p -> p.getIn() == in).collect(Collectors.toList());
         List<YapiParameter> data = parameters.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
@@ -88,7 +88,7 @@ public class YapiDataConvector {
      * 解析请求体表单
      */
     private static List<YapiParameter> resolveReqBodyForm(Api api) {
-        List<Item> items = api.getRequestBodyForm();
+        List<Property> items = api.getRequestBodyForm();
         if (items == null) {
             return Collections.emptyList();
         }
@@ -108,7 +108,7 @@ public class YapiDataConvector {
      * 解析请求体
      */
     private static String resolveReqBody(Api api) {
-        Item request = api.getRequestBody();
+        Property request = api.getRequestBody();
         if (request == null) {
             return "";
         }
@@ -120,7 +120,7 @@ public class YapiDataConvector {
      * 解析响应体
      */
     private static String resolveResBody(Api api) {
-        Item responses = api.getResponses();
+        Property responses = api.getResponses();
         if (responses == null) {
             return "";
         }
@@ -128,7 +128,7 @@ public class YapiDataConvector {
         return JsonUtils.toJson(item);
     }
 
-    private static YapiItem copyItem(Item item) {
+    private static YapiItem copyItem(Property item) {
         YapiItem yapiItem = new YapiItem();
         yapiItem.setType(item.getType());
         yapiItem.setDescription(item.getDescription());
@@ -136,7 +136,7 @@ public class YapiDataConvector {
         // 必填
         List<String> required = Lists.newArrayList();
         if (item.getProperties() != null) {
-            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
                 if (entry.getValue().getRequired()) {
                     required.add(entry.getKey());
                 }
@@ -150,9 +150,9 @@ public class YapiDataConvector {
         // 对象
         if (item.getProperties() != null) {
             Map<String, YapiItem> yapiProperties = new HashMap<>();
-            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
                 String key = entry.getKey();
-                Item value = entry.getValue();
+                Property value = entry.getValue();
                 if (value.getRequired()) {
                     required.add(key);
                 }

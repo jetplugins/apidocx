@@ -25,7 +25,7 @@ public class Api {
     private Boolean deprecated;
 
     /** 参数 */
-    private List<Item> parameters;
+    private List<Property> parameters;
 
     /**
      * 请求体类型
@@ -33,20 +33,20 @@ public class Api {
     private RequestBodyType requestBodyType;
 
     /** 请求体参数 */
-    private Item requestBody;
+    private Property requestBody;
 
     /**
      * 请求体表单
      */
-    private List<Item> requestBodyForm;
+    private List<Property> requestBodyForm;
 
     /** 响应体 */
-    private Item responses;
+    private Property responses;
 
     /** 分类 */
     private String category;
 
-    public List<Item> getParametersByIn(ParameterIn in) {
+    public List<Property> getParametersByIn(ParameterIn in) {
         if (parameters == null) {
             return Collections.emptyList();
         }
@@ -95,11 +95,11 @@ public class Api {
         this.deprecated = deprecated;
     }
 
-    public List<Item> getParameters() {
+    public List<Property> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<Item> parameters) {
+    public void setParameters(List<Property> parameters) {
         this.parameters = parameters;
     }
 
@@ -111,19 +111,19 @@ public class Api {
         this.requestBodyType = requestBodyType;
     }
 
-    public Item getRequestBody() {
+    public Property getRequestBody() {
         return requestBody;
     }
 
-    public void setRequestBody(Item requestBody) {
+    public void setRequestBody(Property requestBody) {
         this.requestBody = requestBody;
     }
 
-    public Item getResponses() {
+    public Property getResponses() {
         return responses;
     }
 
-    public void setResponses(Item responses) {
+    public void setResponses(Property responses) {
         this.responses = responses;
     }
 
@@ -135,11 +135,11 @@ public class Api {
         this.category = category;
     }
 
-    public List<Item> getRequestBodyForm() {
+    public List<Property> getRequestBodyForm() {
         return requestBodyForm;
     }
 
-    public void setRequestBodyForm(List<Item> requestBodyForm) {
+    public void setRequestBodyForm(List<Property> requestBodyForm) {
         this.requestBodyForm = requestBodyForm;
     }
 }

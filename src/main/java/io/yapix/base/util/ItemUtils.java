@@ -3,7 +3,7 @@ package io.yapix.base.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.yapix.model.DataTypes;
-import io.yapix.model.Item;
+import io.yapix.model.Property;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,13 +17,13 @@ public class ItemUtils {
     private ItemUtils() {
     }
 
-    public static String getJsonExample(Item item) {
+    public static String getJsonExample(Property item) {
         Object example = doGetJsonExample(item);
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         return gson.toJson(example);
     }
 
-    private static Object doGetJsonExample(Item item) {
+    private static Object doGetJsonExample(Property item) {
         if (item == null) {
             return null;
         }
@@ -44,9 +44,9 @@ public class ItemUtils {
 
         if (type.equals(DataTypes.OBJECT)) {
             Map<String, Object> data = new HashMap<>();
-            Map<String, Item> properties = item.getProperties();
+            Map<String, Property> properties = item.getProperties();
             if (properties != null) {
-                for (Entry<String, Item> entry : properties.entrySet()) {
+                for (Entry<String, Property> entry : properties.entrySet()) {
                     data.put(entry.getKey(), doGetJsonExample(entry.getValue()));
                 }
             }

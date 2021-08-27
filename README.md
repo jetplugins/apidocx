@@ -37,6 +37,8 @@ returnWrapType=
 returnUnwrapTypes=
 # 参数忽略类型全称: 场景是自定义注入了一些参数类型不是由客户端上传
 parameterIgnoreTypes=
+# 自定义bean配置: 参见本项目resources/.yapix
+beans[xxx]=<JSON of bean: BeanCustom>
 ```
 备注: 对于list类型值支持英文逗号分隔、允许空格.
 

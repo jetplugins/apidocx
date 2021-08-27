@@ -1,6 +1,6 @@
 package io.yapix.parse.model;
 
-import io.yapix.model.Item;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import java.util.List;
 
@@ -9,16 +9,16 @@ import java.util.List;
  */
 public class RequestParseInfo {
 
-    private List<Item> parameters;
+    private List<Property> parameters;
     private RequestBodyType requestBodyType;
-    private Item requestBody;
-    private List<Item> requestBodyForm;
+    private Property requestBody;
+    private List<Property> requestBodyForm;
 
-    public List<Item> getParameters() {
+    public List<Property> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<Item> parameters) {
+    public void setParameters(List<Property> parameters) {
         this.parameters = parameters;
     }
 
@@ -30,19 +30,19 @@ public class RequestParseInfo {
         this.requestBodyType = requestBodyType;
     }
 
-    public Item getRequestBody() {
+    public Property getRequestBody() {
         return requestBody;
     }
 
-    public void setRequestBody(Item requestBody) {
+    public void setRequestBody(Property requestBody) {
         this.requestBody = requestBody;
     }
 
-    public List<Item> getRequestBodyForm() {
+    public List<Property> getRequestBodyForm() {
         return requestBodyForm;
     }
 
-    public void setRequestBodyForm(List<Item> requestBodyForm) {
+    public void setRequestBodyForm(List<Property> requestBodyForm) {
         this.requestBodyForm = requestBodyForm;
     }
 }

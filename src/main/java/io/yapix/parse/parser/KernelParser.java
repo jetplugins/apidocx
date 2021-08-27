@@ -15,7 +15,7 @@ import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.config.BeanCustom;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.DataTypes;
-import io.yapix.model.Item;
+import io.yapix.model.Property;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
@@ -37,11 +37,11 @@ public class KernelParser {
         this.settings = settings;
     }
 
-    public Item parseType(Project project, PsiType psiType, String canonicalType) {
+    public Property parseType(Project project, PsiType psiType, String canonicalType) {
         return doParseType(project, psiType, canonicalType, Sets.newHashSet());
     }
 
-    private Item doParseType(Project project, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
+    private Property doParseType(Project project, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
         // 泛型分割处理
         String[] types = splitTypeAndGenericPair(canonicalType);
         String type = types[0];
@@ -50,7 +50,7 @@ public class KernelParser {
             return null;
         }
 
-        Item item = new Item();
+        Property item = new Property();
         item.setRequired(false);
         item.setType(DataTypes.OBJECT);
         PsiClass psiClass = PsiUtils.findPsiClass(project, type);
@@ -73,33 +73,33 @@ public class KernelParser {
         if (PsiTypeUtils.isArray(psiType)) {
             PsiArrayType arrayType = (PsiArrayType) psiType;
             PsiType componentType = arrayType.getComponentType();
-            Item items = doParseType(project, componentType, componentType.getCanonicalText(), null);
+            Property items = doParseType(project, componentType, componentType.getCanonicalText(), null);
             item.setItems(items);
         }
         // 集合
         if (PsiTypeUtils.isCollection(psiType)) {
-            Item items = doParseType(project, null, genericTypes, null);
+            Property items = doParseType(project, null, genericTypes, null);
             item.setItems(items);
         }
         // 对象
         boolean isNeedParseObject = psiClass != null && item.isObjectType()
                 && (chains == null || !chains.contains(psiClass));
         if (isNeedParseObject) {
-            Map<String, Item> properties = doParseBean(project, psiType, type, genericTypes, psiClass, chains);
+            Map<String, Property> properties = doParseBean(project, psiType, type, genericTypes, psiClass, chains);
             item.setProperties(properties);
         }
         return item;
     }
 
     @NotNull
-    private Map<String, Item> doParseBean(Project project, PsiType psiType, String type, String genericTypes,
+    private Map<String, Property> doParseBean(Project project, PsiType psiType, String type, String genericTypes,
             PsiClass psiClass, Set<PsiClass> chains) {
         // 防止循环引用
         HashSet<PsiClass> newChains = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
         newChains.add(psiClass);
         BeanCustom beanCustom = getBeanCustom(type);
 
-        Map<String, Item> properties = new LinkedHashMap<>();
+        Map<String, Property> properties = new LinkedHashMap<>();
         if (psiClass.isInterface()) {
             // 接口类型
             PsiMethod[] methods = PsiUtils.getGetterMethods(psiClass);
@@ -112,7 +112,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
-                Item filedItem = doParseType(project, filedType, realType, newChains);
+                Property filedItem = doParseType(project, filedType, realType, newChains);
                 if (filedItem == null) {
                     continue;
                 }
@@ -135,7 +135,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, field.getType(), genericTypes);
-                Item filedItem = doParseType(project, psiType, realType, newChains);
+                Property filedItem = doParseType(project, psiType, realType, newChains);
                 if (filedItem == null) {
                     continue;
                 }
@@ -155,11 +155,11 @@ public class KernelParser {
     /**
      * 处理自定义的bean配置
      */
-    private void handleWithBeanCustomField(Item filedItem, String fieldName, BeanCustom beanCustom) {
+    private void handleWithBeanCustomField(Property filedItem, String fieldName, BeanCustom beanCustom) {
         if (beanCustom.getFields() == null || !beanCustom.getFields().containsKey(fieldName)) {
             return;
         }
-        Item customItem = beanCustom.getFields().get(fieldName);
+        Property customItem = beanCustom.getFields().get(fieldName);
         if (customItem == null) {
             return;
         }

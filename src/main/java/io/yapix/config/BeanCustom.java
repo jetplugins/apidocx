@@ -1,6 +1,6 @@
 package io.yapix.config;
 
-import io.yapix.model.Item;
+import io.yapix.model.Property;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,7 +23,7 @@ public class BeanCustom {
     /**
      * 字段信息配置
      */
-    private Map<String, Item> fields;
+    private Map<String, Property> fields;
 
     /**
      * 某个字段是否需要处理
@@ -56,11 +56,11 @@ public class BeanCustom {
         this.excludes = excludes;
     }
 
-    public Map<String, Item> getFields() {
+    public Map<String, Property> getFields() {
         return fields;
     }
 
-    public void setFields(Map<String, Item> fields) {
+    public void setFields(Map<String, Property> fields) {
         this.fields = fields;
     }
 }

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.2.2021082701</version>
+    <version>0.0.3</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -11,12 +11,13 @@
             <a href="https://github.com/jetplugins/yapix">GitHub</a> |
             <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
         </p>
-        <em>Features</em>
+        <h2>Features</h2>
         <ul>
             <li>Generate API documents from Java source code.</li>
             <li>Upload to YAPI platform.</li>
             <li>Upload to RAP2 platform.</li>
             <li>Upload to Eolinker platform.</li>
+            <li>Copy as cUrl.</li>
         </ul>
         <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/screenshots.gif" height="360">
     ]]></description>
@@ -62,6 +63,7 @@
       <p>0.0.3</p>
       <ul>
         <li>Add Copy as cURL.</li>
+        <li>Add supports custom bean config.</li>
         <li>Fix upload eolinker error.</li>
         <li>Optimize right menu.</li>
       </ul>

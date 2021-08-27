@@ -16,8 +16,8 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.HttpMethod;
-import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.constant.SwaggerConstants;
 import io.yapix.parse.model.RequestParseInfo;
@@ -47,9 +47,9 @@ public class RequestParser {
 
     public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
         List<PsiParameter> parameters = filterIgnoreParameter(method.getParameterList().getParameters());
-        List<Item> requestParameters = doParseParameters(method, parameters);
+        List<Property> requestParameters = doParseParameters(method, parameters);
         RequestBodyType requestBodyType = doParseRequestBodyType(parameters, httpMethod);
-        List<Item> requestBody = doParseRequestBody(parameters, httpMethod, requestParameters, requestBodyType);
+        List<Property> requestBody = doParseRequestBody(parameters, httpMethod, requestParameters, requestBodyType);
 
         RequestParseInfo info = new RequestParseInfo();
         info.setParameters(requestParameters);
@@ -86,8 +86,8 @@ public class RequestParser {
     /**
      * 解析请求体内容
      */
-    private List<Item> doParseRequestBody(List<PsiParameter> parameters, HttpMethod method,
-            List<Item> requestParameters, RequestBodyType requestBodyType) {
+    private List<Property> doParseRequestBody(List<PsiParameter> parameters, HttpMethod method,
+            List<Property> requestParameters, RequestBodyType requestBodyType) {
         if (!method.isAllowBody()) {
             return Lists.newArrayList();
         }
@@ -96,25 +96,25 @@ public class RequestParser {
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
-            Item item = kernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
+            Property item = kernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
             return Lists.newArrayList(item);
         }
 
         // 文件上传
-        List<Item> items = Lists.newArrayList();
+        List<Property> items = Lists.newArrayList();
         List<PsiParameter> fileParameters = parameters.stream()
                 .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
-            Item item = kernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
+            Property item = kernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
             item.setName(p.getName());
             item.setRequired(true);
             items.add(item);
         }
         // 合并查询参数到表单
         if (!fileParameters.isEmpty() && requestParameters != null) {
-            List<Item> queries = requestParameters.stream()
+            List<Property> queries = requestParameters.stream()
                     .filter(p -> p.getIn() == ParameterIn.query).collect(Collectors.toList());
-            for (Item query : queries) {
+            for (Property query : queries) {
                 query.setIn(null);
                 items.add(query);
             }
@@ -126,19 +126,19 @@ public class RequestParser {
     /**
      * 解析普通参数
      */
-    public List<Item> doParseParameters(PsiMethod method, List<PsiParameter> allParameters) {
+    public List<Property> doParseParameters(PsiMethod method, List<PsiParameter> allParameters) {
         List<PsiParameter> parameters = allParameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
                 .filter(p -> !MultipartFile.equals(p.getType().getCanonicalText()))
                 .collect(Collectors.toList());
 
         Map<String, String> paramTagMap = getTagParamTextMap(method);
-        List<Item> items = Lists.newArrayListWithExpectedSize(parameters.size());
+        List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
-            Item item = doParseParameter(parameter);
+            Property item = doParseParameter(parameter);
             item.setDescription(ParseHelper.getParameterDescription(parameter, paramTagMap));
 
-            List<Item> parameterItems = resolveItemToParameters(item);
+            List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);
         }
         return items;
@@ -147,8 +147,8 @@ public class RequestParser {
     /**
      * 解析单个参数
      */
-    private Item doParseParameter(PsiParameter parameter) {
-        Item item = kernelParser
+    private Property doParseParameter(PsiParameter parameter) {
+        Property item = kernelParser
                 .parseType(parameter.getProject(), parameter.getType(), parameter.getType().getCanonicalText());
         // 参数类型
         PsiAnnotation annotation = null;
@@ -192,13 +192,13 @@ public class RequestParser {
     /**
      * 解析Item为扁平结构的parameter
      */
-    private List<Item> resolveItemToParameters(Item item) {
+    private List<Property> resolveItemToParameters(Property item) {
         if (item == null) {
             return Collections.emptyList();
         }
         boolean needFlat = item.isObjectType() && item.getProperties() != null && ParameterIn.query == item.getIn();
         if (needFlat) {
-            Collection<Item> flatItems = item.getProperties().values();
+            Collection<Property> flatItems = item.getProperties().values();
             flatItems.forEach(one -> one.setIn(item.getIn()));
             return Lists.newArrayList(flatItems);
         }

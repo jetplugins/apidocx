@@ -13,8 +13,8 @@ import io.yapix.base.sdk.eolinker.model.EolinkerProperty;
 import io.yapix.model.Api;
 import io.yapix.model.DataTypes;
 import io.yapix.model.HttpMethod;
-import io.yapix.model.Item;
 import io.yapix.model.ParameterIn;
+import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.util.PropertiesLoader;
 import java.util.Collections;
@@ -103,7 +103,7 @@ public class EolinkerDataConvector {
         if (api.getParameters() == null) {
             return Collections.emptyList();
         }
-        List<Item> headers = api.getParameters().stream().filter(p -> p.getIn() == ParameterIn.header)
+        List<Property> headers = api.getParameters().stream().filter(p -> p.getIn() == ParameterIn.header)
                 .collect(Collectors.toList());
         List<EolinkerHeaderProperty> collect = headers.stream().map(p -> {
             EolinkerHeaderProperty parameter = new EolinkerHeaderProperty();
@@ -119,11 +119,11 @@ public class EolinkerDataConvector {
     /**
      * 获取查询参数
      */
-    private static List<EolinkerProperty> getEolinkerProperties(List<Item> items, ParameterIn in) {
+    private static List<EolinkerProperty> getEolinkerProperties(List<Property> items, ParameterIn in) {
         if (items == null) {
             return Collections.emptyList();
         }
-        List<Item> parameters = items.stream()
+        List<Property> parameters = items.stream()
                 .filter(p -> in == null || p.getIn() == in).collect(Collectors.toList());
         List<EolinkerProperty> data = parameters.stream().map(p -> copyToEolinkerProperty(p))
                 .collect(Collectors.toList());
@@ -152,11 +152,11 @@ public class EolinkerDataConvector {
         return Collections.emptyList();
     }
 
-    private static List<EolinkerProperty> doResolveBeanPropertiesUnwrapRoot(Item item) {
+    private static List<EolinkerProperty> doResolveBeanPropertiesUnwrapRoot(Property item) {
         List<EolinkerProperty> data = Lists.newArrayList();
         // 解除顶层root
         if (DataTypes.OBJECT.equals(item.getType()) && item.getProperties() != null) {
-            for (Entry<String, Item> entry : item.getProperties().entrySet()) {
+            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
                 EolinkerProperty property = doResolveBeanProperties(entry.getValue());
                 property.setParamKey(entry.getKey());
                 data.add(property);
@@ -169,16 +169,16 @@ public class EolinkerDataConvector {
     /**
      * 解析标准接口模型到EolinkerProperty树结构
      */
-    private static EolinkerProperty doResolveBeanProperties(Item item) {
+    private static EolinkerProperty doResolveBeanProperties(Property item) {
         EolinkerProperty property = copyToEolinkerProperty(item);
         List<EolinkerProperty> children = Lists.newArrayList();
         property.setChildList(children);
 
-        Map<String, Item> objectProperties = null;
+        Map<String, Property> objectProperties = null;
         if (DataTypes.OBJECT.equals(item.getType())) {
             objectProperties = item.getProperties();
         } else {
-            Item arrayItem = item.getItems();
+            Property arrayItem = item.getItems();
             if (DataTypes.ARRAY.equals(item.getType()) && arrayItem != null) {
                 // 由于eolinker只支持对象数组: 解对象数组
                 if (DataTypes.OBJECT.equals(arrayItem.getType())) {
@@ -190,9 +190,9 @@ public class EolinkerDataConvector {
             }
         }
         if (objectProperties != null) {
-            for (Entry<String, Item> entry : objectProperties.entrySet()) {
+            for (Entry<String, Property> entry : objectProperties.entrySet()) {
                 String key = entry.getKey();
-                Item childItem = entry.getValue();
+                Property childItem = entry.getValue();
                 EolinkerProperty propertyChild = doResolveBeanProperties(childItem);
                 propertyChild.setParamKey(key);
                 children.add(propertyChild);
@@ -204,7 +204,7 @@ public class EolinkerDataConvector {
     /**
      * 标准模型item转化为简单得Rap2Property属性
      */
-    private static EolinkerProperty copyToEolinkerProperty(Item item) {
+    private static EolinkerProperty copyToEolinkerProperty(Property item) {
         Properties types = PropertiesLoader.getProperties(PROPERTIES_FILE);
         String type = types.getProperty(item.getType(), item.getType());
 
