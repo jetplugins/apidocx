@@ -57,6 +57,9 @@ public class RequestParser {
         } else if (!requestBody.isEmpty()) {
             info.setRequestBody(requestBody.get(0));
         }
+        if (info.getRequestBodyForm() == null) {
+            info.setRequestBodyForm(Collections.emptyList());
+        }
         return info;
     }
 

@@ -5,6 +5,7 @@
 - [x] 上传到Yapi平台
 - [x] 上传到Rap2平台
 - [x] 上传到Eolinker平台
+- [x] 复制为cURL链接
 
 <img src="screenshots.gif" height="360">
 
@@ -37,7 +38,7 @@ returnUnwrapTypes=
 # 参数忽略类型全称: 场景是自定义注入了一些参数类型不是由客户端上传
 parameterIgnoreTypes=
 ```
-备注: 对于list类型值支持英文逗号分隔，并允许空格.
+备注: 对于list类型值支持英文逗号分隔、允许空格.
 
 ## 贡献
 欢迎提交需求，发现问题，提交代码来参与贡献。

@@ -39,7 +39,9 @@ public abstract class AbstractAction extends AnAction {
     /**
      * 检查前操作
      */
-    public abstract boolean before(AnActionEvent event, YapixConfig config);
+    public boolean before(AnActionEvent event, YapixConfig config) {
+        return true;
+    }
 
     /**
      * 文档处理

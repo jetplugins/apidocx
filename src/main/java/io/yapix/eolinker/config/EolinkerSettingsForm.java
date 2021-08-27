@@ -1,6 +1,5 @@
 package io.yapix.eolinker.config;
 
-import io.yapix.config.DefaultConstants;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -18,14 +17,16 @@ public class EolinkerSettingsForm {
     private JPanel panel;
     private JTextField loginUrlField;
 
+    private static final String EOLINKER_URL = "https://riag.w.eolinker.com";
+    private static final String EOLINKER_LOGIN_URL = "https://www.eolinker.com";
+
     public JPanel getPanel() {
         return panel;
     }
 
     public void set(EolinkerSettings data) {
-        String url = StringUtils.isNotEmpty(data.getUrl()) ? data.getUrl() : DefaultConstants.EOLINKER_URL;
-        String loginUrl =
-                StringUtils.isNotEmpty(data.getLoginUrl()) ? data.getLoginUrl() : DefaultConstants.EOLINKER_LOGIN_URL;
+        String url = StringUtils.isNotEmpty(data.getUrl()) ? data.getUrl() : EOLINKER_URL;
+        String loginUrl = StringUtils.isNotEmpty(data.getLoginUrl()) ? data.getLoginUrl() : EOLINKER_LOGIN_URL;
         urlField.setText(url);
         loginUrlField.setText(loginUrl);
         accountField.setText(data.getAccount());

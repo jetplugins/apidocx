@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.2.2021082601</version>
+    <version>0.0.2.2021082701</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -11,7 +11,7 @@
             <a href="https://github.com/jetplugins/yapix">GitHub</a> |
             <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
         </p>
-        <h2>Features</h2>
+        <em>Features</em>
         <ul>
             <li>Generate API documents from Java source code.</li>
             <li>Upload to YAPI platform.</li>
@@ -54,16 +54,23 @@
             <action id="yapix.Rap2UploadAction" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2"/>
             <action id="yapix.EolinkerUploadAction" class="io.yapix.eolinker.EolinkerUploadAction"
                 text="Upload To Eolinker"/>
+            <action id="yapix.CopyAsCurlAction" class="io.yapix.curl.CopyAsCurlAction" text="Copy as cURL"/>
         </group>
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.0.3</p>
+      <ul>
+        <li>Add Copy as cURL.</li>
+        <li>Fix upload eolinker error.</li>
+        <li>Optimize right menu.</li>
+      </ul>
       <p>0.0.2</p>
       <ul>
-        <li>1.Generate API documents from Java source code.</li>
-        <li>2.Upload to YAPI platform.</li>
-        <li>3.Upload to RAP2 platform.</li>
-        <li>4.Upload to Eolinker platform.</li>
+        <li>Generate API documents from Java source code.</li>
+        <li>Upload to YAPI platform.</li>
+        <li>Upload to RAP2 platform.</li>
+        <li>Upload to Eolinker platform.</li>
       </ul>
       ]]></change-notes>
 

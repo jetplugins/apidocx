@@ -8,6 +8,7 @@ public interface DataTypes {
     String STRING = "string";
     String OBJECT = "object";
     String ARRAY = "array";
-
+    String DATETIME = "datetime";
+    String FILE = "file";
 
 }

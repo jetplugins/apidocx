@@ -7,9 +7,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.yapix.config.ApiPlatformType;
 import io.yapix.config.YapixSettings;
+import io.yapix.curl.CopyAsCurlAction;
 import io.yapix.eolinker.EolinkerUploadAction;
 import io.yapix.rap2.Rap2UploadAction;
 import io.yapix.yapi.YapiUploadAction;
@@ -23,7 +24,7 @@ public class YapixAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         YapixSettings settings = YapixSettings.getInstance();
-        ApiPlatformType defaultAction = settings.getDefaultAction();
+        YapiActions defaultAction = settings.getDefaultAction();
         AnAction action = null;
         switch (defaultAction) {
             case YApi:
@@ -35,6 +36,9 @@ public class YapixAction extends AnAction {
             case Eolinker:
                 action = new EolinkerUploadAction();
                 break;
+            case Curl:
+                action = new CopyAsCurlAction();
+                break;
             default:
                 return;
         }
@@ -44,7 +48,7 @@ public class YapixAction extends AnAction {
     @Override
     public void applyTextOverride(AnActionEvent e) {
         YapixSettings settings = YapixSettings.getInstance();
-        e.getPresentation().setText("Upload To " + settings.getDefaultAction().name());
+        e.getPresentation().setText(settings.getDefaultAction().getName());
     }
 
     @Override
@@ -53,10 +57,17 @@ public class YapixAction extends AnAction {
         Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile editorFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);
         if (editor != null && editorFile != null) {
+
             PsiElement referenceAt = editorFile.findElementAt(editor.getCaretModel().getOffset());
             PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
             if (selectClass != null) {
                 visible = true;
+                // 必须选中方法的情况下
+                YapixSettings settings = YapixSettings.getInstance();
+                if (settings.getDefaultAction() == YapiActions.Curl) {
+                    PsiMethod method = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
+                    visible = method != null;
+                }
             }
         }
         e.getPresentation().setVisible(visible);

@@ -1,6 +1,8 @@
 package io.yapix.model;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 接口信息
@@ -43,6 +45,15 @@ public class Api {
 
     /** 分类 */
     private String category;
+
+    public List<Item> getParametersByIn(ParameterIn in) {
+        if (parameters == null) {
+            return Collections.emptyList();
+        }
+        return parameters.stream().filter(p -> p.getIn() == in).collect(Collectors.toList());
+    }
+
+    //------------------generated--------------------//
 
     public String getPath() {
         return path;
