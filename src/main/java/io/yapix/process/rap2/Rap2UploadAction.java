@@ -102,10 +102,8 @@ public class Rap2UploadAction extends AbstractAction {
                 } finally {
                     if (interfaces != null && interfaces.size() > 0) {
                         Rap2Interface rapi = interfaces.get(0);
-                        String url = interfaces.size() == 1 && rapi.getId() != null ?
-                                urlCalculator
-                                        .calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), rapi.getId())
-                                : urlCalculator.calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), null);
+                        String url = urlCalculator
+                                .calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), rapi.getId());
                         notifyInfo("Rap2 Upload successful", format("<a href=\"%s\">%s</a>", url, url));
                     }
                     client.close();
