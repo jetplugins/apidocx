@@ -21,9 +21,9 @@
 - 代码逻辑简单，易于二次开发
 
 ## 使用
-1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: `Yapi X`
-2. 配置: 项目根目录创建`.yapix`文件, 内容: `yapiProjectId=110`
-3. 上传: 选中你的控制类或方法，右键执行: `Upload To YApi`
+1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: Yapi X
+2. 配置: 项目根目录创建".yapix"文件, 内容: yapiProjectId=110
+3. 上传: 光标放置在你的控制类或方法，右键执行: Upload To YApi
 
 ## 配置
 ```properties
@@ -43,4 +43,14 @@ beans[xxx]=<JSON of bean: BeanCustom>
 备注: 对于list类型值支持英文逗号分隔、允许空格.
 
 ## 贡献
-欢迎提交需求，发现问题，提交代码来参与贡献。
+欢迎提出您的发现问题、需求、建议、以及提交代码来参与贡献, 我们的下一步计划是：
+
+- 文档生成和上传细节打磨，例如mock、date类型等
+- 生成swagger.json
+- 支持上传更多的平台，例如postman等
+- 征集插件图标svg格式
+
+提示：如果您准备为该插件开发一个新功能，请先通过issues讨论，避免重复开发。
+
+## 捐赠
+非常感谢您使用Yapi X，如果贵公司有非通用的定制开发需求，可提供有偿定制开发服务。
