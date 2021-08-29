@@ -3,9 +3,9 @@ package io.yapix.process.yapi.process;
 import com.google.common.collect.Lists;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.model.YapiInterfaceStatus;
-import io.yapix.base.sdk.yapi.model.YapiItem;
 import io.yapix.base.sdk.yapi.model.YapiMock;
 import io.yapix.base.sdk.yapi.model.YapiParameter;
+import io.yapix.base.sdk.yapi.model.YapiProperty;
 import io.yapix.model.Api;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
@@ -44,6 +44,9 @@ public class YapiDataConvector {
         return yapi;
     }
 
+    /**
+     * 解析请求体类型
+     */
     private static String resolveReqBodyType(Api api) {
         RequestBodyType type = api.getRequestBodyType();
         if (type == RequestBodyType.form_data) {
@@ -60,8 +63,7 @@ public class YapiDataConvector {
             return Collections.emptyList();
         }
 
-        List<Property> parameters = api.getParameters().stream()
-                .filter(p -> p.getIn() == in).collect(Collectors.toList());
+        List<Property> parameters = api.getParametersByIn(in);
         List<YapiParameter> data = parameters.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
             parameter.setName(p.getName());
@@ -112,7 +114,7 @@ public class YapiDataConvector {
         if (request == null) {
             return "";
         }
-        YapiItem item = copyItem(request);
+        YapiProperty item = copyProperty(request);
         return JsonUtils.toJson(item);
     }
 
@@ -124,44 +126,49 @@ public class YapiDataConvector {
         if (responses == null) {
             return "";
         }
-        YapiItem item = copyItem(responses);
-        return JsonUtils.toJson(item);
+        YapiProperty property = copyProperty(responses);
+        return JsonUtils.toJson(property);
     }
 
-    private static YapiItem copyItem(Property item) {
-        YapiItem yapiItem = new YapiItem();
-        yapiItem.setType(item.getType());
-        yapiItem.setDescription(item.getDescription());
-        yapiItem.setMock(new YapiMock(item.getMock()));
+    /**
+     * 复制Property为YapiProperty结构，包括子树
+     */
+    private static YapiProperty copyProperty(Property property) {
+        YapiProperty yapiProperty = new YapiProperty();
+        yapiProperty.setType(property.getType());
+        yapiProperty.setDescription(property.getDescription());
+        if (StringUtils.isNotEmpty(property.getMock())) {
+            yapiProperty.setMock(new YapiMock(property.getMock()));
+        }
         // 必填
         List<String> required = Lists.newArrayList();
-        if (item.getProperties() != null) {
-            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
+        if (property.getProperties() != null) {
+            for (Entry<String, Property> entry : property.getProperties().entrySet()) {
                 if (entry.getValue().getRequired()) {
                     required.add(entry.getKey());
                 }
             }
         }
-        yapiItem.setRequired(required);
+        yapiProperty.setRequired(required);
         // 数组
-        if (item.getItems() != null) {
-            yapiItem.setItems(copyItem(item.getItems()));
+        if (property.getItems() != null) {
+            yapiProperty.setItems(copyProperty(property.getItems()));
         }
         // 对象
-        if (item.getProperties() != null) {
-            Map<String, YapiItem> yapiProperties = new LinkedHashMap<>();
-            for (Entry<String, Property> entry : item.getProperties().entrySet()) {
+        if (property.getProperties() != null) {
+            Map<String, YapiProperty> yapiProperties = new LinkedHashMap<>();
+            for (Entry<String, Property> entry : property.getProperties().entrySet()) {
                 String key = entry.getKey();
                 Property value = entry.getValue();
                 if (value.getRequired()) {
                     required.add(key);
                 }
-                yapiProperties.put(key, copyItem(value));
+                yapiProperties.put(key, copyProperty(value));
             }
-            yapiItem.setProperties(yapiProperties);
+            yapiProperty.setProperties(yapiProperties);
         }
 
-        return yapiItem;
+        return yapiProperty;
     }
 
 

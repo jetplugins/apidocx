@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.3</version>
+    <version>0.0.3.2021082901</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -61,6 +61,11 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.0.4</p>
+      <ul>
+        <li>Fix bean field orders.</li>
+        <li>Fix yapi mock error.</li>
+      </ul>
       <p>0.0.3</p>
       <ul>
         <li>Add Copy as cURL.</li>

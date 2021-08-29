@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 参数
  */
-public class YapiItem {
+public class YapiProperty {
 
     /** 类型 */
     private String type;
@@ -18,10 +18,10 @@ public class YapiItem {
     private List<String> required;
 
     /** 当type为object */
-    private Map<String, YapiItem> properties;
+    private Map<String, YapiProperty> properties;
 
     /** 当type为array */
-    private YapiItem items;
+    private YapiProperty items;
 
     /** 响应mock */
     private YapiMock mock;
@@ -50,19 +50,19 @@ public class YapiItem {
         this.required = required;
     }
 
-    public Map<String, YapiItem> getProperties() {
+    public Map<String, YapiProperty> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, YapiItem> properties) {
+    public void setProperties(Map<String, YapiProperty> properties) {
         this.properties = properties;
     }
 
-    public YapiItem getItems() {
+    public YapiProperty getItems() {
         return items;
     }
 
-    public void setItems(YapiItem items) {
+    public void setItems(YapiProperty items) {
         this.items = items;
     }
 
