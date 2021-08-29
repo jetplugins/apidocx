@@ -2,6 +2,7 @@ package io.yapix.config;
 
 import static io.yapix.config.DefaultConstants.FILE_NAME;
 
+import com.google.common.base.Splitter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -115,16 +116,26 @@ public final class YapixConfigUtils {
 
     private static YapixConfig doReadXmlYapiProjectConfigByOldVersion(Document doc) {
         YapixConfig config = new YapixConfig();
+
+        Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
         NodeList nodes = doc.getElementsByTagName("option");
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String attributeName = node.getAttributes().getNamedItem("name").getNodeValue();
+            String text = node.getTextContent().trim();
             switch (attributeName) {
                 case "projectId":
-                    config.setYapiProjectId(node.getTextContent().trim());
+                    config.setYapiProjectId(text);
                     break;
                 case "returnClass":
-                    config.setReturnWrapType(node.getTextContent().trim());
+                case "returnWrapType":
+                    config.setReturnWrapType(text);
+                    break;
+                case "returnUnwrapTypes":
+                    config.setReturnUnwrapTypes(splitter.splitToList(text));
+                    break;
+                case "parameterIgnoreTypes":
+                    config.setParameterIgnoreTypes(splitter.splitToList(text));
                     break;
             }
         }
@@ -134,14 +145,24 @@ public final class YapixConfigUtils {
     @NotNull
     private static YapixConfig doReadXmlYapiProjectConfigByNodeList(NodeList nodes) {
         YapixConfig config = new YapixConfig();
+
+        Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
+            String text = node.getTextContent().trim();
             switch (node.getNodeName()) {
                 case "projectId":
-                    config.setYapiProjectId(node.getTextContent().trim());
+                    config.setYapiProjectId(text);
                     break;
                 case "returnClass":
-                    config.setReturnWrapType(node.getTextContent().trim());
+                case "returnWrapType":
+                    config.setReturnWrapType(text);
+                    break;
+                case "returnUnwrapTypes":
+                    config.setReturnUnwrapTypes(splitter.splitToList(text));
+                    break;
+                case "parameterIgnoreTypes":
+                    config.setParameterIgnoreTypes(splitter.splitToList(text));
                     break;
             }
         }
