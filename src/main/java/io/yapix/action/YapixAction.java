@@ -10,10 +10,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.config.YapixSettings;
-import io.yapix.curl.CopyAsCurlAction;
-import io.yapix.eolinker.EolinkerUploadAction;
-import io.yapix.rap2.Rap2UploadAction;
-import io.yapix.yapi.YapiUploadAction;
+import io.yapix.process.curl.CopyAsCurlAction;
+import io.yapix.process.eolinker.EolinkerUploadAction;
+import io.yapix.process.rap2.Rap2UploadAction;
+import io.yapix.process.yapi.YapiUploadAction;
 import org.jetbrains.annotations.NotNull;
 
 /**

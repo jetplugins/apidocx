@@ -20,11 +20,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
-import io.yapix.eolinker.EolinkerUploadAction;
 import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
-import io.yapix.rap2.Rap2UploadAction;
-import io.yapix.yapi.YapiUploadAction;
+import io.yapix.process.eolinker.EolinkerUploadAction;
+import io.yapix.process.rap2.Rap2UploadAction;
+import io.yapix.process.yapi.YapiUploadAction;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 

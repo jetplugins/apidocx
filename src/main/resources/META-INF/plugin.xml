@@ -5,8 +5,8 @@
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
-        Generate API documents to any place: YAPI, RAP2, Eolinker, etc.<br>
-        一键生成接口文档, 上传到yapi, rap2, eolinker等<br>
+        Generate API documents to any place: YApi, Rap2, Eolinker, etc.<br>
+        一键生成接口文档, 上传到YApi, Rap2, eolinker等<br>
         <p>
             <a href="https://github.com/jetplugins/yapix">GitHub</a> |
             <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
@@ -14,10 +14,10 @@
         <h2>Features</h2>
         <ul>
             <li>Generate API documents from Java source code.</li>
-            <li>Upload to YAPI platform.</li>
-            <li>Upload to RAP2 platform.</li>
+            <li>Upload to YApi platform.</li>
+            <li>Upload to Rap2 platform.</li>
             <li>Upload to Eolinker platform.</li>
-            <li>Copy as cUrl.</li>
+            <li>Copy as cURL.</li>
         </ul>
         <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/screenshots.gif" height="360">
     ]]></description>
@@ -32,13 +32,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="io.yapix.config.YapixSettings"/>
-        <applicationService serviceImplementation="io.yapix.yapi.config.YapiSettings"/>
-        <applicationService serviceImplementation="io.yapix.rap2.config.Rap2Settings"/>
-        <applicationService serviceImplementation="io.yapix.eolinker.config.EolinkerSettings"/>
+        <applicationService serviceImplementation="io.yapix.process.yapi.config.YapiSettings"/>
+        <applicationService serviceImplementation="io.yapix.process.rap2.config.Rap2Settings"/>
+        <applicationService serviceImplementation="io.yapix.process.eolinker.config.EolinkerSettings"/>
         <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixSettingsConfiguration">
-            <configurable displayName="Yapi" instance="io.yapix.yapi.config.YapiSettingsConfiguration"/>
-            <configurable displayName="Rap2" instance="io.yapix.rap2.config.Rap2SettingsConfiguration"/>
-            <configurable displayName="Eolinker" instance="io.yapix.eolinker.config.EolinkerSettingsConfiguration"/>
+            <configurable displayName="YApi" instance="io.yapix.process.yapi.config.YapiSettingsConfiguration"/>
+            <configurable displayName="Rap2" instance="io.yapix.process.rap2.config.Rap2SettingsConfiguration"/>
+            <configurable displayName="Eolinker"
+                instance="io.yapix.process.eolinker.config.EolinkerSettingsConfiguration"/>
         </applicationConfigurable>
     </extensions>
 
@@ -51,11 +52,11 @@
         <group id="yapix.ActionGroup" text="Yapi X" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="yapix.YapiUploadAction" class="io.yapix.yapi.YapiUploadAction" text="Upload To YApi"/>
-            <action id="yapix.Rap2UploadAction" class="io.yapix.rap2.Rap2UploadAction" text="Upload To Rap2"/>
-            <action id="yapix.EolinkerUploadAction" class="io.yapix.eolinker.EolinkerUploadAction"
+            <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction" text="Upload To YApi"/>
+            <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction" text="Upload To Rap2"/>
+            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"
                 text="Upload To Eolinker"/>
-            <action id="yapix.CopyAsCurlAction" class="io.yapix.curl.CopyAsCurlAction" text="Copy as cURL"/>
+            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction" text="Copy as cURL"/>
         </group>
     </actions>
 

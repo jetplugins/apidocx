@@ -1,11 +1,11 @@
 # Yapi X
-一键生成接口文档, 上传到Yapi, Rap2, Eolinker等.
+一键生成接口文档, 上传到YApi, Rap2, Eolinker等.
 
 - [x] 一键从源代码生成api文档
-- [x] 上传到Yapi平台
+- [x] 上传到YApi平台
 - [x] 上传到Rap2平台
 - [x] 上传到Eolinker平台
-- [x] 复制为cURL链接
+- [x] 复制为cURL命令
 
 <img src="screenshots.gif" height="360">
 
@@ -23,7 +23,7 @@
 ## 使用
 1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: `Yapi X`
 2. 配置: 项目根目录创建`.yapix`文件, 内容: `yapiProjectId=110`
-3. 上传: 选中你的控制类或方法，右键执行: `Upload To Yapi`
+3. 上传: 选中你的控制类或方法，右键执行: `Upload To YApi`
 
 ## 配置
 ```properties
