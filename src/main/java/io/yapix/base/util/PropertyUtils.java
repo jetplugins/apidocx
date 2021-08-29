@@ -6,17 +6,23 @@ import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class ItemUtils {
+/**
+ * 数据模型Property处理工具
+ */
+public class PropertyUtils {
 
-    private ItemUtils() {
+    private PropertyUtils() {
     }
 
+    /**
+     * 类型描述转化为json示例
+     */
     public static String getJsonExample(Property item) {
         Object example = doGetJsonExample(item);
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
@@ -43,7 +49,7 @@ public class ItemUtils {
         }
 
         if (type.equals(DataTypes.OBJECT)) {
-            Map<String, Object> data = new HashMap<>();
+            Map<String, Object> data = new LinkedHashMap<>();
             Map<String, Property> properties = item.getProperties();
             if (properties != null) {
                 for (Entry<String, Property> entry : properties.entrySet()) {

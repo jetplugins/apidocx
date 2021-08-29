@@ -2,7 +2,7 @@ package io.yapix.curl;
 
 import static java.util.Objects.nonNull;
 
-import io.yapix.base.util.ItemUtils;
+import io.yapix.base.util.PropertyUtils;
 import io.yapix.model.Api;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
@@ -38,7 +38,7 @@ public class CurlGenerator {
         }
         // 请求体
         if (bodyType == RequestBodyType.json && api.getRequestBody() != null) {
-            sb.append("--data-raw '").append(ItemUtils.getJsonExample(api.getRequestBody())).append("' \\\n");
+            sb.append("--data-raw '").append(PropertyUtils.getJsonExample(api.getRequestBody())).append("' \\\n");
         }
         if (sb.charAt(sb.length() - 2) == '\\') {
             sb.deleteCharAt(sb.length() - 2);

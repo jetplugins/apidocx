@@ -12,7 +12,7 @@ import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.util.JsonUtils;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -149,7 +149,7 @@ public class YapiDataConvector {
         }
         // 对象
         if (item.getProperties() != null) {
-            Map<String, YapiItem> yapiProperties = new HashMap<>();
+            Map<String, YapiItem> yapiProperties = new LinkedHashMap<>();
             for (Entry<String, Property> entry : item.getProperties().entrySet()) {
                 String key = entry.getKey();
                 Property value = entry.getValue();
