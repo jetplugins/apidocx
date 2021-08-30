@@ -1,9 +1,9 @@
-package io.yapix.model;
+package io.yapix.parse.constant;
 
 /**
  * 自定义文档标记
  */
-public interface DocTags {
+public interface DocumentTags {
 
     String Category = "menu";
 
@@ -15,5 +15,6 @@ public interface DocTags {
 
     String Param = "param";
 
+    String Mock = "mock";
 
 }

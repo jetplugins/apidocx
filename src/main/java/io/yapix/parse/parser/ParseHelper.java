@@ -14,7 +14,7 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
-import io.yapix.model.DocTags;
+import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.SwaggerConstants;
@@ -39,7 +39,7 @@ public class ParseHelper {
      */
     public static String getApiCategory(PsiClass controller) {
         // 优先级: 文档注释标记@menu > 文档注释第一行 > 类名按照羊肉串风格命名
-        String category = PsiDocCommentUtils.getDocCommentTagText(controller, DocTags.Category);
+        String category = PsiDocCommentUtils.getDocCommentTagText(controller, DocumentTags.Category);
         if (StringUtils.isEmpty(category)) {
             category = PsiDocCommentUtils.getDocCommentTitle(controller);
         }
@@ -64,7 +64,7 @@ public class ParseHelper {
         PsiDocComment comment = method.getDocComment();
         if (comment != null) {
             if (StringUtils.isEmpty(summary)) {
-                String[] tags = {DocTags.Description, DocTags.DescriptionYapiUpload};
+                String[] tags = {DocumentTags.Description, DocumentTags.DescriptionYapiUpload};
                 for (String tag : tags) {
                     summary = PsiDocCommentUtils.getDocCommentTagText(method, tag);
                     if (StringUtils.isNotEmpty(summary)) {
@@ -102,7 +102,7 @@ public class ParseHelper {
         if (annotation != null) {
             return true;
         }
-        PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(method, DocTags.Deprecated);
+        PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(method, DocumentTags.Deprecated);
         return nonNull(deprecatedTag);
     }
 
@@ -154,7 +154,7 @@ public class ParseHelper {
         if (annotation != null) {
             return true;
         }
-        PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(field, DocTags.Deprecated);
+        PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(field, DocumentTags.Deprecated);
         return nonNull(deprecatedTag);
     }
 

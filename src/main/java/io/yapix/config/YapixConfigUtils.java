@@ -3,14 +3,19 @@ package io.yapix.config;
 import static io.yapix.config.DefaultConstants.FILE_NAME;
 
 import com.google.common.base.Splitter;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.yapix.base.util.JsonUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -123,6 +128,10 @@ public final class YapixConfigUtils {
             Node node = nodes.item(i);
             String attributeName = node.getAttributes().getNamedItem("name").getNodeValue();
             String text = node.getTextContent().trim();
+            if (StringUtils.isEmpty(text)) {
+                continue;
+            }
+
             switch (attributeName) {
                 case "projectId":
                     config.setYapiProjectId(text);
@@ -137,6 +146,12 @@ public final class YapixConfigUtils {
                 case "parameterIgnoreTypes":
                     config.setParameterIgnoreTypes(splitter.splitToList(text));
                     break;
+                case "mockRules":
+                    Type type = new TypeToken<List<MockRule>>() {
+                    }.getType();
+                    List<MockRule> mockRules = JsonUtils.fromJson(text, type);
+                    config.setMockRules(mockRules);
+                    break;
             }
         }
         return config;
@@ -145,11 +160,16 @@ public final class YapixConfigUtils {
     @NotNull
     private static YapixConfig doReadXmlYapiProjectConfigByNodeList(NodeList nodes) {
         YapixConfig config = new YapixConfig();
+        Gson gson = new Gson();
 
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String text = node.getTextContent().trim();
+            if (StringUtils.isEmpty(text)) {
+                continue;
+            }
+
             switch (node.getNodeName()) {
                 case "projectId":
                     config.setYapiProjectId(text);
@@ -163,6 +183,12 @@ public final class YapixConfigUtils {
                     break;
                 case "parameterIgnoreTypes":
                     config.setParameterIgnoreTypes(splitter.splitToList(text));
+                    break;
+                case "mockRules":
+                    Type type = new TypeToken<List<MockRule>>() {
+                    }.getType();
+                    List<MockRule> mockRules = JsonUtils.fromJson(text, type);
+                    config.setMockRules(mockRules);
                     break;
             }
         }

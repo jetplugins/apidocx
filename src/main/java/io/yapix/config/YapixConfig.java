@@ -6,7 +6,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.yapix.parse.util.PropertiesLoader;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +44,9 @@ public class YapixConfig {
      */
     private Map<String, BeanCustom> beans;
 
+    /** 智能mock规则 */
+    private List<MockRule> mockRules;
+
     private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
 
     /**
@@ -55,6 +60,7 @@ public class YapixConfig {
         String returnWrapType = properties.getProperty("returnWrapType", "");
         String returnUnwrapTypes = properties.getProperty("returnUnwrapTypes", "");
         String parameterIgnoreTypes = properties.getProperty("parameterIgnoreTypes", "");
+        String mockRules = properties.getProperty("mockRules");
 
         YapixConfig config = new YapixConfig();
         config.yapiProjectId = yapiProjectId.trim();
@@ -82,6 +88,12 @@ public class YapixConfig {
             beans.put(beanType, beanCustom);
         }
 
+        // 智能mock规则
+        if (StringUtils.isNotEmpty(mockRules)) {
+            Type type = new TypeToken<List<MockRule>>() {
+            }.getType();
+            config.mockRules = gson.fromJson(mockRules, type);
+        }
         return config;
     }
 
@@ -125,6 +137,16 @@ public class YapixConfig {
             beans.putAll(settings.getBeans());
         }
         config.setBeans(beans);
+
+        // mock规则
+        List<MockRule> mockRules = Lists.newArrayList();
+        if (settings.getMockRules() != null) {
+            mockRules.addAll(settings.getMockRules());
+        }
+        if (internal.getMockRules() != null) {
+            mockRules.addAll(internal.getMockRules());
+        }
+        config.setMockRules(mockRules);
         return config;
     }
 
@@ -184,5 +206,13 @@ public class YapixConfig {
 
     public void setBeans(Map<String, BeanCustom> beans) {
         this.beans = beans;
+    }
+
+    public List<MockRule> getMockRules() {
+        return mockRules;
+    }
+
+    public void setMockRules(List<MockRule> mockRules) {
+        this.mockRules = mockRules;
     }
 }

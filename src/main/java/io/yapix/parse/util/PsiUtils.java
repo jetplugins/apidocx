@@ -1,8 +1,10 @@
 package io.yapix.parse.util;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
@@ -12,6 +14,7 @@ import com.intellij.psi.PsiTypeParameter;
 import com.intellij.psi.search.GlobalSearchScope;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
@@ -131,5 +134,18 @@ public class PsiUtils {
             element = new StringBuilder(types[i] + "<" + element + ">");
         }
         return element.toString();
+    }
+
+    /**
+     * 获取枚举字段名
+     */
+    public static List<String> getEnumFieldNames(PsiClass psiClass) {
+        List<String> names = Lists.newArrayListWithExpectedSize(psiClass.getFields().length);
+        for (PsiField field : psiClass.getFields()) {
+            if (field instanceof PsiEnumConstant) {
+                names.add(field.getName());
+            }
+        }
+        return names;
     }
 }

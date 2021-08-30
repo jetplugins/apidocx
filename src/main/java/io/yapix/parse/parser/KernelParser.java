@@ -32,9 +32,11 @@ import org.jetbrains.annotations.NotNull;
 public class KernelParser {
 
     private final YapixConfig settings;
+    private final MockParser mockParser;
 
     public KernelParser(YapixConfig settings) {
         this.settings = settings;
+        this.mockParser = new MockParser(settings);
     }
 
     public Property parseType(Project project, PsiType psiType, String canonicalType) {
@@ -63,7 +65,6 @@ public class KernelParser {
 
         item.setDescription(psiType.getCanonicalText());
         item.setType(DataTypeParser.parseType(psiType));
-        item.setMock(MockParser.parseMock(psiType));
         // Map: 无需要解析
         if (PsiTypeUtils.isMap(psiType) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
@@ -112,18 +113,19 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
-                Property filedItem = doParseType(project, filedType, realType, newChains);
-                if (filedItem == null) {
+                Property fieldProperty = doParseType(project, filedType, realType, newChains);
+                if (fieldProperty == null) {
                     continue;
                 }
 
-                filedItem.setName(filedName);
-                filedItem.setDescription(ParseHelper.getMethodDescription(method));
-                filedItem.setDeprecated(ParseHelper.isDeprecated(method));
+                fieldProperty.setName(filedName);
+                fieldProperty.setDescription(ParseHelper.getMethodDescription(method));
+                fieldProperty.setDeprecated(ParseHelper.isDeprecated(method));
+                fieldProperty.setMock(mockParser.parseMock(fieldProperty, filedType, null, filedName));
                 if (beanCustom != null) {
-                    handleWithBeanCustomField(filedItem, filedName, beanCustom);
+                    handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
                 }
-                properties.put(filedItem.getName(), filedItem);
+                properties.put(fieldProperty.getName(), fieldProperty);
             }
         } else {
             // 实体类
@@ -135,18 +137,20 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, field.getType(), genericTypes);
-                Property filedItem = doParseType(project, psiType, realType, newChains);
-                if (filedItem == null) {
+                Property fieldProperty = doParseType(project, psiType, realType, newChains);
+                if (fieldProperty == null) {
                     continue;
                 }
-                filedItem.setName(ParseHelper.getFiledName(field));
-                filedItem.setDescription(ParseHelper.getFiledDescription(field));
-                filedItem.setDeprecated(ParseHelper.getFiledDeprecated(field));
-                filedItem.setRequired(ParseHelper.getFiledRequired(field));
+                fieldProperty.setName(ParseHelper.getFiledName(field));
+                fieldProperty.setDescription(ParseHelper.getFiledDescription(field));
+                fieldProperty.setDeprecated(ParseHelper.getFiledDeprecated(field));
+                fieldProperty.setRequired(ParseHelper.getFiledRequired(field));
+                fieldProperty.setMock(mockParser.parseMock(fieldProperty, field.getType(), field, filedName));
+
                 if (beanCustom != null) {
-                    handleWithBeanCustomField(filedItem, filedName, beanCustom);
+                    handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
                 }
-                properties.put(filedItem.getName(), filedItem);
+                properties.put(fieldProperty.getName(), fieldProperty);
             }
         }
         return properties;

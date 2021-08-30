@@ -1,15 +1,12 @@
 package io.yapix.process.yapi.process;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.YapiException;
 import io.yapix.base.sdk.yapi.model.InterfaceVo;
 import io.yapix.base.sdk.yapi.model.YapiCategory;
 import io.yapix.base.sdk.yapi.model.YapiCategoryAddRequest;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.model.YapiInterfaceStatus;
 import io.yapix.base.sdk.yapi.model.YapiListInterfaceResponse;
 import io.yapix.model.Api;
 import java.util.List;
@@ -23,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class YapiUploader {
 
     private final YapiClient client;
-    private final Gson gson = new Gson();
     private final Map<String, Integer> menuCatIdCache = new ConcurrentHashMap<>();
 
     public YapiUploader(YapiClient client) {
@@ -95,65 +91,9 @@ public class YapiUploader {
     private void addOrUpdate(YapiInterface api) {
         YapiInterface originApi = findOldParamByTitle(api);
         if (originApi != null) {
-            mergeInterface(api, originApi);
+            api.setId(originApi.getId());
         }
-        boolean isDone = isInterfaceDone(api);
-        if (!isDone) {
-            client.saveInterface(api);
-        }
-    }
-
-    private boolean isInterfaceDone(YapiInterface api) {
-        YapiListInterfaceResponse listResponse = client.listInterfaceByCat(api.getCatid(), 1, 1000);
-        List<InterfaceVo> apis = listResponse.getList();
-        if (apis == null || apis.size() == 0) {
-            return false;
-        }
-        for (InterfaceVo interfaceVo : apis) {
-            if (api.getPath().equals(interfaceVo.getPath()) && api.getMethod()
-                    .equals(interfaceVo.getMethod())) {
-                api.setId(interfaceVo.getId());
-                return YapiInterfaceStatus.done.name().equals(interfaceVo.getStatus());
-            }
-        }
-        return false;
-    }
-
-    private void mergeInterface(YapiInterface newApi, YapiInterface oldParam) {
-        if (!newApi.getResBodyType().equals(oldParam.getReqBodyType()) || !newApi.getResBodyType().equals("json")) {
-            return;
-        }
-        JsonObject newObject = gson.fromJson(newApi.getResBody(), JsonObject.class);
-        JsonObject oldObject = gson.fromJson(oldParam.getResBody(), JsonObject.class);
-        recursionMock(newObject, oldObject);
-        newApi.setResBody(gson.toJson(newObject));
-    }
-
-    private void recursionMock(JsonObject newObject, JsonObject oldObject) {
-        if (newObject == null || oldObject == null) {
-            return;
-        }
-        if (oldObject.get("type").getAsString().equals("object")) {
-            JsonObject newProperties = (JsonObject) newObject.get("properties");
-            JsonObject oldProperties = (JsonObject) oldObject.get("properties");
-            if (oldProperties != null && newProperties != null) {
-                for (String key : oldProperties.keySet()) {
-                    if (newProperties.has(key)) {
-                        recursionMock((JsonObject) newProperties.get(key), (JsonObject) oldProperties.get(key));
-                    }
-                }
-            }
-        } else if (oldObject.get("type").getAsString().equals("array")) {
-            recursionMock((JsonObject) newObject.get("items"), (JsonObject) oldObject.get("items"));
-        } else if (oldObject.has("mock") && oldObject.get("type").getAsString()
-                .equals(newObject.get("type").getAsString())) {
-            try {
-                newObject.remove("mock");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            newObject.add("mock", oldObject.get("mock"));
-        }
+        client.saveInterface(api);
     }
 
     public YapiInterface findOldParamByTitle(YapiInterface yapiInterface) {
@@ -182,6 +122,5 @@ public class YapiUploader {
         YapiCategory category = client.addCategory(req);
         return category.getId();
     }
-
 
 }

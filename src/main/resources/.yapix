@@ -6,18 +6,28 @@ beans[org.springframework.data.domain.Pageable]=\
 	{ \
 		"includes": ["pageNumber", "pageSize", "sort"], \
 		"fields": { \
-			"pageNumber": { \
-				"name": "page", \
-				"description": "page size" \
-			}, \
-			"pageSize": { \
-				"name": "size", \
-				"description": "page number" \
-			}, \
-			"sort": { \
-				"name": "sort", \
-				"type": "string", \
-				"description": "sort" \
-			} \
+			"pageNumber": { "name": "page", "description": "page size" }, \
+			"pageSize": { "name": "size", "description": "page number" }, \
+			"sort": { "name": "sort", "type": "string", "description": "sort" } \
 		} \
 	}
+# 智能mock规则
+mockRules=[\
+        {"name": "图标", "type": "string", "match": "avatar|icon", "mock": "@image('100x100')"}, \
+        {"name": "图片", "type": "string", "match": "image|img|photo|pic|.+Image|.+Img", "mock": "@image('400x400')"}, \
+        {"name": "网址", "type": "string", "match": ".*url", "mock": "@url('http')"}, \
+        {"name": "姓名", "type": "string", "match": ".*createUser|.*updateUser|createBy|updateBy|nickname|username", "mock": "@cname"}, \
+        {"name": "身份", "type": "string", "match": "idNumber", "mock": "@id"}, \
+        {"name": "电话", "type": "string", "match": "phone|mobile|tel$|userPhone|userMobile", "mock": "18723405520"}, \
+        {"name": "邮箱", "type": "string", "match": "e?mail*|userEmail", "mock": "@email"}, \
+        {"name": "IP", "type": "string", "match": ".*ip|ipAddress", "mock": "@ip"}, \
+        {"name": "标题", "type": "string", "match": "title|name", "mock": "@ctitle"}, \
+        {"name": "内容", "type": "string", "match": "description|content", "mock": "@csentence"}, \
+        {"name": "时间", "type": "string,datetime", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@datetime('yyyy-MM-dd HH:mm:ss')"}, \
+        {"name": "时轴", "type": "integer,number", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@timestamp"}, \
+        {"name": "省份", "type": "string", "match": ".*province.*", "mock": "@province"}, \
+        {"name": "城市", "type": "string", "match": ".*city.*", "mock": "@city"}, \
+        {"name": "地址", "type": "string", "match": ".*address.*", "mock": "@address"}, \
+        {"name": "整数", "type": "string,integer,number", "match": "id|num|code|amount|quantity|price|discount|balance|money", "mock": "@natural(1,100)"}, \
+        {"name": "数字", "type": "integer, number", "match": ".*", "mock": "@natural(1, 100)"} \
+    ]

@@ -26,15 +26,7 @@ public class Property {
     /** 是否标记过期 */
     private Boolean deprecated;
 
-    /** 当type为object */
-    private Map<String, Property> properties;
-
-    /** 当type为array */
-    private Property items;
-
-    /**
-     * 请求示例
-     */
+    /** 请求示例 */
     private String example;
 
     /** 响应mock */
@@ -42,6 +34,12 @@ public class Property {
 
     /** 默认值 */
     private String defaultValue;
+
+    /** 当type为array */
+    private Property items;
+
+    /** 当type为object */
+    private Map<String, Property> properties;
 
     public boolean isArrayType() {
         return DataTypes.ARRAY.equals(type);

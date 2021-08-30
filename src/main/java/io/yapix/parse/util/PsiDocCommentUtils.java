@@ -6,7 +6,7 @@ import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.psi.javadoc.PsiInlineDocTag;
-import io.yapix.model.DocTags;
+import io.yapix.parse.constant.DocumentTags;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class PsiDocCommentUtils {
      */
     public static Map<String, String> getTagParamTextMap(PsiJavaDocumentedElement element) {
         Map<String, String> map = new HashMap<>();
-        PsiDocTag[] tags = findTagsByName(element, DocTags.Param);
+        PsiDocTag[] tags = findTagsByName(element, DocumentTags.Param);
         for (PsiDocTag tag : tags) {
             PsiElement[] elements = tag.getDataElements();
             if (elements.length >= 2) {
@@ -37,6 +37,20 @@ public class PsiDocCommentUtils {
             }
         }
         return map;
+    }
+
+    /**
+     * 获取标记文本值
+     */
+    public static String getTagText(PsiJavaDocumentedElement element, String tagName) {
+        PsiDocTag tag = PsiDocCommentUtils.findTagByName(element, tagName);
+        if (tag != null) {
+            String[] splits = tag.getText().split("\\s", 2);
+            if (splits.length > 1) {
+                return splits[1];
+            }
+        }
+        return null;
     }
 
     /**

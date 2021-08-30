@@ -1,12 +1,12 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.3.2021083002</version>
+    <version>0.0.3.2021090101</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
         Generate API documents to any place: YApi, Rap2, Eolinker, etc.<br>
-        一键生成接口文档, 上传到YApi, Rap2, eolinker等<br>
+        一键生成接口文档, 上传到YApi, Rap2, Eolinker等<br>
         <p>
             <a href="https://github.com/jetplugins/yapix">GitHub</a> |
             <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
@@ -65,6 +65,7 @@
       <ul>
         <li>Fix bean field orders.</li>
         <li>Fix yapi mock error.</li>
+        <li>Add mock rules.</li>
       </ul>
       <p>0.0.3</p>
       <ul>
