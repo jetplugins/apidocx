@@ -1,12 +1,14 @@
 package io.yapix.parse.parser;
 
 import com.google.common.collect.Lists;
+import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiMethod;
 import io.yapix.model.HttpMethod;
 import io.yapix.parse.constant.SpringConstants;
+import io.yapix.parse.constant.WxbConstants;
 import io.yapix.parse.model.PathParseInfo;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * 路径请求相关工具解析类
@@ -34,18 +37,49 @@ public class PathParser {
      * 解析请求映射信息
      */
     public static PathParseInfo parse(PsiMethod method) {
+        PathParseInfo pathInfo = null;
         PsiAnnotation requestMapping = method.getAnnotation(SpringConstants.RequestMapping);
         if (requestMapping != null) {
-            return parseRequestMappingAnnotation(requestMapping);
-        }
-
-        for (Entry<HttpMethod, String> item : simpleMappings.entrySet()) {
-            PsiAnnotation annotation = method.getAnnotation(item.getValue());
-            if (annotation != null) {
-                return parseSimpleMappingAnnotation(item.getKey(), annotation);
+            pathInfo = parseRequestMappingAnnotation(requestMapping);
+        } else {
+            for (Entry<HttpMethod, String> item : simpleMappings.entrySet()) {
+                PsiAnnotation annotation = method.getAnnotation(item.getValue());
+                if (annotation != null) {
+                    pathInfo = parseSimpleMappingAnnotation(item.getKey(), annotation);
+                    break;
+                }
             }
         }
-        return null;
+
+        // 公司内部定制@ApiVersion注解
+        if (pathInfo != null && CollectionUtils.isNotEmpty(pathInfo.getPaths())) {
+            wxbPathHandle(method, pathInfo);
+        }
+        return pathInfo;
+    }
+
+    /**
+     * 小宝定制
+     */
+    private static void wxbPathHandle(PsiMethod method, PathParseInfo pathInfo) {
+        PsiAnnotation apiVersion = method.getAnnotation(WxbConstants.ApiVersion);
+        if (apiVersion == null && method.getContainingClass() != null) {
+            apiVersion = method.getContainingClass().getAnnotation(WxbConstants.ApiVersion);
+        }
+        if (apiVersion == null) {
+            return;
+        }
+        Long version = AnnotationUtil.getLongAttributeValue(apiVersion, PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME);
+        if (version == null) {
+            return;
+        }
+
+        List<String> paths = Lists.newArrayListWithCapacity(pathInfo.getPaths().size());
+        for (String p : pathInfo.getPaths()) {
+            String path = p.replaceAll("\\{\\s*version\\s*}", "v" + version);
+            paths.add(path);
+        }
+        pathInfo.setPaths(paths);
     }
 
     /**
