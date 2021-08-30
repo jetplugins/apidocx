@@ -51,7 +51,9 @@ public class CurlGenerator {
      */
     private String getUrl(Api api) {
         List<Property> queries = api.getParametersByIn(ParameterIn.query);
-        StringBuilder sb = new StringBuilder(api.getPath());
+        StringBuilder sb = new StringBuilder();
+        sb.append("{{host}}");
+        sb.append(api.getPath());
         if (queries.size() > 0) {
             sb.append("?");
             for (Property q : queries) {

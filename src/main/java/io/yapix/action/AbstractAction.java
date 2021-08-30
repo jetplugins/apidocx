@@ -20,6 +20,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
+import io.yapix.config.YapixSettings;
 import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
 import io.yapix.process.eolinker.EolinkerUploadAction;
@@ -57,6 +58,8 @@ public abstract class AbstractAction extends AnAction {
         if (psiJavaFiles.size() == 0) {
             return;
         }
+        YapixSettings settings = YapixSettings.getInstance();
+        YapiActions defaultAction = settings.getDefaultAction();
 
         // 配置文件解析
         VirtualFile file = psiFiles[0];
@@ -66,12 +69,14 @@ public abstract class AbstractAction extends AnAction {
             notifyError("Not found config file .yapi or yapi.xml");
             return;
         }
-        YapixConfig config;
+        YapixConfig config = null;
         try {
             config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
         } catch (Exception e) {
-            notifyError(String.format("Config file error: %s", e.getMessage()));
-            return;
+            if (defaultAction == null || defaultAction.isRequiredConfigFile()) {
+                notifyError(String.format("Config file error: %s", e.getMessage()));
+                return;
+            }
         }
         if (!checkConfig(config)) {
             return;
