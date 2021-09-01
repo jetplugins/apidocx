@@ -132,12 +132,13 @@ public class KernelParser {
             PsiField[] fields = PsiUtils.getFields(psiClass);
             for (PsiField field : fields) {
                 String filedName = field.getName();
+                PsiType fieldType = field.getType();
                 // 自定义配置决定是否处理该字段
                 if (beanCustom != null && !beanCustom.isNeedHandleField(filedName)) {
                     continue;
                 }
-                String realType = PsiUtils.getRealTypeWithGeneric(psiClass, field.getType(), genericTypes);
-                Property fieldProperty = doParseType(project, psiType, realType, newChains);
+                String realType = PsiUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
+                Property fieldProperty = doParseType(project, fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
@@ -145,7 +146,7 @@ public class KernelParser {
                 fieldProperty.setDescription(ParseHelper.getFiledDescription(field));
                 fieldProperty.setDeprecated(ParseHelper.getFiledDeprecated(field));
                 fieldProperty.setRequired(ParseHelper.getFiledRequired(field));
-                fieldProperty.setMock(mockParser.parseMock(fieldProperty, field.getType(), field, filedName));
+                fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));
 
                 if (beanCustom != null) {
                     handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
