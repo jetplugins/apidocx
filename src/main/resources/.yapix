@@ -6,9 +6,9 @@ beans[org.springframework.data.domain.Pageable]=\
 	{ \
 		"includes": ["pageNumber", "pageSize", "sort"], \
 		"fields": { \
-			"pageNumber": { "name": "page", "description": "page size" }, \
-			"pageSize": { "name": "size", "description": "page number" }, \
-			"sort": { "name": "sort", "type": "string", "description": "sort" } \
+			"pageNumber": { "name": "page", "description": "当前页" }, \
+			"pageSize": { "name": "size", "description": "每页数据量" }, \
+			"sort": { "name": "sort", "type": "string", "description": "排序" } \
 		} \
 	}
 # 智能mock规则
@@ -31,3 +31,14 @@ mockRules=[\
         {"name": "整数", "type": "string,integer,number", "match": "id|num|code|amount|quantity|price|discount|balance|money", "mock": "@natural(1,100)"}, \
         {"name": "数字", "type": "integer, number", "match": ".*", "mock": "@natural(1, 100)"} \
     ]
+# 公司私货
+beans[com.source3g.common.Result]= { \
+        "excludes": ["status"], \
+		"fields": { \
+			"code": { "mock": "0", "description": "状态码: 0(成功)"}, \
+			"action": { "mock": "/path", "description": "路径" }, \
+			"msg": { "mock": "ok", "description": "消息"}, \
+            "data": { "description": "数据"}, \
+			"timestamp": { "mock": "@now", "description": "时间"} \
+		} \
+	}

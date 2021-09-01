@@ -39,6 +39,8 @@ returnUnwrapTypes=
 parameterIgnoreTypes=
 # 自定义bean配置: 参见本项目resources/.yapix
 beans[xxx]=<JSON of bean: BeanCustom>
+# 自定义配置mock规则: 参见内置resource/.yapix
+mockRules=<JSON Array: List<MockRule>
 ```
 备注: 对于list类型值支持英文逗号分隔、允许空格.
 

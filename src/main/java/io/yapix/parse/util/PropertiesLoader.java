@@ -1,8 +1,11 @@
 package io.yapix.parse.util;
 
 import io.yapix.parse.parser.MockParser;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,10 +31,11 @@ public class PropertiesLoader {
      * 读取properties不会缓存
      */
     public static Properties readProperties(String file) {
-        InputStream is = MockParser.class.getClassLoader().getResourceAsStream(file);
         Properties properties = new Properties();
         try {
-            properties.load(is);
+            InputStream is = MockParser.class.getClassLoader().getResourceAsStream(file);
+            BufferedReader bf = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            properties.load(bf);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
