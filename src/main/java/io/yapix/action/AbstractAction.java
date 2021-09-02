@@ -64,6 +64,9 @@ public abstract class AbstractAction extends AnAction {
         // 配置文件解析
         VirtualFile file = psiFiles[0];
         Module module = ModuleUtil.findModuleForFile(file, project);
+        if (module == null) {
+            return;
+        }
         VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(project, module);
         if (yapiConfigFile == null || !yapiConfigFile.exists()) {
             notifyError("Not found config file .yapi or yapi.xml");
@@ -103,15 +106,16 @@ public abstract class AbstractAction extends AnAction {
         } else {
             psiClasses = PsiFileUtils.getPsiClassByFile(psiJavaFiles);
         }
-        List<Api> apis = parse(config, psiClasses, selectMethod);
+        List<Api> apis = parse(project, module, config, psiClasses, selectMethod);
         handle(event, config, apis);
     }
 
     /**
      * 解析文档模型数据
      */
-    private List<Api> parse(YapixConfig config, List<PsiClass> controllers, PsiMethod selectMethod) {
-        ApiParser parser = new ApiParser(config);
+    private List<Api> parse(Project project, Module module, YapixConfig config, List<PsiClass> controllers,
+            PsiMethod selectMethod) {
+        ApiParser parser = new ApiParser(project, module, config);
         List<Api> apis = Lists.newLinkedList();
         for (PsiClass controller : controllers) {
             List<Api> controllerApis = parser.parse(controller, selectMethod);

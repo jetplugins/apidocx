@@ -66,6 +66,7 @@
         <li>Fix bean field orders.</li>
         <li>Fix yapi mock error.</li>
         <li>Add mock rules.</li>
+        <li>Fix bugs.</li>
       </ul>
       <p>0.0.3</p>
       <ul>

@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -32,14 +34,20 @@ import java.util.stream.Collectors;
 public class ApiParser {
 
     private static final Gson gson = new Gson();
+    private final Project project;
+    private final Module module;
     private final RequestParser requestParser;
     private final ResponseParser responseParser;
 
-    public ApiParser(YapixConfig settings) {
+    public ApiParser(Project project, Module module, YapixConfig settings) {
+        checkNotNull(project);
+        checkNotNull(module);
         checkNotNull(settings);
         YapixConfig mergedSettings = settings.getMergedInternalConfig();
-        this.requestParser = new RequestParser(mergedSettings);
-        this.responseParser = new ResponseParser(mergedSettings);
+        this.requestParser = new RequestParser(project, module, mergedSettings);
+        this.responseParser = new ResponseParser(project, module, mergedSettings);
+        this.project = project;
+        this.module = module;
     }
 
     /**

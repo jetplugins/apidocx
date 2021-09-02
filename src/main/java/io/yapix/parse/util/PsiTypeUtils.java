@@ -96,7 +96,7 @@ public class PsiTypeUtils {
         if (enumType == null) {
             return null;
         }
-        PsiClass enumClass = PsiUtils.findPsiClass(project, enumType.getCanonicalText());
+        PsiClass enumClass = PsiUtils.findPsiClass(project, null, enumType.getCanonicalText());
         if (enumClass != null && enumClass.isEnum()) {
             return enumClass;
         }

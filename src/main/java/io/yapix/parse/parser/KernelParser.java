@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
@@ -31,10 +32,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public class KernelParser {
 
+    private final Project project;
+    private final Module module;
     private final YapixConfig settings;
     private final MockParser mockParser;
 
-    public KernelParser(YapixConfig settings) {
+    public KernelParser(Project project, Module module, YapixConfig settings) {
+        this.project = project;
+        this.module = module;
         this.settings = settings;
         this.mockParser = new MockParser(settings);
     }
@@ -55,7 +60,7 @@ public class KernelParser {
         Property item = new Property();
         item.setRequired(false);
         item.setType(DataTypes.OBJECT);
-        PsiClass psiClass = PsiUtils.findPsiClass(project, type);
+        PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, type);
         if (psiClass != null) {
             psiType = PsiTypesUtil.getClassType(psiClass);
         }

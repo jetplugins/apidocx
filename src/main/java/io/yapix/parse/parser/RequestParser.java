@@ -11,6 +11,8 @@ import static io.yapix.parse.util.PsiDocCommentUtils.getTagParamTextMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.intellij.codeInsight.AnnotationUtil;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
@@ -37,12 +39,16 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RequestParser {
 
+    private final Project project;
+    private final Module module;
     private final YapixConfig settings;
     private final KernelParser kernelParser;
 
-    public RequestParser(YapixConfig settings) {
+    public RequestParser(Project project, Module module, YapixConfig settings) {
+        this.project = project;
+        this.module = module;
         this.settings = settings;
-        this.kernelParser = new KernelParser(settings);
+        this.kernelParser = new KernelParser(project, module, settings);
     }
 
     public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {

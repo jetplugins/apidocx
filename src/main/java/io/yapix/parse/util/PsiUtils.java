@@ -1,6 +1,7 @@
 package io.yapix.parse.util;
 
 import com.google.common.collect.Lists;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -37,8 +38,16 @@ public class PsiUtils {
     }
 
 
-    public static PsiClass findPsiClass(Project project, String type) {
-        return JavaPsiFacade.getInstance(project).findClass(type, GlobalSearchScope.allScope(project));
+    public static PsiClass findPsiClass(Project project, Module module, String type) {
+        PsiClass psiClass = null;
+        if (module != null) {
+            psiClass = JavaPsiFacade.getInstance(project)
+                    .findClass(type, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+        }
+        if (psiClass == null) {
+            psiClass = JavaPsiFacade.getInstance(project).findClass(type, GlobalSearchScope.allScope(project));
+        }
+        return psiClass;
     }
 
     public static PsiMethod[] getGetterMethods(PsiClass psiClass) {

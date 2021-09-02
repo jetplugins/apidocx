@@ -2,6 +2,8 @@ package io.yapix.parse.parser;
 
 import static io.yapix.parse.util.PsiUtils.splitTypeAndGenericPair;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
@@ -22,12 +24,16 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ResponseParser {
 
+    private final Project project;
+    private final Module module;
     private final YapixConfig settings;
     private final KernelParser kernelParser;
 
-    public ResponseParser(YapixConfig settings) {
+    public ResponseParser(Project project, Module module, YapixConfig settings) {
+        this.project = project;
+        this.module = module;
         this.settings = settings;
-        this.kernelParser = new KernelParser(settings);
+        this.kernelParser = new KernelParser(project, module, settings);
     }
 
     public Property parse(PsiMethod method) {
@@ -41,7 +47,7 @@ public class ResponseParser {
         String unwrappedType = getUnwrapType(returnType);
         if (unwrappedType != null) {
             String[] types = splitTypeAndGenericPair(unwrappedType);
-            PsiClass psiClass = PsiUtils.findPsiClass(method.getProject(), types[0]);
+            PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, types[0]);
             type = PsiTypesUtil.getClassType(psiClass);
             typeText = unwrappedType;
         } else {
@@ -78,7 +84,7 @@ public class ResponseParser {
         if (StringUtils.isEmpty(settings.getReturnWrapType())) {
             return null;
         }
-        PsiClass returnClass = PsiUtils.findPsiClass(method.getProject(), settings.getReturnWrapType());
+        PsiClass returnClass = PsiUtils.findPsiClass(this.project, this.module, settings.getReturnWrapType());
         if (returnClass == null) {
             return null;
         }
