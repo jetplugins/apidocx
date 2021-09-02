@@ -212,7 +212,7 @@ public class Rap2DataConvector {
         property.setType(type);
         property.setDescription(item.getDescription());
         property.setRequired(item.getRequired());
-        property.setValue(item.getDefaultValue());
+        property.setValue(item.getMock());
         property.setDepth(1);
         property.setParentId("-1");
         property.setMemory(true);
