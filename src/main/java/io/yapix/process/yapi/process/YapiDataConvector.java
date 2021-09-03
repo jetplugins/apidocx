@@ -1,6 +1,6 @@
 package io.yapix.process.yapi.process;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.model.YapiInterfaceStatus;
 import io.yapix.base.sdk.yapi.model.YapiMock;
@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
@@ -141,7 +142,7 @@ public class YapiDataConvector {
             yapiProperty.setMock(new YapiMock(property.getMock()));
         }
         // 必填
-        List<String> required = Lists.newArrayList();
+        Set<String> required = Sets.newLinkedHashSet();
         if (property.getProperties() != null) {
             for (Entry<String, Property> entry : property.getProperties().entrySet()) {
                 if (entry.getValue().getRequired()) {

@@ -10,18 +10,28 @@ beans[org.springframework.data.domain.Pageable]= { \
             "sort": { "name": "sort", "type": "string", "description": "排序" } \
         } \
 	}
+beans[org.springframework.data.domain.Page]= { \
+        "includes": ["totalPages", "totalElements", "content", "first", "last"], \
+        "fields": { \
+            "content": { "description": "当前页数据", "required": true }, \
+            "totalPages": { "description": "总页数", "required": true }, \
+            "totalElements": { "description": "总条数", "required": true }, \
+            "first": { "description": "是否第一页", "required": true }, \
+            "last": { "description": "是否最后一页", "required": true } \
+        } \
+	}
 # 智能mock规则
 mockRules=[\
         {"name": "图标", "type": "string", "match": "avatar|icon", "mock": "@image('100x100')"}, \
         {"name": "图片", "type": "string", "match": "image|img|photo|pic|.+Image|.+Img", "mock": "@image('400x400')"}, \
         {"name": "网址", "type": "string", "match": ".*url", "mock": "@url('http')"}, \
-        {"name": "姓名", "type": "string", "match": ".*createUser|.*updateUser|createBy|updateBy|nickname|username", "mock": "@cname"}, \
+        {"name": "姓名", "type": "string", "match": "createUser|updateUser|createBy|updateBy|nickname|.*username|customerName", "mock": "@cname"}, \
         {"name": "身份", "type": "string", "match": "idNumber", "mock": "@id"}, \
         {"name": "电话", "type": "string", "match": "phone|mobile|tel$|userPhone|userMobile", "mock": "18723405520"}, \
         {"name": "邮箱", "type": "string", "match": "e?mail*|userEmail", "mock": "@email"}, \
         {"name": "IP", "type": "string", "match": ".*ip|ipAddress", "mock": "@ip"}, \
         {"name": "标题", "type": "string", "match": "title|name", "mock": "@ctitle"}, \
-        {"name": "内容", "type": "string", "match": "description|content", "mock": "@csentence"}, \
+        {"name": "内容", "type": "string", "match": "description|content", "mock": "@cparagraph"}, \
         {"name": "时间", "type": "string,datetime", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@datetime('yyyy-MM-dd HH:mm:ss')"}, \
         {"name": "时轴", "type": "integer,number", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@timestamp"}, \
         {"name": "省份", "type": "string", "match": ".*province.*", "mock": "@province"}, \
@@ -32,6 +42,16 @@ mockRules=[\
     ]
 
 # 公司私货
+beans[com.wangxiaobao.facedetect.vo.FaceDetectResult]= { \
+        "excludes": ["status"], \
+		"fields": { \
+			"code": { "mock": "0", "description": "状态码: 0(成功)", "required": true }, \
+			"action": { "mock": "/path", "description": "路径" , "required": true }, \
+			"msg": { "mock": "ok", "description": "消息", "required": true }, \
+            "data": { "description": "数据", "required": true }, \
+			"timestamp": { "mock": "@now", "description": "时间", "required": true} \
+		} \
+	}
 beans[com.source3g.common.Result]= { \
         "excludes": ["status"], \
 		"fields": { \
@@ -47,7 +67,7 @@ beans[com.source3g.common.Pager]= { \
 		"fields": { \
 			"pageNo": {"description": "页码", "required": true }, \
 			"pageSize": {"description": "每页大小", "required": true }, \
-			"totalRecords": { "description": "数据总数", "required": true }, \
+			"totalRecords": { "description": "总条数", "required": true }, \
             "data": { "description": "当前页数据", "required": true} \
 		} \
 	}
@@ -62,9 +82,9 @@ beans[com.wangxiaobao.infra.pierre.common.model.Result]= { \
 beans[com.wangxiaobao.infra.pierre.common.model.Pager]= { \
         "includes": ["content", "total", "totalPages"], \
 		"fields": { \
-            "content": { "description": "当前页数据", "required": true} \
-			"total": { "description": "数据总数", "required": true }, \
-			"totalPages": {"description": "总页数", "required": true }, \
+            "content": { "description": "当前页数据", "required": true}, \
+			"total": { "description": "总条数", "required": true }, \
+			"totalPages": {"description": "总页数", "required": true } \
 		} \
 	}
 beans[com.wangxiaobao.infra.pierre.common.model.PageRequest]= { \

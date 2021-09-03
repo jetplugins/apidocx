@@ -19,12 +19,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 处理Yapix上传入口动作.
  */
-public class YapixAction extends AnAction {
+public class MainAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
         YapixSettings settings = YapixSettings.getInstance();
-        YapiActions defaultAction = settings.getDefaultAction();
+        ActionType defaultAction = settings.getDefaultAction();
         AnAction action = null;
         switch (defaultAction) {
             case YApi:
@@ -64,7 +64,7 @@ public class YapixAction extends AnAction {
                 visible = true;
                 // 必须选中方法的情况下
                 YapixSettings settings = YapixSettings.getInstance();
-                if (settings.getDefaultAction() == YapiActions.Curl) {
+                if (settings.getDefaultAction() == ActionType.Curl) {
                     PsiMethod method = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
                     visible = method != null;
                 }

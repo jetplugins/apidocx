@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.4.2021090201</version>
+    <version>0.0.4.2021090301</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -45,7 +45,7 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="yapix.YapixAction" class="io.yapix.action.YapixAction">
+        <action id="yapix.YapixAction" class="io.yapix.action.MainAction">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
@@ -61,6 +61,10 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.0.5</p>
+      <ul>
+        <li>Fix yapi mock.</li>
+      </ul>
       <p>0.0.4</p>
       <ul>
         <li>Add mock rules.</li>

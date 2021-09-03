@@ -59,7 +59,7 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
         YapixSettings settings = YapixSettings.getInstance();
-        YapiActions defaultAction = settings.getDefaultAction();
+        ActionType defaultAction = settings.getDefaultAction();
 
         // 配置文件解析
         VirtualFile file = psiFiles[0];

@@ -1,6 +1,6 @@
 package io.yapix.config;
 
-import io.yapix.action.YapiActions;
+import io.yapix.action.ActionType;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -20,7 +20,7 @@ public class YapixSettingsForm {
     }
 
     public void set(YapixSettings data) {
-        YapiActions defaultAction = data.getDefaultAction();
+        ActionType defaultAction = data.getDefaultAction();
         switch (defaultAction) {
             case YApi:
                 yapiRadioButton.doClick();
@@ -39,15 +39,15 @@ public class YapixSettingsForm {
     }
 
     public YapixSettings get() {
-        YapiActions defaultAction = YapiActions.YApi;
+        ActionType defaultAction = ActionType.YApi;
         if (yapiRadioButton.isSelected()) {
-            defaultAction = YapiActions.YApi;
+            defaultAction = ActionType.YApi;
         } else if (rap2RadioButton.isSelected()) {
-            defaultAction = YapiActions.Rap2;
+            defaultAction = ActionType.Rap2;
         } else if (eolinkerRadioButton.isSelected()) {
-            defaultAction = YapiActions.Eolinker;
+            defaultAction = ActionType.Eolinker;
         } else if (curlRadioButton.isSelected()) {
-            defaultAction = YapiActions.Curl;
+            defaultAction = ActionType.Curl;
         }
 
         YapixSettings data = new YapixSettings();

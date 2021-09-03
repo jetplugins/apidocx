@@ -1,7 +1,7 @@
 package io.yapix.base.sdk.yapi.model;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 参数
@@ -15,7 +15,7 @@ public class YapiProperty {
     private String description;
 
     /** 是否必须 */
-    private List<String> required;
+    private Set<String> required;
 
     /** 当type为object */
     private Map<String, YapiProperty> properties;
@@ -42,11 +42,11 @@ public class YapiProperty {
         this.description = description;
     }
 
-    public List<String> getRequired() {
+    public Set<String> getRequired() {
         return required;
     }
 
-    public void setRequired(List<String> required) {
+    public void setRequired(Set<String> required) {
         this.required = required;
     }
 

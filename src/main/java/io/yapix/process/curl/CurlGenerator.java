@@ -40,9 +40,7 @@ public class CurlGenerator {
         if (bodyType == RequestBodyType.json && api.getRequestBody() != null) {
             sb.append("--data-raw '").append(PropertyUtils.getJsonExample(api.getRequestBody())).append("' \\\n");
         }
-        if (sb.charAt(sb.length() - 2) == '\\') {
-            sb.deleteCharAt(sb.length() - 2);
-        }
+        sb.delete(sb.length() - 2, sb.length());
         return sb.toString();
     }
 
