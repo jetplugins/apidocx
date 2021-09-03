@@ -73,6 +73,9 @@ public class YapiDataConvector {
             parameter.setExample(p.getExample());
             parameter.setRequired(p.getRequired() ? "1" : "0");
             parameter.setValue(p.getDefaultValue());
+            if (in == ParameterIn.query) {
+                parameter.setExample(p.getDefaultValue());
+            }
             return parameter;
         }).collect(Collectors.toList());
 
@@ -102,6 +105,9 @@ public class YapiDataConvector {
             parameter.setDesc(p.getDescription());
             parameter.setRequired(p.getRequired() ? "1" : "0");
             parameter.setExample(p.getExample());
+            if (StringUtils.isNotEmpty(p.getDefaultValue())) {
+                parameter.setExample(p.getDefaultValue());
+            }
             parameter.setDesc(p.getDescription());
             return parameter;
         }).collect(Collectors.toList());

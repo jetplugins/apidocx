@@ -6,7 +6,6 @@ import static io.yapix.parse.constant.SpringConstants.RequestAttribute;
 import static io.yapix.parse.constant.SpringConstants.RequestBody;
 import static io.yapix.parse.constant.SpringConstants.RequestHeader;
 import static io.yapix.parse.constant.SpringConstants.RequestParam;
-import static io.yapix.parse.util.PsiDocCommentUtils.getTagParamTextMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -21,8 +20,10 @@ import io.yapix.model.HttpMethod;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
+import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.SwaggerConstants;
 import io.yapix.parse.model.RequestParseInfo;
+import io.yapix.parse.util.PsiDocCommentUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -117,7 +118,7 @@ public class RequestParser {
             items.add(item);
         }
         // 合并查询参数到表单
-        if (!fileParameters.isEmpty() && requestParameters != null) {
+        if (requestParameters != null) {
             List<Property> queries = requestParameters.stream()
                     .filter(p -> p.getIn() == ParameterIn.query).collect(Collectors.toList());
             for (Property query : queries) {
@@ -138,7 +139,7 @@ public class RequestParser {
                 .filter(p -> !MultipartFile.equals(p.getType().getCanonicalText()))
                 .collect(Collectors.toList());
 
-        Map<String, String> paramTagMap = getTagParamTextMap(method);
+        Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
             Property item = doParseParameter(parameter);
@@ -175,12 +176,17 @@ public class RequestParser {
         // 字段名称
         Boolean required = null;
         String name = null;
+        String defaultValue = null;
         if (annotation != null) {
             name = AnnotationUtil.getStringAttributeValue(annotation, "name");
             if (StringUtils.isEmpty(name)) {
                 name = AnnotationUtil.getStringAttributeValue(annotation, "value");
             }
             required = AnnotationUtil.getBooleanAttributeValue(annotation, "required");
+            defaultValue = AnnotationUtil.getStringAttributeValue(annotation, "defaultValue");
+            if (SpringConstants.DEFAULT_NONE.equals(defaultValue)) {
+                defaultValue = null;
+            }
         }
         if (StringUtils.isEmpty(name)) {
             name = parameter.getName();
@@ -192,6 +198,7 @@ public class RequestParser {
         item.setIn(in);
         item.setName(name);
         item.setRequired(required != null ? required : false);
+        item.setDefaultValue(defaultValue);
         return item;
     }
 

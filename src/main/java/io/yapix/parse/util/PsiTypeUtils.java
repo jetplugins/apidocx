@@ -3,6 +3,7 @@ package io.yapix.parse.util;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import io.yapix.parse.constant.JavaConstants;
@@ -14,6 +15,13 @@ import java.util.Objects;
 public class PsiTypeUtils {
 
     private PsiTypeUtils() {
+    }
+
+    /**
+     * 是否是原生类型
+     */
+    public static boolean isPrimitive(PsiType type) {
+        return type instanceof PsiPrimitiveType;
     }
 
     /**

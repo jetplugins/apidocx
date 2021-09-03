@@ -18,6 +18,7 @@ import io.yapix.config.YapixConfig;
 import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.JavaConstants;
+import io.yapix.parse.util.PsiFieldUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
 import java.util.Collections;
@@ -151,6 +152,10 @@ public class KernelParser {
                 Property fieldProperty = doParseType(project, fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
+                }
+                String defaultValue = PsiFieldUtils.getFieldDefaultValue(field);
+                if (defaultValue != null) {
+                    fieldProperty.setDefaultValue(defaultValue);
                 }
                 fieldProperty.setName(ParseHelper.getFiledName(field));
                 fieldProperty.setDescription(ParseHelper.getFiledDescription(field));
