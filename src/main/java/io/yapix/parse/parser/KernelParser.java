@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -49,6 +50,13 @@ public class KernelParser {
     }
 
     private Property doParseType(Project project, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
+        Property item = new Property();
+        item.setRequired(false);
+        item.setType(DataTypes.OBJECT);
+        if (StringUtils.isEmpty(canonicalType)) {
+            return item;
+        }
+
         // 泛型分割处理
         String[] types = splitTypeAndGenericPair(canonicalType);
         String type = types[0];
@@ -57,9 +65,6 @@ public class KernelParser {
             return null;
         }
 
-        Property item = new Property();
-        item.setRequired(false);
-        item.setType(DataTypes.OBJECT);
         PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, type);
         if (psiClass != null) {
             psiType = PsiTypesUtil.getClassType(psiClass);
