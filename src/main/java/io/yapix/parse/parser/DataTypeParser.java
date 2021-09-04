@@ -1,6 +1,7 @@
 package io.yapix.parse.parser;
 
 import com.intellij.psi.PsiType;
+import io.yapix.config.YapixConfig;
 import io.yapix.model.DataTypes;
 import io.yapix.parse.util.PropertiesLoader;
 import io.yapix.parse.util.PsiTypeUtils;
@@ -12,14 +13,16 @@ import java.util.Properties;
 public final class DataTypeParser {
 
     private static final String FILE = "types.properties";
+    private final YapixConfig settings;
 
-    private DataTypeParser() {
+    public DataTypeParser(YapixConfig settings) {
+        this.settings = settings;
     }
 
     /**
      * 获取字段类型
      */
-    public static String parseType(PsiType type) {
+    public String parseType(PsiType type) {
         // 数组类型处理
         if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type)) {
             return DataTypes.ARRAY;

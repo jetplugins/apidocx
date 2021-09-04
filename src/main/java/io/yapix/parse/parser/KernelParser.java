@@ -38,19 +38,26 @@ public class KernelParser {
     private final Module module;
     private final YapixConfig settings;
     private final MockParser mockParser;
+    private final DataTypeParser dataTypeParser;
+    private final DateParser dateParser;
 
     public KernelParser(Project project, Module module, YapixConfig settings) {
         this.project = project;
         this.module = module;
         this.settings = settings;
         this.mockParser = new MockParser(settings);
+        this.dataTypeParser = new DataTypeParser(settings);
+        this.dateParser = new DateParser(settings);
     }
 
-    public Property parseType(Project project, PsiType psiType, String canonicalType) {
-        return doParseType(project, psiType, canonicalType, Sets.newHashSet());
+    /**
+     * 解析指定类型
+     */
+    public Property parseType(PsiType psiType, String canonicalType) {
+        return doParseType(psiType, canonicalType, Sets.newHashSet());
     }
 
-    private Property doParseType(Project project, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
+    private Property doParseType(PsiType psiType, String canonicalType, Set<PsiClass> chains) {
         Property item = new Property();
         item.setRequired(false);
         item.setType(DataTypes.OBJECT);
@@ -75,7 +82,7 @@ public class KernelParser {
         }
 
         item.setDescription(psiType.getCanonicalText());
-        item.setType(DataTypeParser.parseType(psiType));
+        item.setType(dataTypeParser.parseType(psiType));
         // Map: 无需要解析
         if (PsiTypeUtils.isMap(psiType) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
@@ -85,12 +92,12 @@ public class KernelParser {
         if (PsiTypeUtils.isArray(psiType)) {
             PsiArrayType arrayType = (PsiArrayType) psiType;
             PsiType componentType = arrayType.getComponentType();
-            Property items = doParseType(project, componentType, componentType.getCanonicalText(), null);
+            Property items = doParseType(componentType, componentType.getCanonicalText(), null);
             item.setItems(items);
         }
         // 集合
         if (PsiTypeUtils.isCollection(psiType)) {
-            Property items = doParseType(project, null, genericTypes, null);
+            Property items = doParseType(null, genericTypes, null);
             item.setItems(items);
         }
         // 对象
@@ -124,7 +131,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
-                Property fieldProperty = doParseType(project, filedType, realType, newChains);
+                Property fieldProperty = doParseType(filedType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
@@ -149,10 +156,11 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
-                Property fieldProperty = doParseType(project, fieldType, realType, newChains);
+                Property fieldProperty = doParseType(fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
+                dateParser.handle(fieldProperty, field);
                 String defaultValue = PsiFieldUtils.getFieldDefaultValue(field);
                 if (defaultValue != null) {
                     fieldProperty.setDefaultValue(defaultValue);

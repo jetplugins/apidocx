@@ -152,6 +152,12 @@ public final class YapixConfigUtils {
                     List<MockRule> mockRules = JsonUtils.fromJson(text, type);
                     config.setMockRules(mockRules);
                     break;
+                case "dateTimeFormatMvc":
+                    config.setDateTimeFormatMvc(text);
+                    break;
+                case "dateTimeFormatJson":
+                    config.setDateTimeFormatJson(text);
+                    break;
             }
         }
         return config;
@@ -189,6 +195,12 @@ public final class YapixConfigUtils {
                     }.getType();
                     List<MockRule> mockRules = JsonUtils.fromJson(text, type);
                     config.setMockRules(mockRules);
+                    break;
+                case "dateTimeFormatMvc":
+                    config.setDateTimeFormatMvc(text);
+                    break;
+                case "dateTimeFormatJson":
+                    config.setDateTimeFormatJson(text);
                     break;
             }
         }

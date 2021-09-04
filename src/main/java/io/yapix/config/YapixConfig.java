@@ -47,6 +47,12 @@ public class YapixConfig {
     /** 智能mock规则 */
     private List<MockRule> mockRules;
 
+    /** 时间格式: 查询参数和表单 */
+    private String dateTimeFormatMvc;
+
+    /** 时间格式: Json */
+    private String dateTimeFormatJson;
+
     private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
 
     /**
@@ -61,6 +67,8 @@ public class YapixConfig {
         String returnUnwrapTypes = properties.getProperty("returnUnwrapTypes", "");
         String parameterIgnoreTypes = properties.getProperty("parameterIgnoreTypes", "");
         String mockRules = properties.getProperty("mockRules");
+        String dateTimeFormatMvc = properties.getProperty("dateTimeFormatMvc", "");
+        String dateTimeFormatJson = properties.getProperty("dateTimeFormatJson", "");
 
         YapixConfig config = new YapixConfig();
         config.yapiProjectId = yapiProjectId.trim();
@@ -69,6 +77,8 @@ public class YapixConfig {
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
+        config.dateTimeFormatMvc = dateTimeFormatMvc;
+        config.dateTimeFormatJson = dateTimeFormatJson;
 
         // 解析自定义bean配置: beans[xxx].json=xxx
         Gson gson = new Gson();
@@ -110,6 +120,16 @@ public class YapixConfig {
         config.setRap2ProjectId(settings.getRap2ProjectId());
         config.setEolinkerProjectId(settings.getEolinkerProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
+        config.setDateTimeFormatMvc(settings.getDateTimeFormatMvc());
+        config.setDateTimeFormatJson(settings.getDateTimeFormatJson());
+
+        // 时间格式
+        if (StringUtils.isBlank(settings.getDateTimeFormatMvc())) {
+            config.setDateTimeFormatMvc(internal.getDateTimeFormatMvc());
+        }
+        if (StringUtils.isBlank(settings.getDateTimeFormatJson())) {
+            config.setDateTimeFormatJson(internal.getDateTimeFormatJson());
+        }
 
         // 解包装类型
         List<String> returnUnwrapTypes = Lists.newArrayList();
@@ -214,5 +234,21 @@ public class YapixConfig {
 
     public void setMockRules(List<MockRule> mockRules) {
         this.mockRules = mockRules;
+    }
+
+    public String getDateTimeFormatMvc() {
+        return dateTimeFormatMvc;
+    }
+
+    public void setDateTimeFormatMvc(String dateTimeFormatMvc) {
+        this.dateTimeFormatMvc = dateTimeFormatMvc;
+    }
+
+    public String getDateTimeFormatJson() {
+        return dateTimeFormatJson;
+    }
+
+    public void setDateTimeFormatJson(String dateTimeFormatJson) {
+        this.dateTimeFormatJson = dateTimeFormatJson;
     }
 }

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.4.2021090302</version>
+    <version>0.0.4.2021090401</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -64,6 +64,7 @@
       <p>0.0.5</p>
       <ul>
         <li>Fix yapi mock.</li>
+        <li>Optimize parse date.</li>
       </ul>
       <p>0.0.4</p>
       <ul>

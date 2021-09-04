@@ -14,6 +14,11 @@ public class Property {
     /** 类型 */
     private String type;
 
+    /**
+     * 时间格式
+     */
+    private String dateFormat;
+
     /** 描述 */
     private String description;
 
@@ -168,5 +173,13 @@ public class Property {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
     }
 }

@@ -1,6 +1,14 @@
+# 时间默认格式: @DateTimeFormat, @JsonFormat优先
+dateTimeFormatMvc=yyyy-MM-dd HH:mm:ss
+dateTimeFormatJson=yyyy-MM-dd HH:mm:ss
+
+# 参数和返回值
 returnUnwrapTypes=reactor.core.publisher.Flux, reactor.core.publisher.Mono
-parameterIgnoreTypes=javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, \
+parameterIgnoreTypes=\
+    javax.servlet.http.HttpServletRequest, \
+    javax.servlet.http.HttpServletResponse, \
     org.springframework.validation.BindingResult
+
 # 自定义bean配置
 beans[org.springframework.data.domain.Pageable]= { \
         "includes": ["pageNumber", "pageSize", "sort"], \
@@ -20,6 +28,7 @@ beans[org.springframework.data.domain.Page]= { \
             "last": { "description": "是否最后一页", "required": true } \
         } \
 	}
+
 # 智能mock规则
 mockRules=[\
         {"name": "图标", "type": "string", "match": "avatar|icon", "mock": "@image('100x100')"}, \
@@ -32,7 +41,7 @@ mockRules=[\
         {"name": "IP", "type": "string", "match": ".*ip|ipAddress", "mock": "@ip"}, \
         {"name": "标题", "type": "string", "match": "title|name", "mock": "@ctitle"}, \
         {"name": "内容", "type": "string", "match": "description|content", "mock": "@cparagraph"}, \
-        {"name": "时间", "type": "string,datetime", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@datetime('yyyy-MM-dd HH:mm:ss')"}, \
+        {"name": "时间", "type": "string", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@datetime('yyyy-MM-dd HH:mm:ss')"}, \
         {"name": "时轴", "type": "integer,number", "match": "created?_?at|updated?_?at|deleted?_?at|.*time", "mock": "@timestamp"}, \
         {"name": "省份", "type": "string", "match": ".*province.*", "mock": "@province"}, \
         {"name": "城市", "type": "string", "match": ".*city.*", "mock": "@city"}, \

@@ -26,7 +26,11 @@ public interface SpringConstants {
 
     String MultipartFile = "org.springframework.web.multipart.MultipartFile";
 
+    String DateTimeFormat = "org.springframework.format.annotation.DateTimeFormat";
+
     String JsonProperty = "com.fasterxml.jackson.annotation.JsonProperty";
+
+    String JsonFormat = "com.fasterxml.jackson.annotation.JsonFormat";
 
     String DEFAULT_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 }

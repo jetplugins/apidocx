@@ -44,20 +44,27 @@ public class RequestParser {
     private final Module module;
     private final YapixConfig settings;
     private final KernelParser kernelParser;
+    private final DateParser dateParser;
 
     public RequestParser(Project project, Module module, YapixConfig settings) {
         this.project = project;
         this.module = module;
         this.settings = settings;
         this.kernelParser = new KernelParser(project, module, settings);
+        this.dateParser = new DateParser(settings);
     }
 
+    /**
+     * 解析请求参数信息
+     */
     public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
+        // 解析参数: 请求方式、普通参数，请求体
         List<PsiParameter> parameters = filterIgnoreParameter(method.getParameterList().getParameters());
-        List<Property> requestParameters = doParseParameters(method, parameters);
-        RequestBodyType requestBodyType = doParseRequestBodyType(parameters, httpMethod);
-        List<Property> requestBody = doParseRequestBody(parameters, httpMethod, requestParameters, requestBodyType);
+        RequestBodyType requestBodyType = parseRequestBodyType(parameters, httpMethod);
+        List<Property> requestParameters = parseParameters(method, parameters);
+        List<Property> requestBody = parseRequestBody(parameters, httpMethod, requestParameters, requestBodyType);
 
+        // 数据填充
         RequestParseInfo info = new RequestParseInfo();
         info.setParameters(requestParameters);
         info.setRequestBodyType(requestBodyType);
@@ -75,7 +82,7 @@ public class RequestParser {
     /**
      * 解析请求方式
      */
-    private RequestBodyType doParseRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
+    private RequestBodyType parseRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
         if (!method.isAllowBody()) {
             return null;
         }
@@ -93,7 +100,7 @@ public class RequestParser {
     /**
      * 解析请求体内容
      */
-    private List<Property> doParseRequestBody(List<PsiParameter> parameters, HttpMethod method,
+    private List<Property> parseRequestBody(List<PsiParameter> parameters, HttpMethod method,
             List<Property> requestParameters, RequestBodyType requestBodyType) {
         if (!method.isAllowBody()) {
             return Lists.newArrayList();
@@ -103,7 +110,7 @@ public class RequestParser {
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
-            Property item = kernelParser.parseType(bp.getProject(), bp.getType(), bp.getType().getCanonicalText());
+            Property item = kernelParser.parseType(bp.getType(), bp.getType().getCanonicalText());
             return Lists.newArrayList(item);
         }
 
@@ -112,7 +119,7 @@ public class RequestParser {
         List<PsiParameter> fileParameters = parameters.stream()
                 .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
-            Property item = kernelParser.parseType(p.getProject(), p.getType(), p.getType().getCanonicalText());
+            Property item = kernelParser.parseType(p.getType(), p.getType().getCanonicalText());
             item.setName(p.getName());
             item.setRequired(true);
             items.add(item);
@@ -133,7 +140,7 @@ public class RequestParser {
     /**
      * 解析普通参数
      */
-    public List<Property> doParseParameters(PsiMethod method, List<PsiParameter> allParameters) {
+    public List<Property> parseParameters(PsiMethod method, List<PsiParameter> allParameters) {
         List<PsiParameter> parameters = allParameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
                 .filter(p -> !MultipartFile.equals(p.getType().getCanonicalText()))
@@ -148,15 +155,32 @@ public class RequestParser {
             List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);
         }
+        items.forEach(this::doSetPropertyDateFormat);
         return items;
+    }
+
+    private void doSetPropertyDateFormat(Property item) {
+        // 附加时间格式
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(item.getDescription())) {
+            sb.append(item.getDescription());
+        }
+        if (StringUtils.isNotEmpty(item.getDateFormat())) {
+            if (sb.length() > 0) {
+                sb.append(" : ");
+            }
+            sb.append(item.getDateFormat());
+        }
+        item.setDescription(sb.toString());
     }
 
     /**
      * 解析单个参数
      */
     private Property doParseParameter(PsiParameter parameter) {
-        Property item = kernelParser
-                .parseType(parameter.getProject(), parameter.getType(), parameter.getType().getCanonicalText());
+        Property item = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
+        // 时间类型
+        dateParser.handle(item, parameter);
         // 参数类型
         PsiAnnotation annotation = null;
         ParameterIn in = ParameterIn.query;

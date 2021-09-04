@@ -60,7 +60,7 @@ public class ResponseParser {
         }
 
         // 解析
-        Property item = kernelParser.parseType(method.getProject(), type, typeText);
+        Property item = kernelParser.parseType(type, typeText);
         if (item != null) {
             item.setDescription(type.getCanonicalText());
         }

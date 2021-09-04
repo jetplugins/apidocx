@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.base.util.JsonUtils;
 import io.yapix.config.MockRule;
 import io.yapix.config.YapixConfig;
+import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.util.PropertiesLoader;
@@ -40,6 +41,19 @@ public class MockParser {
                 return mock;
             }
         }
+
+        // 时间类型
+        if (DateParser.isDateType(type)) {
+            String mock = "@integer(1210573684000, 1896710400000)";
+            if (DataTypes.STRING.equals(property.getType())) {
+                mock = "@datetime";
+                if (StringUtils.isNotEmpty(property.getDateFormat())) {
+                    mock = String.format("@datetime(\"%s\")", property.getDateFormat());
+                }
+            }
+            return mock;
+        }
+
         // 枚举类型
         PsiClass psiClass = PsiTypesUtil.getPsiClass(type);
         if (psiClass != null && psiClass.isEnum()) {
@@ -49,11 +63,13 @@ public class MockParser {
         if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type)) {
             return null;
         }
+
         // 自定义规则
         String mock = matchRulesMock(property.getType(), filedName);
         if (StringUtils.isNotEmpty(mock)) {
             return mock;
         }
+
         // 规定规则
         Properties properties = PropertiesLoader.getProperties(FILE);
         return properties.getProperty(type.getCanonicalText());
