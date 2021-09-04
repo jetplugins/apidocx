@@ -2,6 +2,7 @@
 一键生成接口文档, 上传到YApi, Rap2, Eolinker等.
 
 - [x] 一键从源代码生成api文档
+- [x] 内置智能mock规则
 - [x] 上传到YApi平台
 - [x] 上传到Rap2平台
 - [x] 上传到Eolinker平台
@@ -44,8 +45,13 @@ mockRules=<JSON Array: List<MockRule>
 ```
 备注: 对于list类型值支持英文逗号分隔、允许空格.
 
-## 贡献
-欢迎提出您的发现问题、需求、建议、以及提交代码来参与贡献, 我们的下一步计划是：
+## 问题反馈
+欢迎提出您的发现问题、需求、建议、以及提交代码来参与贡献。
+
+- QQ交流群：860701800
+- 报告Issue: <https://github.com/jetplugins/yapix/issues>
+
+**我们的下一步计划是：**
 
 - 文档生成和上传细节打磨，例如mock、date类型等
 - 生成swagger.json
@@ -53,6 +59,7 @@ mockRules=<JSON Array: List<MockRule>
 - 征集插件图标svg格式
 
 提示：如果您准备为该插件开发一个新功能，请先通过issues讨论，避免重复开发。
+
 
 ## 捐赠
 非常感谢您使用Yapi X，如果贵公司有非通用的定制开发需求，可提供有偿定制开发服务。
