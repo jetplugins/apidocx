@@ -3,7 +3,8 @@ package io.yapix.parse.parser;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.trim;
 
-import com.intellij.codeInsight.AnnotationUtil;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -11,6 +12,7 @@ import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
@@ -18,6 +20,7 @@ import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.SwaggerConstants;
+import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiLinkUtils;
 import io.yapix.parse.util.PsiTypeUtils;
@@ -31,7 +34,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ParseHelper {
 
-    private ParseHelper() {
+    private final Project project;
+    private final Module module;
+
+    public ParseHelper(Project project, Module module) {
+        this.project = project;
+        this.module = module;
     }
 
     //----------------------- 接口Api相关 ------------------------------------//
@@ -39,7 +47,7 @@ public class ParseHelper {
     /**
      * 获取接口分类
      */
-    public static String getApiCategory(PsiClass psiClass) {
+    public String getApiCategory(PsiClass psiClass) {
         // 优先级: 文档注释标记@menu > 文档注释第一行 > 类名按照羊肉串风格命名
         String category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Category);
         if (StringUtils.isEmpty(category)) {
@@ -54,13 +62,13 @@ public class ParseHelper {
     /**
      * 获取接口概述
      */
-    public static String getApiSummary(PsiMethod psiMethod) {
+    public String getApiSummary(PsiMethod psiMethod) {
         // 优先级: swagger注解@ApiOperation > 文档注释标记@description >  文档注释第一行
         String summary = null;
 
-        PsiAnnotation apiOptAnnotation = psiMethod.getAnnotation(SwaggerConstants.ApiOperation);
+        PsiAnnotation apiOptAnnotation = PsiAnnotationUtils.getAnnotation(psiMethod, SwaggerConstants.ApiOperation);
         if (apiOptAnnotation != null) {
-            summary = AnnotationUtil.getStringAttributeValue(apiOptAnnotation);
+            summary = PsiAnnotationUtils.getStringAttributeValueByAnnotation(apiOptAnnotation);
         }
 
         PsiDocComment comment = psiMethod.getDocComment();
@@ -90,7 +98,7 @@ public class ParseHelper {
     /**
      * 获取接口描述
      */
-    public static String getApiDescription(PsiMethod psiMethod) {
+    public String getApiDescription(PsiMethod psiMethod) {
         String description = psiMethod.getText();
         if (psiMethod.getBody() != null) {
             description = description.replace(psiMethod.getBody().getText(), "");
@@ -102,8 +110,8 @@ public class ParseHelper {
     /**
      * 获取接口是否标记过期
      */
-    public static boolean getApiDeprecated(PsiMethod method) {
-        PsiAnnotation annotation = method.getAnnotation(JavaConstants.Deprecate);
+    public boolean getApiDeprecated(PsiMethod method) {
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(method, JavaConstants.Deprecate);
         if (annotation != null) {
             return true;
         }
@@ -116,10 +124,10 @@ public class ParseHelper {
     /**
      * 获取参数描述
      */
-    public static String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap) {
+    public String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap) {
         String summary = paramTagMap.get(parameter.getName());
         // 枚举
-        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(parameter.getProject(), parameter.getType());
+        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, parameter.getType());
         if (enumPsiClass != null) {
             if (StringUtils.isEmpty(summary)) {
                 summary = getEnumConstantsDescription(enumPsiClass);
@@ -133,10 +141,10 @@ public class ParseHelper {
     /**
      * 获取参数是否必填
      */
-    public static Boolean getParameterRequired(PsiParameter parameter) {
+    public Boolean getParameterRequired(PsiParameter parameter) {
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty};
         for (String annotation : annotations) {
-            PsiAnnotation target = parameter.getAnnotation(annotation);
+            PsiAnnotation target = PsiAnnotationUtils.getAnnotation(parameter, annotation);
             if (target != null) {
                 return true;
             }
@@ -147,7 +155,7 @@ public class ParseHelper {
     /**
      * 获取枚举类常量描述, 格式: 字段名(xxx),字段名(xxx),
      */
-    public static String getEnumConstantsDescription(PsiClass psiClass) {
+    public String getEnumConstantsDescription(PsiClass psiClass) {
         StringBuilder sb = new StringBuilder();
         for (PsiField field : psiClass.getFields()) {
             if (field instanceof PsiEnumConstant) {
@@ -170,13 +178,10 @@ public class ParseHelper {
     /**
      * 获取字段名
      */
-    public static String getFieldName(PsiField field) {
-        PsiAnnotation jsonProperty = field.getAnnotation(SpringConstants.JsonProperty);
-        if (jsonProperty != null) {
-            String property = AnnotationUtil.getStringAttributeValue(jsonProperty, "value");
-            if (StringUtils.isNotBlank(property)) {
-                return property;
-            }
+    public String getFieldName(PsiField field) {
+        String property = PsiAnnotationUtils.getStringAttributeValue(field, SpringConstants.JsonProperty);
+        if (StringUtils.isNotBlank(property)) {
+            return property;
         }
         return field.getName();
     }
@@ -184,13 +189,13 @@ public class ParseHelper {
     /**
      * 获取字段描述
      */
-    public static String getFieldDescription(PsiField field) {
+    public String getFieldDescription(PsiField field) {
         // 优先级: swagger注解@ApiParam > 文档注释标记@description >  文档注释第一行
         String summary = null;
 
-        PsiAnnotation swaggerAnnotation = field.getAnnotation(SwaggerConstants.ApiParam);
+        PsiAnnotation swaggerAnnotation = PsiAnnotationUtils.getAnnotation(field, SwaggerConstants.ApiParam);
         if (swaggerAnnotation != null) {
-            summary = AnnotationUtil.getStringAttributeValue(swaggerAnnotation);
+            summary = PsiAnnotationUtils.getStringAttributeValueByAnnotation(swaggerAnnotation);
         }
 
         PsiDocComment comment = field.getDocComment();
@@ -205,7 +210,7 @@ public class ParseHelper {
             }
         }
         // 枚举
-        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(field.getProject(), field.getType());
+        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, field.getType());
         if (enumPsiClass != null) {
             if (StringUtils.isEmpty(summary)) {
                 summary = getEnumConstantsDescription(enumPsiClass);
@@ -224,10 +229,10 @@ public class ParseHelper {
     /**
      * 字段是否必填
      */
-    public static boolean getFieldRequired(PsiField field) {
+    public boolean getFieldRequired(PsiField field) {
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty};
         for (String annotation : annotations) {
-            PsiAnnotation target = field.getAnnotation(annotation);
+            PsiAnnotation target = PsiAnnotationUtils.getAnnotation(field, annotation);
             if (target != null) {
                 return true;
             }
@@ -238,12 +243,22 @@ public class ParseHelper {
     /**
      * 是否标记过期
      */
-    public static boolean getFieldDeprecated(PsiField field) {
-        PsiAnnotation annotation = field.getAnnotation(JavaConstants.Deprecate);
+    public boolean getFieldDeprecated(PsiField field) {
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(field, JavaConstants.Deprecate);
         if (annotation != null) {
             return true;
         }
         PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(field, DocumentTags.Deprecated);
         return nonNull(deprecatedTag);
+    }
+
+    //----------------------------- 类型 -----------------------------//
+    public String getTypeDescription(PsiType type) {
+        // 枚举
+        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, type);
+        if (enumPsiClass != null) {
+            return getEnumConstantsDescription(enumPsiClass);
+        }
+        return type.getPresentableText();
     }
 }

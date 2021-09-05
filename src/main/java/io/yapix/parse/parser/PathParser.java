@@ -3,14 +3,12 @@ package io.yapix.parse.parser;
 import com.google.common.collect.Lists;
 import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiAnnotationMemberValue;
-import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiMethod;
 import io.yapix.model.HttpMethod;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.WxbConstants;
 import io.yapix.parse.model.PathParseInfo;
-import java.util.Collections;
+import io.yapix.parse.util.PsiAnnotationUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +36,12 @@ public class PathParser {
      */
     public static PathParseInfo parse(PsiMethod method) {
         PathParseInfo pathInfo = null;
-        PsiAnnotation requestMapping = method.getAnnotation(SpringConstants.RequestMapping);
+        PsiAnnotation requestMapping = PsiAnnotationUtils.getAnnotation(method, SpringConstants.RequestMapping);
         if (requestMapping != null) {
             pathInfo = parseRequestMappingAnnotation(requestMapping);
         } else {
             for (Entry<HttpMethod, String> item : simpleMappings.entrySet()) {
-                PsiAnnotation annotation = method.getAnnotation(item.getValue());
+                PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(method, item.getValue());
                 if (annotation != null) {
                     pathInfo = parseSimpleMappingAnnotation(item.getKey(), annotation);
                     break;
@@ -62,9 +60,9 @@ public class PathParser {
      * 小宝定制
      */
     private static void wxbPathHandle(PsiMethod method, PathParseInfo pathInfo) {
-        PsiAnnotation apiVersion = method.getAnnotation(WxbConstants.ApiVersion);
+        PsiAnnotation apiVersion = PsiAnnotationUtils.getAnnotation(method, WxbConstants.ApiVersion);
         if (apiVersion == null && method.getContainingClass() != null) {
-            apiVersion = method.getContainingClass().getAnnotation(WxbConstants.ApiVersion);
+            apiVersion = PsiAnnotationUtils.getAnnotation(method.getContainingClass(), WxbConstants.ApiVersion);
         }
         if (apiVersion == null) {
             return;
@@ -87,7 +85,7 @@ public class PathParser {
      */
     public static PathParseInfo parseRequestMappingAnnotation(PsiAnnotation annotation) {
         List<String> paths = getPaths(annotation);
-        List<HttpMethod> methods = getStringArrayAttribute(annotation, "method").stream()
+        List<HttpMethod> methods = PsiAnnotationUtils.getStringArrayAttribute(annotation, "method").stream()
                 .map(HttpMethod::of).collect(Collectors.toList());
         if (methods.isEmpty()) {
             // 未指定方法，那么默认
@@ -111,34 +109,12 @@ public class PathParser {
     }
 
     private static List<String> getPaths(PsiAnnotation annotation) {
-        List<String> paths = getStringArrayAttribute(annotation, "path");
+        List<String> paths = PsiAnnotationUtils.getStringArrayAttribute(annotation, "path");
         if (paths.isEmpty()) {
-            paths = getStringArrayAttribute(annotation, "value");
+            paths = PsiAnnotationUtils.getStringArrayAttribute(annotation, "value");
         }
         return paths;
     }
 
-    private static List<String> getStringArrayAttribute(PsiAnnotation annotation, String attribute) {
-        PsiAnnotationMemberValue memberValue = annotation.findAttributeValue(attribute);
-        if (memberValue == null) {
-            return Collections.emptyList();
-        }
-
-        List<String> paths = Lists.newArrayListWithExpectedSize(1);
-        if (memberValue instanceof PsiArrayInitializerMemberValue) {
-            PsiArrayInitializerMemberValue theMemberValue = (PsiArrayInitializerMemberValue) memberValue;
-            PsiAnnotationMemberValue[] values = theMemberValue.getInitializers();
-            for (PsiAnnotationMemberValue value : values) {
-                String text = value.getText();
-                text = text.substring(1, text.length() - 1);
-                paths.add(text);
-            }
-        } else {
-            String text = memberValue.getText();
-            text = text.substring(1, text.length() - 1);
-            paths.add(text);
-        }
-        return paths;
-    }
 
 }

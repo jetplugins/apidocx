@@ -24,8 +24,6 @@ public interface SpringConstants {
 
     String PathVariable = "org.springframework.web.bind.annotation.PathVariable";
 
-    String MultipartFile = "org.springframework.web.multipart.MultipartFile";
-
     String DateTimeFormat = "org.springframework.format.annotation.DateTimeFormat";
 
     String JsonProperty = "com.fasterxml.jackson.annotation.JsonProperty";

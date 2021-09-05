@@ -144,6 +144,8 @@ public class YapiDataConvector {
         YapiProperty yapiProperty = new YapiProperty();
         yapiProperty.setType(property.getType());
         yapiProperty.setDescription(property.getDescription());
+        yapiProperty.setDefaultValue(property.getDefaultValue());
+
         if (StringUtils.isNotEmpty(property.getMock())) {
             yapiProperty.setMock(new YapiMock(property.getMock()));
         }

@@ -1,12 +1,17 @@
 package io.yapix.parse.util;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.util.PsiTypesUtil;
+import io.yapix.model.DataTypes;
 import io.yapix.parse.constant.JavaConstants;
+import io.yapix.parse.parser.DataTypeParser;
 import java.util.Objects;
 
 /**
@@ -48,48 +53,33 @@ public class PsiTypeUtils {
     /**
      * 是否是集合类型或其子类型
      */
-    public static boolean isCollection(PsiType type) {
-        return isTargetType(type, JavaConstants.Collection);
+    public static boolean isCollection(PsiType type, Project project, Module module) {
+        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, JavaConstants.Collection);
+        PsiClassType mapPsiType = PsiTypesUtil.getClassType(mapPsiClass);
+        return mapPsiType.isAssignableFrom(type);
     }
 
     /**
      * 是否是Map，以及其子类型
      */
-    public static boolean isMap(PsiType type) {
-        return isTargetType(type, JavaConstants.Map);
+    public static boolean isMap(PsiType type, Project project, Module module) {
+        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, JavaConstants.Map);
+        PsiClassType mapPsiType = PsiTypesUtil.getClassType(mapPsiClass);
+        return mapPsiType.isAssignableFrom(type);
     }
 
     /**
      * 是否是枚举类型
      */
     public static boolean isEnum(PsiType type) {
-        return isTargetType(type, JavaConstants.Enum);
-    }
-
-    /**
-     * 是否是集合类型
-     */
-    private static boolean isTargetType(PsiType type, String targetType) {
-        String canonicalText = type.getCanonicalText();
-        if (canonicalText.equals(JavaConstants.Object)) {
-            return false;
-        }
-        if (canonicalText.startsWith(targetType)) {
-            return true;
-        }
-        PsiType[] superTypes = type.getSuperTypes();
-        for (PsiType superType : superTypes) {
-            if (isTargetType(superType, targetType)) {
-                return true;
-            }
-        }
-        return false;
+        PsiClass psiClass = PsiTypesUtil.getPsiClass(type);
+        return psiClass != null && psiClass.isEnum();
     }
 
     /**
      * 获取枚举类
      */
-    public static PsiClass getEnumClassIncludeArray(Project project, PsiType type) {
+    public static PsiClass getEnumClassIncludeArray(Project project, Module module, PsiType type) {
         PsiType enumType = null;
         boolean isEnum = isEnum(type);
         if (isEnum) {
@@ -97,17 +87,25 @@ public class PsiTypeUtils {
         } else if (isArray(type)) {
             PsiArrayType arrayType = (PsiArrayType) type;
             enumType = arrayType.getComponentType();
-        } else if (isCollection(type)) {
+        } else if (type instanceof PsiClassReferenceType && isCollection(type, project, module)) {
             PsiClassReferenceType type1 = (PsiClassReferenceType) type;
             enumType = type1.getParameters().length > 0 ? type1.getParameters()[0] : null;
         }
         if (enumType == null) {
             return null;
         }
-        PsiClass enumClass = PsiUtils.findPsiClass(project, null, enumType.getCanonicalText());
+        PsiClass enumClass = PsiUtils.findPsiClass(project, module, enumType.getCanonicalText());
         if (enumClass != null && enumClass.isEnum()) {
             return enumClass;
         }
         return null;
     }
+
+    /**
+     * 是否是文件上传
+     */
+    public static boolean isFileIncludeArray(PsiType type) {
+        return DataTypes.FILE.equals(DataTypeParser.getTypeInProperties(type));
+    }
+
 }

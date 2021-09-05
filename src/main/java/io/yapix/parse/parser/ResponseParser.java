@@ -28,12 +28,14 @@ public class ResponseParser {
     private final Module module;
     private final YapixConfig settings;
     private final KernelParser kernelParser;
+    private final ParseHelper parseHelper;
 
     public ResponseParser(Project project, Module module, YapixConfig settings) {
         this.project = project;
         this.module = module;
         this.settings = settings;
-        this.kernelParser = new KernelParser(project, module, settings);
+        this.kernelParser = new KernelParser(project, module, settings, true);
+        this.parseHelper = new ParseHelper(project, module);
     }
 
     public Property parse(PsiMethod method) {
@@ -62,7 +64,7 @@ public class ResponseParser {
         // 解析
         Property item = kernelParser.parseType(type, typeText);
         if (item != null) {
-            item.setDescription(type.getCanonicalText());
+            item.setDescription(parseHelper.getTypeDescription(type));
         }
         return item;
     }

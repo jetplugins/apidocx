@@ -1,5 +1,6 @@
 package io.yapix.base.sdk.yapi.model;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,9 @@ public class YapiProperty {
 
     /** 是否必须 */
     private Set<String> required;
+
+    @SerializedName("default")
+    private String defaultValue;
 
     /** 当type为object */
     private Map<String, YapiProperty> properties;
@@ -72,6 +76,14 @@ public class YapiProperty {
 
     public void setMock(YapiMock mock) {
         this.mock = mock;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }
 

@@ -40,14 +40,18 @@ public class KernelParser {
     private final MockParser mockParser;
     private final DataTypeParser dataTypeParser;
     private final DateParser dateParser;
+    private final ParseHelper parseHelper;
+    private final boolean isResponse;
 
-    public KernelParser(Project project, Module module, YapixConfig settings) {
+    public KernelParser(Project project, Module module, YapixConfig settings, boolean isResponse) {
         this.project = project;
         this.module = module;
         this.settings = settings;
-        this.mockParser = new MockParser(settings);
-        this.dataTypeParser = new DataTypeParser(settings);
+        this.mockParser = new MockParser(project, module, settings);
+        this.dataTypeParser = new DataTypeParser(project, module, settings);
         this.dateParser = new DateParser(settings);
+        this.parseHelper = new ParseHelper(project, module);
+        this.isResponse = isResponse;
     }
 
     /**
@@ -81,10 +85,14 @@ public class KernelParser {
             return item;
         }
 
-        item.setDescription(psiType.getCanonicalText());
         item.setType(dataTypeParser.parseType(psiType));
+        // 文件： 无需继续解析
+        if (DataTypes.FILE.equals(item.getType())) {
+            return item;
+        }
+
         // Map: 无需要解析
-        if (PsiTypeUtils.isMap(psiType) || JavaConstants.Object.equals(type)) {
+        if (PsiTypeUtils.isMap(psiType, this.project, this.module) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
             return item;
         }
@@ -92,12 +100,12 @@ public class KernelParser {
         if (PsiTypeUtils.isArray(psiType)) {
             PsiArrayType arrayType = (PsiArrayType) psiType;
             PsiType componentType = arrayType.getComponentType();
-            Property items = doParseType(componentType, componentType.getCanonicalText(), null);
+            Property items = doParseType(componentType, componentType.getCanonicalText(), chains);
             item.setItems(items);
         }
         // 集合
-        if (PsiTypeUtils.isCollection(psiType)) {
-            Property items = doParseType(null, genericTypes, null);
+        if (PsiTypeUtils.isCollection(psiType, this.project, this.module)) {
+            Property items = doParseType(null, genericTypes, chains);
             item.setItems(items);
         }
         // 对象
@@ -137,7 +145,7 @@ public class KernelParser {
                 }
 
                 fieldProperty.setName(filedName);
-                fieldProperty.setDeprecated(ParseHelper.getApiDeprecated(method));
+                fieldProperty.setDeprecated(parseHelper.getApiDeprecated(method));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, filedType, null, filedName));
                 if (beanCustom != null) {
                     handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
@@ -160,14 +168,17 @@ public class KernelParser {
                     continue;
                 }
                 dateParser.handle(fieldProperty, field);
-                String defaultValue = PsiFieldUtils.getFieldDefaultValue(field);
-                if (defaultValue != null) {
-                    fieldProperty.setDefaultValue(defaultValue);
+                // 响应参数不要默认值
+                if (!isResponse) {
+                    String defaultValue = PsiFieldUtils.getFieldDefaultValue(field);
+                    if (defaultValue != null) {
+                        fieldProperty.setDefaultValue(defaultValue);
+                    }
                 }
-                fieldProperty.setName(ParseHelper.getFieldName(field));
-                fieldProperty.setDescription(ParseHelper.getFieldDescription(field));
-                fieldProperty.setDeprecated(ParseHelper.getFieldDeprecated(field));
-                fieldProperty.setRequired(ParseHelper.getFieldRequired(field));
+                fieldProperty.setName(parseHelper.getFieldName(field));
+                fieldProperty.setDescription(parseHelper.getFieldDescription(field));
+                fieldProperty.setDeprecated(parseHelper.getFieldDeprecated(field));
+                fieldProperty.setRequired(parseHelper.getFieldRequired(field));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));
 
                 if (beanCustom != null) {

@@ -31,7 +31,7 @@ public class DateParser {
         }
         // 1: @DateTimeFormat优先
         String dateFormat = PsiAnnotationUtils
-                .getAnnotationStringAttributeValue(parameter, SpringConstants.DateTimeFormat, "pattern");
+                .getStringAttributeValue(parameter, SpringConstants.DateTimeFormat, "pattern");
         if (dateFormat != null) {
             property.setType(DataTypes.STRING);
             property.setDateFormat(dateFormat);
@@ -59,7 +59,7 @@ public class DateParser {
         }
         // 1: @DateTimeFormat优先
         String dateFormat = PsiAnnotationUtils
-                .getAnnotationStringAttributeValue(field, SpringConstants.DateTimeFormat, "pattern");
+                .getStringAttributeValue(field, SpringConstants.DateTimeFormat, "pattern");
         if (dateFormat != null) {
             property.setType(DataTypes.STRING);
             property.setDateFormat(dateFormat);
@@ -68,7 +68,7 @@ public class DateParser {
 
         // 2: @JsonFormat优先
         String jsonFormat = PsiAnnotationUtils
-                .getAnnotationStringAttributeValue(field, SpringConstants.JsonFormat, "pattern");
+                .getStringAttributeValue(field, SpringConstants.JsonFormat, "pattern");
         if (jsonFormat != null) {
             property.setType(DataTypes.STRING);
             property.setDateFormat(jsonFormat);
@@ -91,7 +91,7 @@ public class DateParser {
         Set<String> dateTypes = Sets.newHashSet(
                 "java.util.Date",
                 "java.sql.Date", "java.sql.Timestamp",
-                "java.time.LocalDate", "java.time.LocalDateTime"
+                "java.time.LocalDate", "java.time.LocalDateTime", "java.time.LocalTime"
         );
         return dateTypes.contains(type.getCanonicalText());
     }

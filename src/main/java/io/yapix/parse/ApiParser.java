@@ -21,13 +21,14 @@ import io.yapix.parse.parser.PathParser;
 import io.yapix.parse.parser.RequestParser;
 import io.yapix.parse.parser.ResponseParser;
 import io.yapix.parse.util.PathUtils;
+import io.yapix.parse.util.PsiAnnotationUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 接口参数解析器
+ * Api接口解析器
  *
  * @see #parse(PsiClass, PsiMethod)
  */
@@ -38,16 +39,18 @@ public class ApiParser {
     private final Module module;
     private final RequestParser requestParser;
     private final ResponseParser responseParser;
+    private final ParseHelper parseHelper;
 
     public ApiParser(Project project, Module module, YapixConfig settings) {
         checkNotNull(project);
         checkNotNull(module);
         checkNotNull(settings);
+        this.project = project;
+        this.module = module;
         YapixConfig mergedSettings = settings.getMergedInternalConfig();
         this.requestParser = new RequestParser(project, module, mergedSettings);
         this.responseParser = new ResponseParser(project, module, mergedSettings);
-        this.project = project;
-        this.module = module;
+        this.parseHelper = new ParseHelper(project, module);
     }
 
     /**
@@ -85,14 +88,14 @@ public class ApiParser {
     private ControllerApiInfo parseController(PsiClass controller) {
         // 路径
         String path = null;
-        PsiAnnotation annotation = controller.getAnnotation(SpringConstants.RequestMapping);
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(controller, SpringConstants.RequestMapping);
         if (annotation != null) {
             PathParseInfo mapping = PathParser.parseRequestMappingAnnotation(annotation);
             path = mapping.getPath();
         }
         ControllerApiInfo info = new ControllerApiInfo();
         info.setPath(PathUtils.path(path));
-        info.setCategory(ParseHelper.getApiCategory(controller));
+        info.setCategory(parseHelper.getApiCategory(controller));
         return info;
     }
 
@@ -129,9 +132,9 @@ public class ApiParser {
     private Api doParseMethod(PsiMethod method, PathParseInfo mapping) {
         Api api = new Api();
         api.setMethod(mapping.getMethod());
-        api.setSummary(ParseHelper.getApiSummary(method));
-        api.setDescription(ParseHelper.getApiDescription(method));
-        api.setDeprecated(ParseHelper.getApiDeprecated(method));
+        api.setSummary(parseHelper.getApiSummary(method));
+        api.setDescription(parseHelper.getApiDescription(method));
+        api.setDeprecated(parseHelper.getApiDeprecated(method));
 
         RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
         api.setParameters(requestInfo.getParameters());

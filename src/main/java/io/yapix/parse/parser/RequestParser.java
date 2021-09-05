@@ -1,6 +1,5 @@
 package io.yapix.parse.parser;
 
-import static io.yapix.parse.constant.SpringConstants.MultipartFile;
 import static io.yapix.parse.constant.SpringConstants.PathVariable;
 import static io.yapix.parse.constant.SpringConstants.RequestAttribute;
 import static io.yapix.parse.constant.SpringConstants.RequestBody;
@@ -16,6 +15,7 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import io.yapix.config.YapixConfig;
+import io.yapix.model.DataTypes;
 import io.yapix.model.HttpMethod;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
@@ -23,7 +23,9 @@ import io.yapix.model.RequestBodyType;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.SwaggerConstants;
 import io.yapix.parse.model.RequestParseInfo;
+import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
+import io.yapix.parse.util.PsiTypeUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,13 +47,15 @@ public class RequestParser {
     private final YapixConfig settings;
     private final KernelParser kernelParser;
     private final DateParser dateParser;
+    private final ParseHelper parseHelper;
 
     public RequestParser(Project project, Module module, YapixConfig settings) {
         this.project = project;
         this.module = module;
         this.settings = settings;
-        this.kernelParser = new KernelParser(project, module, settings);
+        this.kernelParser = new KernelParser(project, module, settings, false);
         this.dateParser = new DateParser(settings);
+        this.parseHelper = new ParseHelper(project, module);
     }
 
     /**
@@ -62,7 +66,8 @@ public class RequestParser {
         List<PsiParameter> parameters = filterIgnoreParameter(method.getParameterList().getParameters());
         RequestBodyType requestBodyType = parseRequestBodyType(parameters, httpMethod);
         List<Property> requestParameters = parseParameters(method, parameters);
-        List<Property> requestBody = parseRequestBody(parameters, httpMethod, requestParameters, requestBodyType);
+        List<Property> requestBody = parseRequestBody(method, parameters, httpMethod, requestParameters,
+                requestBodyType);
 
         // 数据填充
         RequestParseInfo info = new RequestParseInfo();
@@ -90,7 +95,7 @@ public class RequestParser {
         if (requestBody) {
             return RequestBodyType.json;
         }
-        boolean multipartFile = parameters.stream().anyMatch(p -> MultipartFile.equals(p.getType().getCanonicalText()));
+        boolean multipartFile = parameters.stream().anyMatch(p -> PsiTypeUtils.isFileIncludeArray(p.getType()));
         if (multipartFile) {
             return RequestBodyType.form_data;
         }
@@ -100,28 +105,40 @@ public class RequestParser {
     /**
      * 解析请求体内容
      */
-    private List<Property> parseRequestBody(List<PsiParameter> parameters, HttpMethod method,
+    private List<Property> parseRequestBody(PsiMethod method, List<PsiParameter> parameters, HttpMethod httpMethod,
             List<Property> requestParameters, RequestBodyType requestBodyType) {
-        if (!method.isAllowBody()) {
+        if (!httpMethod.isAllowBody()) {
             return Lists.newArrayList();
         }
+        Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
 
         // Json请求
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
             Property item = kernelParser.parseType(bp.getType(), bp.getType().getCanonicalText());
+            // 方法上的参数描述
+            String parameterDescription = paramTagMap.get(bp.getName());
+            if (StringUtils.isNotEmpty(parameterDescription)) {
+                item.setDescription(parameterDescription);
+            }
             return Lists.newArrayList(item);
         }
 
         // 文件上传
         List<Property> items = Lists.newArrayList();
         List<PsiParameter> fileParameters = parameters.stream()
-                .filter(p -> MultipartFile.equals(p.getType().getCanonicalText())).collect(Collectors.toList());
+                .filter(p -> PsiTypeUtils.isFileIncludeArray(p.getType())).collect(Collectors.toList());
         for (PsiParameter p : fileParameters) {
             Property item = kernelParser.parseType(p.getType(), p.getType().getCanonicalText());
+            item.setType(DataTypes.FILE);
             item.setName(p.getName());
             item.setRequired(true);
+            // 方法上的参数描述
+            String parameterDescription = paramTagMap.get(p.getName());
+            if (StringUtils.isNotEmpty(parameterDescription)) {
+                item.setDescription(parameterDescription);
+            }
             items.add(item);
         }
         // 合并查询参数到表单
@@ -143,14 +160,14 @@ public class RequestParser {
     public List<Property> parseParameters(PsiMethod method, List<PsiParameter> allParameters) {
         List<PsiParameter> parameters = allParameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
-                .filter(p -> !MultipartFile.equals(p.getType().getCanonicalText()))
+                .filter(p -> !PsiTypeUtils.isFileIncludeArray(p.getType()))
                 .collect(Collectors.toList());
 
         Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
             Property item = doParseParameter(parameter);
-            item.setDescription(ParseHelper.getParameterDescription(parameter, paramTagMap));
+            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap));
 
             List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);
@@ -190,7 +207,7 @@ public class RequestParser {
         targets.put(RequestHeader, ParameterIn.header);
         targets.put(PathVariable, ParameterIn.path);
         for (Entry<String, ParameterIn> target : targets.entrySet()) {
-            annotation = parameter.getAnnotation(target.getKey());
+            annotation = PsiAnnotationUtils.getAnnotation(parameter, target.getKey());
             if (annotation != null) {
                 in = target.getValue();
                 break;
@@ -202,12 +219,12 @@ public class RequestParser {
         String name = null;
         String defaultValue = null;
         if (annotation != null) {
-            name = AnnotationUtil.getStringAttributeValue(annotation, "name");
+            name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "name");
             if (StringUtils.isEmpty(name)) {
-                name = AnnotationUtil.getStringAttributeValue(annotation, "value");
+                name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "value");
             }
             required = AnnotationUtil.getBooleanAttributeValue(annotation, "required");
-            defaultValue = AnnotationUtil.getStringAttributeValue(annotation, "defaultValue");
+            defaultValue = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "defaultValue");
             if (SpringConstants.DEFAULT_NONE.equals(defaultValue)) {
                 defaultValue = null;
             }
@@ -216,7 +233,7 @@ public class RequestParser {
             name = parameter.getName();
         }
         if (required == null) {
-            required = ParseHelper.getParameterRequired(parameter);
+            required = parseHelper.getParameterRequired(parameter);
         }
 
         item.setIn(in);
@@ -253,7 +270,7 @@ public class RequestParser {
                     if (ignoreTypes.contains(type)) {
                         return false;
                     }
-                    PsiAnnotation ignoreAnnotation = p.getAnnotation(SwaggerConstants.ApiIgnore);
+                    PsiAnnotation ignoreAnnotation = PsiAnnotationUtils.getAnnotation(p, SwaggerConstants.ApiIgnore);
                     if (ignoreAnnotation != null) {
                         return false;
                     }

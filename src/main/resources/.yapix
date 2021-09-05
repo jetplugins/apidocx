@@ -3,7 +3,15 @@ dateTimeFormatMvc=yyyy-MM-dd HH:mm:ss
 dateTimeFormatJson=yyyy-MM-dd HH:mm:ss
 
 # 参数和返回值
-returnUnwrapTypes=reactor.core.publisher.Flux, reactor.core.publisher.Mono
+returnUnwrapTypes=\
+    org.springframework.http.ResponseEntity, \
+    reactor.core.publisher.Flux, \
+    reactor.core.publisher.Mono, \
+    java.util.concurrent.Callable, \
+    org.springframework.web.context.request.async.DeferredResult, \
+    org.springframework.web.context.request.async.WebAsyncTask, \
+    java.util.concurrent.Future, \
+    java.util.concurrent.CompletableFuture
 parameterIgnoreTypes=\
     javax.servlet.http.HttpServletRequest, \
     javax.servlet.http.HttpServletResponse, \
@@ -21,11 +29,20 @@ beans[org.springframework.data.domain.Pageable]= { \
 beans[org.springframework.data.domain.Page]= { \
         "includes": ["totalPages", "totalElements", "content", "first", "last"], \
         "fields": { \
-            "content": { "description": "当前页数据", "required": true }, \
+            "content": { "description": "数据列表", "required": true }, \
             "totalPages": { "description": "总页数", "required": true }, \
             "totalElements": { "description": "总条数", "required": true }, \
             "first": { "description": "是否第一页", "required": true }, \
             "last": { "description": "是否最后一页", "required": true } \
+        } \
+	}
+beans[com.baomidou.mybatisplus.extension.plugins.pagination.Page]= { \
+        "includes": ["records", "total", "current", "size"], \
+        "fields": { \
+            "records": { "description": "数据列表", "required": true }, \
+            "total": { "description": "总条数", "required": true }, \
+            "current": { "description": "当前页", "required": true }, \
+            "size": { "description": "每页大小", "required": true } \
         } \
 	}
 
@@ -77,7 +94,7 @@ beans[com.source3g.common.Pager]= { \
 			"pageNo": {"description": "页码", "required": true }, \
 			"pageSize": {"description": "每页大小", "required": true }, \
 			"totalRecords": { "description": "总条数", "required": true }, \
-            "data": { "description": "当前页数据", "required": true} \
+            "data": { "description": "数据列表", "required": true} \
 		} \
 	}
 beans[com.wangxiaobao.infra.pierre.common.model.Result]= { \
@@ -91,7 +108,7 @@ beans[com.wangxiaobao.infra.pierre.common.model.Result]= { \
 beans[com.wangxiaobao.infra.pierre.common.model.Pager]= { \
         "includes": ["content", "total", "totalPages"], \
 		"fields": { \
-            "content": { "description": "当前页数据", "required": true}, \
+            "content": { "description": "数据列表", "required": true}, \
 			"total": { "description": "总条数", "required": true }, \
 			"totalPages": {"description": "总页数", "required": true } \
 		} \

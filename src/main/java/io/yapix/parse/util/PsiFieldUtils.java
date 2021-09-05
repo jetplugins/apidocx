@@ -4,8 +4,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator;
+import com.intellij.psi.util.PsiTypesUtil;
 
 public class PsiFieldUtils {
 
@@ -16,8 +19,16 @@ public class PsiFieldUtils {
      * 获取字段默认值
      */
     public static String getFieldDefaultValue(PsiField field) {
+        PsiType fieldType = field.getType();
         PsiExpression initializer = field.getInitializer();
         if (initializer == null) {
+            // 可能解析不到从文本解析
+            String dv = getDefaultValueFromFieldText(field);
+            if (dv != null) {
+                return dv;
+            } else if (fieldType instanceof PsiPrimitiveType) {
+                return PsiTypesUtil.getDefaultValueOfType(fieldType);
+            }
             return null;
         }
         PsiReference reference = initializer.getReference();
@@ -34,6 +45,29 @@ public class PsiFieldUtils {
             return getFieldDefaultValue((PsiField) resolve);
         }
         return null;
+    }
+
+    private static String getDefaultValueFromFieldText(PsiField field) {
+        String text = field.getText();
+        int nameIdx = text.lastIndexOf(field.getName());
+        text = text.substring(nameIdx + field.getName().length());
+        // 从字段文本解析出默认值: private int page = 1;
+        // 暂时不处理枚举类
+        int eqIdx = text.lastIndexOf('=');
+        if (eqIdx == -1) {
+            return null;
+        }
+
+        String subText = text.substring(eqIdx + 1).trim();
+        int beginIdx = 0, endIdx = subText.length();
+        if (subText.endsWith(";")) {
+            endIdx--;
+        }
+        if (subText.startsWith("\"")) {
+            beginIdx++;
+            endIdx--;
+        }
+        return subText.substring(beginIdx, endIdx);
     }
 
 }
