@@ -16,19 +16,19 @@ public class EolinkerSettingsDialog extends DialogWrapper {
     private EolinkerSettingsForm form;
     private boolean canceled;
 
+    EolinkerSettingsDialog(@Nullable Project project, String title) {
+        super(project);
+        setTitle(title);
+        init();
+    }
+
     /**
      * 显示弹框
      */
-    public static EolinkerSettingsDialog show(Project project) {
-        EolinkerSettingsDialog dialog = new EolinkerSettingsDialog(project);
+    public static EolinkerSettingsDialog show(Project project, String title) {
+        EolinkerSettingsDialog dialog = new EolinkerSettingsDialog(project, title);
         dialog.show();
         return dialog;
-    }
-
-    EolinkerSettingsDialog(@Nullable Project project) {
-        super(project);
-        setTitle("Eolinker");
-        init();
     }
 
     @Override

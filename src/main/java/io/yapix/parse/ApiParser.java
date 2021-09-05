@@ -131,7 +131,7 @@ public class ApiParser {
         api.setMethod(mapping.getMethod());
         api.setSummary(ParseHelper.getApiSummary(method));
         api.setDescription(ParseHelper.getApiDescription(method));
-        api.setDeprecated(ParseHelper.isDeprecated(method));
+        api.setDeprecated(ParseHelper.getApiDeprecated(method));
 
         RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
         api.setParameters(requestInfo.getParameters());

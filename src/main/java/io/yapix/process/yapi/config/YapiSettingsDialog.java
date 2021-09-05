@@ -18,17 +18,17 @@ public class YapiSettingsDialog extends DialogWrapper {
     private YApiSettingsForm form;
     private boolean canceled;
 
-    public YapiSettingsDialog(@Nullable Project project) {
+    public YapiSettingsDialog(@Nullable Project project, String title) {
         super(project);
-        setTitle("YApi");
+        setTitle(title);
         init();
     }
 
     /**
      * 显示弹框
      */
-    public static YapiSettingsDialog show(Project project) {
-        YapiSettingsDialog dialog = new YapiSettingsDialog(project);
+    public static YapiSettingsDialog show(Project project, String title) {
+        YapiSettingsDialog dialog = new YapiSettingsDialog(project, title);
         dialog.show();
         return dialog;
     }

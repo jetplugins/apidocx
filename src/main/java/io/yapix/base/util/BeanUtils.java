@@ -14,15 +14,15 @@ public class BeanUtils {
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
-                Object value = getFiledValue(field, o2);
+                Object value = getFieldValue(field, o2);
                 if (value != null) {
-                    setFiledValue(o1, field, value);
+                    setFieldValue(o1, field, value);
                 }
             }
         }
     }
 
-    private static void setFiledValue(Object target, Field field, Object value) {
+    private static void setFieldValue(Object target, Field field, Object value) {
         try {
             field.setAccessible(true);
             field.set(target, value);
@@ -31,7 +31,7 @@ public class BeanUtils {
         }
     }
 
-    private static Object getFiledValue(Field field, Object target) {
+    private static Object getFieldValue(Field field, Object target) {
         try {
             field.setAccessible(true);
             return field.get(target);

@@ -13,6 +13,13 @@ import java.util.List;
  */
 public class CopyAsCurlAction extends AbstractAction {
 
+    public static final String ACTION_TEXT = "Copy as cRUL";
+
+    @Override
+    protected String getActionText(AnActionEvent event) {
+        return ACTION_TEXT;
+    }
+
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
         if (apis.size() != 1) {

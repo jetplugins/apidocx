@@ -38,12 +38,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Rap2UploadAction extends AbstractAction {
 
+    public static final String ACTION_TEXT = "Upload To Rap2";
+
+    @Override
+    protected String getActionText(AnActionEvent event) {
+        return ACTION_TEXT;
+    }
+
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         Rap2Settings settings = Rap2Settings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {
-            Rap2SettingsDialog dialog = Rap2SettingsDialog.show(project);
+            Rap2SettingsDialog dialog = Rap2SettingsDialog.show(project, event.getPresentation().getText());
             return !dialog.isCanceled();
         }
         return true;

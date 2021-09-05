@@ -20,19 +20,19 @@ public class Rap2SettingsDialog extends DialogWrapper {
     private Rap2SettingsForm form;
     private boolean canceled;
 
+    Rap2SettingsDialog(@Nullable Project project, String title) {
+        super(project);
+        setTitle(title);
+        init();
+    }
+
     /**
      * 显示弹框
      */
-    public static Rap2SettingsDialog show(Project project) {
-        Rap2SettingsDialog dialog = new Rap2SettingsDialog(project);
+    public static Rap2SettingsDialog show(Project project, String title) {
+        Rap2SettingsDialog dialog = new Rap2SettingsDialog(project, title);
         dialog.show();
         return dialog;
-    }
-
-    Rap2SettingsDialog(@Nullable Project project) {
-        super(project);
-        setTitle("Rap2");
-        init();
     }
 
     @Override

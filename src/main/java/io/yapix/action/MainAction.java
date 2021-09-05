@@ -10,10 +10,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.config.YapixSettings;
-import io.yapix.process.curl.CopyAsCurlAction;
-import io.yapix.process.eolinker.EolinkerUploadAction;
-import io.yapix.process.rap2.Rap2UploadAction;
-import io.yapix.process.yapi.YapiUploadAction;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,24 +20,7 @@ public class MainAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         YapixSettings settings = YapixSettings.getInstance();
-        ActionType defaultAction = settings.getDefaultAction();
-        AnAction action = null;
-        switch (defaultAction) {
-            case YApi:
-                action = new YapiUploadAction();
-                break;
-            case Rap2:
-                action = new Rap2UploadAction();
-                break;
-            case Eolinker:
-                action = new EolinkerUploadAction();
-                break;
-            case Curl:
-                action = new CopyAsCurlAction();
-                break;
-            default:
-                return;
-        }
+        AnAction action = settings.getDefaultAction().getAction();
         action.actionPerformed(e);
     }
 

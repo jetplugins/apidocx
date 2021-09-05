@@ -137,8 +137,7 @@ public class KernelParser {
                 }
 
                 fieldProperty.setName(filedName);
-                fieldProperty.setDescription(ParseHelper.getMethodDescription(method));
-                fieldProperty.setDeprecated(ParseHelper.isDeprecated(method));
+                fieldProperty.setDeprecated(ParseHelper.getApiDeprecated(method));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, filedType, null, filedName));
                 if (beanCustom != null) {
                     handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
@@ -165,10 +164,10 @@ public class KernelParser {
                 if (defaultValue != null) {
                     fieldProperty.setDefaultValue(defaultValue);
                 }
-                fieldProperty.setName(ParseHelper.getFiledName(field));
-                fieldProperty.setDescription(ParseHelper.getFiledDescription(field));
-                fieldProperty.setDeprecated(ParseHelper.getFiledDeprecated(field));
-                fieldProperty.setRequired(ParseHelper.getFiledRequired(field));
+                fieldProperty.setName(ParseHelper.getFieldName(field));
+                fieldProperty.setDescription(ParseHelper.getFieldDescription(field));
+                fieldProperty.setDeprecated(ParseHelper.getFieldDeprecated(field));
+                fieldProperty.setRequired(ParseHelper.getFieldRequired(field));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));
 
                 if (beanCustom != null) {

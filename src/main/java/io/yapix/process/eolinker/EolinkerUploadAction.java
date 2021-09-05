@@ -38,12 +38,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public class EolinkerUploadAction extends AbstractAction {
 
+    public static final String ACTION_TEXT = "Upload To Eolinker";
+
+    @Override
+    protected String getActionText(AnActionEvent event) {
+        return ACTION_TEXT;
+    }
+
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         EolinkerSettings settings = EolinkerSettings.getInstance();
         if (!settings.isValidate() || EolinkerTestResult.Code.OK != settings.testSettings().getCode()) {
-            EolinkerSettingsDialog dialog = EolinkerSettingsDialog.show(project);
+            EolinkerSettingsDialog dialog = EolinkerSettingsDialog.show(project, event.getPresentation().getText());
             return !dialog.isCanceled();
         }
         return true;

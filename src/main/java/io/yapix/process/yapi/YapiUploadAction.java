@@ -37,12 +37,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public class YapiUploadAction extends AbstractAction {
 
+    public static final String ACTION_TEXT = "Upload To YApi";
+
+    @Override
+    protected String getActionText(AnActionEvent event) {
+        return ACTION_TEXT;
+    }
+
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
-            YapiSettingsDialog dialog = YapiSettingsDialog.show(project);
+            YapiSettingsDialog dialog = YapiSettingsDialog.show(project, event.getPresentation().getText());
             return !dialog.isCanceled();
         }
         return true;
