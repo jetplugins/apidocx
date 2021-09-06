@@ -13,12 +13,7 @@ import java.util.List;
  */
 public class CopyAsCurlAction extends AbstractAction {
 
-    public static final String ACTION_TEXT = "Copy as cRUL";
-
-    @Override
-    protected String getActionText(AnActionEvent event) {
-        return ACTION_TEXT;
-    }
+    public static final String ACTION_TEXT = "Copy as cURL";
 
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
@@ -28,6 +23,11 @@ public class CopyAsCurlAction extends AbstractAction {
         String curl = new CurlGenerator().generate(apis.get(0));
         ClipboardUtils.setClipboard(curl);
         NotificationUtils.notifyInfo("Copy as cURL", "Copied");
+    }
+
+    @Override
+    public void applyTextOverride(AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
     }
 
 }

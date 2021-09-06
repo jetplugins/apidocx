@@ -41,11 +41,6 @@ public class Rap2UploadAction extends AbstractAction {
     public static final String ACTION_TEXT = "Upload To Rap2";
 
     @Override
-    protected String getActionText(AnActionEvent event) {
-        return ACTION_TEXT;
-    }
-
-    @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         Rap2Settings settings = Rap2Settings.getInstance();
@@ -118,6 +113,11 @@ public class Rap2UploadAction extends AbstractAction {
                 }
             }
         });
+    }
+
+    @Override
+    public void applyTextOverride(AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
     }
 
 }

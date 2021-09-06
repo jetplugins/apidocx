@@ -40,11 +40,6 @@ public class YapiUploadAction extends AbstractAction {
     public static final String ACTION_TEXT = "Upload To YApi";
 
     @Override
-    protected String getActionText(AnActionEvent event) {
-        return ACTION_TEXT;
-    }
-
-    @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
@@ -117,5 +112,10 @@ public class YapiUploadAction extends AbstractAction {
                 }
             }
         });
+    }
+
+    @Override
+    public void applyTextOverride(AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
     }
 }

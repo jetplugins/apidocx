@@ -46,13 +46,6 @@ public abstract class AbstractAction extends AnAction {
      */
     public abstract void handle(AnActionEvent event, YapixConfig config, List<Api> apis);
 
-    /**
-     * 获取动作文本
-     */
-    protected String getActionText(AnActionEvent event) {
-        return null;
-    }
-
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
@@ -114,16 +107,6 @@ public abstract class AbstractAction extends AnAction {
         }
         List<Api> apis = parse(project, module, config, psiClasses, selectMethod);
         handle(event, config, apis);
-    }
-
-    @Override
-    public void applyTextOverride(AnActionEvent e) {
-        String text = this.getActionText(e);
-        if (text == null) {
-            super.applyTextOverride(e);
-        } else {
-            e.getPresentation().setText(text);
-        }
     }
 
     /**

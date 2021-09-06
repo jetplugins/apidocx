@@ -41,11 +41,6 @@ public class EolinkerUploadAction extends AbstractAction {
     public static final String ACTION_TEXT = "Upload To Eolinker";
 
     @Override
-    protected String getActionText(AnActionEvent event) {
-        return ACTION_TEXT;
-    }
-
-    @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         EolinkerSettings settings = EolinkerSettings.getInstance();
@@ -120,6 +115,12 @@ public class EolinkerUploadAction extends AbstractAction {
                 }
             }
         });
+    }
+
+
+    @Override
+    public void applyTextOverride(AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
     }
 
 }
