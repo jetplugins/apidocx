@@ -42,6 +42,9 @@ parameterIgnoreTypes=
 beans[xxx]=<JSON of bean: BeanCustom>
 # 自定义配置mock规则: 参见内置resource/.yapix
 mockRules=<JSON Array: List<MockRule>
+# 时间默认格式: @DateTimeFormat, @JsonFormat优先, 如果是数字类型值: integer
+dateTimeFormatMvc=yyyy-MM-dd HH:mm:ss
+dateTimeFormatJson=yyyy-MM-dd HH:mm:ss
 ```
 备注: 对于list类型值支持英文逗号分隔、允许空格.
 
@@ -53,9 +56,8 @@ mockRules=<JSON Array: List<MockRule>
 
 **我们的下一步计划是：**
 
-- 文档生成和上传细节打磨，例如mock、date类型等
-- 生成swagger.json
 - 支持上传更多的平台，例如postman等
+- 生成swagger.json
 - 征集插件图标svg格式
 
 提示：如果您准备为该插件开发一个新功能，请先通过issues讨论，避免重复开发。
