@@ -1,6 +1,6 @@
 package io.yapix.parse.parser;
 
-import static io.yapix.parse.util.PsiUtils.splitTypeAndGenericPair;
+import static io.yapix.parse.util.PsiGenericUtils.splitTypeAndGenericPair;
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
 import com.google.common.collect.Maps;
@@ -19,6 +19,7 @@ import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.util.PsiFieldUtils;
+import io.yapix.parse.util.PsiGenericUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
 import java.util.Collections;
@@ -138,7 +139,7 @@ public class KernelParser {
                 if (beanCustom != null && !beanCustom.isNeedHandleField(filedName)) {
                     continue;
                 }
-                String realType = PsiUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
+                String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
                 Property fieldProperty = doParseType(filedType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
@@ -162,7 +163,7 @@ public class KernelParser {
                 if (beanCustom != null && !beanCustom.isNeedHandleField(filedName)) {
                     continue;
                 }
-                String realType = PsiUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
+                String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
                 Property fieldProperty = doParseType(fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;

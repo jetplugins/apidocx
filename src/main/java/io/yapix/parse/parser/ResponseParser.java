@@ -1,6 +1,6 @@
 package io.yapix.parse.parser;
 
-import static io.yapix.parse.util.PsiUtils.splitTypeAndGenericPair;
+import static io.yapix.parse.util.PsiGenericUtils.splitTypeAndGenericPair;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
