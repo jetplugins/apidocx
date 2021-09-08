@@ -101,7 +101,7 @@ public class PsiGenericUtils {
      * @param genericParameters 泛型参数例如: User&lt;A, B>, Student&lt;C, D>
      * @return 返回同级别被分割的泛型 [User&lt;A,B>, Student&lt;C, D>
      */
-    private static String[] splitGenericParameters(String genericParameters) {
+    public static String[] splitGenericParameters(String genericParameters) {
         List<String> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
 

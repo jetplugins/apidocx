@@ -95,6 +95,18 @@ public class KernelParser {
         // Map: 无需要解析
         if (PsiTypeUtils.isMap(psiType, this.project, this.module) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
+            // 尝试解析map值得类型
+            if (StringUtils.isNotEmpty(genericTypes)) {
+                String[] kvGenericTypes = PsiGenericUtils.splitGenericParameters(genericTypes);
+                if (kvGenericTypes.length >= 2) {
+                    Property mapValueProperty = doParseType(null, kvGenericTypes[1], chains);
+                    if (mapValueProperty != null) {
+                        Map<String, Property> properties = Maps.newHashMap();
+                        properties.put("KEY", mapValueProperty);
+                        item.setProperties(properties);
+                    }
+                }
+            }
             return item;
         }
         // 数组
