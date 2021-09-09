@@ -19,26 +19,29 @@ public class CurlGenerator {
      * 生成curl字符串
      */
     public String generate(Api api) {
+        final String lineEnd = "' \\\n";
         StringBuilder sb = new StringBuilder("curl --location --request ");
-        sb.append(api.getMethod().name()).append(" '").append(getUrl(api)).append("' \\\n");
+        sb.append(api.getMethod().name()).append(" '").append(escape(getUrl(api))).append(lineEnd);
         // 请求头
         for (Property p : api.getParametersByIn(ParameterIn.header)) {
-            sb.append("--header '").append(p.getName()).append(": ' \\\n");
+            sb.append("--header '").append(escape(p.getName())).append(": ").append(lineEnd);
         }
         RequestBodyType bodyType = api.getRequestBodyType();
         if (bodyType != null && StringUtils.isNotEmpty(bodyType.getContentType())) {
-            sb.append("--header '").append("Content-Type").append(": ").append(bodyType.getContentType())
-                    .append("' \\\n");
+            sb.append("--header '")
+                    .append("Content-Type").append(": ").append(escape(bodyType.getContentType()))
+                    .append(lineEnd);
         }
         // 表单数据
         for (Property p : api.getRequestBodyForm()) {
-            sb.append("--data-urlencode '").append(p.getName())
-                    .append("=").append(nonNull(p.getDefaultValue()) ? p.getDefaultValue() : "")
-                    .append("' \\\n");
+            String value = nonNull(p.getDefaultValue()) ? p.getDefaultValue() : "";
+            sb.append("--data-urlencode '").append(escape(p.getName()))
+                    .append("=").append(escape(value)).append(lineEnd);
         }
         // 请求体
         if (bodyType == RequestBodyType.json && api.getRequestBody() != null) {
-            sb.append("--data-raw '").append(PropertyUtils.getJsonExample(api.getRequestBody())).append("' \\\n");
+            String example = PropertyUtils.getJsonExample(api.getRequestBody());
+            sb.append("--data-raw '").append(escape(example)).append(lineEnd);
         }
         sb.delete(sb.length() - 3, sb.length());
         return sb.toString();
@@ -62,5 +65,9 @@ public class CurlGenerator {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
+    }
+
+    private String escape(String text) {
+        return text.replace("\\", "\\\\").replace("'", "\\'");
     }
 }
