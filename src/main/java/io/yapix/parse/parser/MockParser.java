@@ -15,7 +15,7 @@ import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.util.PropertiesLoader;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiTypeUtils;
-import io.yapix.parse.util.PsiUtils;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,7 +62,8 @@ public class MockParser {
         // 枚举类型
         PsiClass psiClass = PsiTypesUtil.getPsiClass(type);
         if (psiClass != null && psiClass.isEnum()) {
-            return "@pick(" + JsonUtils.toJson(PsiUtils.getEnumFieldNames(psiClass)) + ")";
+            List<String> values = property.getValueList();
+            return "@pick(" + JsonUtils.toJson(values) + ")";
         }
         // 数组类型处理
         if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type, this.project, this.module)) {

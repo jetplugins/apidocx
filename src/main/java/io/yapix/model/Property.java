@@ -1,6 +1,9 @@
 package io.yapix.model;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -37,6 +40,11 @@ public class Property {
 
     /** 默认值 */
     private String defaultValue;
+
+    /**
+     * 值列表
+     */
+    private List<Value> values;
 
     /** 当type为array */
     private Property items;
@@ -80,6 +88,16 @@ public class Property {
         if (StringUtils.isNotEmpty(custom.getMock())) {
             this.mock = custom.getMock();
         }
+    }
+
+    /**
+     * 获取可能的值
+     */
+    public List<String> getValueList() {
+        if (values == null) {
+            return Collections.emptyList();
+        }
+        return values.stream().map(Value::getValue).collect(Collectors.toList());
     }
 
     //---------------------------generated-------------------------------//
@@ -179,5 +197,13 @@ public class Property {
 
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    public List<Value> getValues() {
+        return values;
+    }
+
+    public void setValues(List<Value> values) {
+        this.values = values;
     }
 }

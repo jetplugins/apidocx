@@ -87,6 +87,7 @@ public class KernelParser {
         }
 
         item.setType(dataTypeParser.parseType(psiType));
+        item.setValues(parseHelper.getTypeValues(psiType));
         // 文件： 无需继续解析
         if (DataTypes.FILE.equals(item.getType())) {
             return item;
@@ -196,8 +197,9 @@ public class KernelParser {
                         fieldProperty.setDefaultValue(defaultValue);
                     }
                 }
+                fieldProperty.setValues(parseHelper.getFieldValues(field));
                 fieldProperty.setName(parseHelper.getFieldName(field));
-                fieldProperty.setDescription(parseHelper.getFieldDescription(field));
+                fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getValues()));
                 fieldProperty.setDeprecated(parseHelper.getFieldDeprecated(field));
                 fieldProperty.setRequired(parseHelper.getFieldRequired(field));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));

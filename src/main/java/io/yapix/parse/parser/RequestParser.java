@@ -171,7 +171,7 @@ public class RequestParser {
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
             Property item = doParseParameter(parameter);
-            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap));
+            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap, item.getValues()));
             // 当参数是bean时，需要获取包括参数
             List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);

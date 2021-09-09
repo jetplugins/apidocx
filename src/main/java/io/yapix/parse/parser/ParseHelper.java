@@ -16,6 +16,7 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
+import io.yapix.model.Value;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
@@ -26,7 +27,9 @@ import io.yapix.parse.util.PsiLinkUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.StringUtilsExt;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -124,15 +127,15 @@ public class ParseHelper {
     /**
      * 获取参数描述
      */
-    public String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap) {
+    public String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap,
+            List<Value> values) {
         String summary = paramTagMap.get(parameter.getName());
-        // 枚举
-        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, parameter.getType());
-        if (enumPsiClass != null) {
+        if (values != null && !values.isEmpty()) {
+            String valuesText = values.stream().map(Value::getText).collect(Collectors.joining(", "));
             if (StringUtils.isEmpty(summary)) {
-                summary = getEnumConstantsDescription(enumPsiClass);
+                summary = valuesText;
             } else {
-                summary += (": " + getEnumConstantsDescription(enumPsiClass));
+                summary += " (" + valuesText + ")";
             }
         }
         return trim(summary);
@@ -153,24 +156,24 @@ public class ParseHelper {
     }
 
     /**
-     * 获取枚举类常量描述, 格式: 字段名(xxx),字段名(xxx),
+     * 获取参数可能的值
      */
-    public String getEnumConstantsDescription(PsiClass psiClass) {
-        StringBuilder sb = new StringBuilder();
-        for (PsiField field : psiClass.getFields()) {
-            if (field instanceof PsiEnumConstant) {
-                sb.append(field.getName());
-                String description = PsiDocCommentUtils.getDocCommentTitle(field);
-                if (StringUtils.isNotEmpty(description)) {
-                    sb.append("(").append(description).append(")");
-                }
-                sb.append(", ");
-            }
-        }
-        if (sb.length() > 0) {
-            sb.delete(sb.length() - 2, sb.length());
-        }
-        return sb.toString();
+    public List<Value> getParameterValues(PsiParameter parameter) {
+        return getTypeValues(parameter.getType());
+    }
+
+    /**
+     * 获取枚举值列表
+     */
+    public List<Value> getEnumValues(PsiClass psiClass) {
+        return Arrays.stream(psiClass.getFields())
+                .filter(field -> field instanceof PsiEnumConstant)
+                .map(field -> {
+                    String name = field.getName();
+                    String description = PsiDocCommentUtils.getDocCommentTitle(field);
+                    return new Value(name, description);
+                })
+                .collect(Collectors.toList());
     }
 
     //---------------------- 字段相关 ------------------------------//
@@ -189,7 +192,7 @@ public class ParseHelper {
     /**
      * 获取字段描述
      */
-    public String getFieldDescription(PsiField field) {
+    public String getFieldDescription(PsiField field, List<Value> values) {
         // 优先级: swagger注解@ApiParam > 文档注释标记@description >  文档注释第一行
         String summary = null;
 
@@ -209,20 +212,19 @@ public class ParseHelper {
                         .orElse(null);
             }
         }
-        // 枚举
-        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, field.getType());
-        if (enumPsiClass != null) {
-            if (StringUtils.isEmpty(summary)) {
-                summary = getEnumConstantsDescription(enumPsiClass);
-            } else {
-                summary += (": " + getEnumConstantsDescription(enumPsiClass));
-            }
-        }
 
-        // @link
-        if (enumPsiClass == null) {
+        // 枚举
+        if (values != null && !values.isEmpty()) {
+            String valuesText = values.stream().map(Value::getText).collect(Collectors.joining(", "));
+            if (StringUtils.isEmpty(summary)) {
+                summary = valuesText;
+            } else {
+                summary += " (" + valuesText + ")";
+            }
+        } else {
             summary = PsiLinkUtils.getLinkRemark(summary != null ? summary : "", field);
         }
+
         return trim(summary);
     }
 
@@ -241,6 +243,13 @@ public class ParseHelper {
     }
 
     /**
+     * 获取字段可能的值
+     */
+    public List<Value> getFieldValues(PsiField field) {
+        return getTypeValues(field.getType());
+    }
+
+    /**
      * 是否标记过期
      */
     public boolean getFieldDeprecated(PsiField field) {
@@ -253,12 +262,24 @@ public class ParseHelper {
     }
 
     //----------------------------- 类型 -----------------------------//
-    public String getTypeDescription(PsiType type) {
-        // 枚举
-        PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, type);
-        if (enumPsiClass != null) {
-            return getEnumConstantsDescription(enumPsiClass);
+    public String getTypeDescription(PsiType type, List<Value> values) {
+        if (values != null && !values.isEmpty()) {
+            return values.stream().map(Value::getText).collect(Collectors.joining(", "));
         }
         return type.getPresentableText();
+    }
+
+    /**
+     * 获取指定类型可能的值
+     */
+    public List<Value> getTypeValues(PsiType psiType) {
+        boolean isEnum = PsiTypeUtils.isEnum(psiType);
+        if (isEnum) {
+            PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, psiType);
+            if (enumPsiClass != null) {
+                return getEnumValues(enumPsiClass);
+            }
+        }
+        return null;
     }
 }
