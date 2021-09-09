@@ -12,7 +12,6 @@ import io.yapix.config.YapixConfig;
 import io.yapix.model.Property;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +37,11 @@ public class ResponseParser {
         this.parseHelper = new ParseHelper(project, module);
     }
 
+    /**
+     * 解析方法响应数据
+     *
+     * @param method 待解析的方法
+     */
     public Property parse(PsiMethod method) {
         PsiType returnType = method.getReturnType();
         if (returnType == null) {
@@ -48,6 +52,7 @@ public class ResponseParser {
 
         String unwrappedType = getUnwrapType(returnType);
         if (unwrappedType != null) {
+            // 需要解开包赚类处理
             String[] types = splitTypeAndGenericPair(unwrappedType);
             PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, types[0]);
             type = PsiTypesUtil.getClassType(psiClass);
@@ -69,10 +74,16 @@ public class ResponseParser {
         return item;
     }
 
+    /**
+     * 解开类型, 例如输入: ResponseEntity&lt;User>, 那么应当处理类型: User
+     */
     private String getUnwrapType(PsiType type) {
-        List<String> unwrapTypes = settings.getReturnUnwrapTypes();
+        // 获取类型：types[0]=原始类型, types[1]=泛型参数
         String[] types = splitTypeAndGenericPair(type.getCanonicalText());
-        Optional<String> unwrapOpt = unwrapTypes.stream().filter(t -> t.equals(types[0])).findAny();
+
+        // 是解开包装类， 例如： ResponseEntity<User>,
+        Optional<String> unwrapOpt = settings.getReturnUnwrapTypes().stream()
+                .filter(t -> t.equals(types[0])).findAny();
         if (unwrapOpt.isPresent()) {
             return types[1];
         }

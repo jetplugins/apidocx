@@ -12,6 +12,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
+import io.yapix.model.Property;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.model.ControllerApiInfo;
 import io.yapix.parse.model.PathParseInfo;
@@ -35,8 +36,6 @@ import java.util.stream.Collectors;
 public class ApiParser {
 
     private static final Gson gson = new Gson();
-    private final Project project;
-    private final Module module;
     private final RequestParser requestParser;
     private final ResponseParser responseParser;
     private final ParseHelper parseHelper;
@@ -45,8 +44,6 @@ public class ApiParser {
         checkNotNull(project);
         checkNotNull(module);
         checkNotNull(settings);
-        this.project = project;
-        this.module = module;
         YapixConfig mergedSettings = settings.getMergedInternalConfig();
         this.requestParser = new RequestParser(project, module, mergedSettings);
         this.responseParser = new ResponseParser(project, module, mergedSettings);
@@ -56,26 +53,17 @@ public class ApiParser {
     /**
      * 解析接口
      */
-    public List<Api> parse(PsiClass controller, PsiMethod selectMethod) {
-        // 过滤不处理得方法
-        List<PsiMethod> methods = Arrays.stream(controller.getMethods())
-                .filter(m -> {
-                    PsiModifierList modifier = m.getModifierList();
-                    return !modifier.hasModifierProperty("private") && !modifier.hasModifierProperty("static");
-                })
-                .collect(Collectors.toList());
+    public List<Api> parse(PsiClass psiClass, PsiMethod selectMethod) {
+        // 获得待处理方法
+        List<PsiMethod> methods = filterPsiMethods(psiClass, selectMethod);
         if (methods.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 解析类级别数据
-        ControllerApiInfo controllerApiInfo = parseController(controller);
+        // 解析
+        ControllerApiInfo controllerApiInfo = parseController(psiClass);
         List<Api> apis = Lists.newArrayListWithExpectedSize(methods.size());
         for (PsiMethod method : methods) {
-            if (selectMethod != null && method != selectMethod) {
-                continue;
-            }
-            // 解析某个方法
             List<Api> methodApis = parseMethod(controllerApiInfo, method);
             apis.addAll(methodApis);
         }
@@ -83,10 +71,23 @@ public class ApiParser {
     }
 
     /**
+     * 获取待处理的方法列表
+     */
+    private List<PsiMethod> filterPsiMethods(PsiClass psiClass, PsiMethod selectMethod) {
+        return Arrays.stream(psiClass.getMethods())
+                .filter(m -> {
+                    PsiModifierList modifier = m.getModifierList();
+                    return !modifier.hasModifierProperty("private")
+                            && !modifier.hasModifierProperty("static")
+                            && (selectMethod == null || m == selectMethod);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 解析类级别信息
      */
     private ControllerApiInfo parseController(PsiClass controller) {
-        // 路径
         String path = null;
         PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(controller, SpringConstants.RequestMapping);
         if (annotation != null) {
@@ -102,46 +103,48 @@ public class ApiParser {
     /**
      * 解析某个方法的接口信息
      */
-    private List<Api> parseMethod(ControllerApiInfo controllerApiInfo, PsiMethod method) {
-        List<Api> apis = Lists.newArrayList();
+    private List<Api> parseMethod(ControllerApiInfo controllerInfo, PsiMethod method) {
+        // 1.解析路径信息: @XxxMapping
         PathParseInfo mapping = PathParser.parse(method);
         if (mapping == null || mapping.getPaths() == null) {
-            return apis;
+            return Collections.emptyList();
         }
 
+        // 2.解析方法上信息: 请求、响应等.
         Api methodApi = doParseMethod(method, mapping);
-        for (String path : mapping.getPaths()) {
-            Api api = gson.fromJson(gson.toJson(methodApi), Api.class);
-            api.setPath(path);
-            api.setMethod(mapping.getMethod());
-            mergeLevels(api, controllerApiInfo);
-            apis.add(api);
-        }
-        return apis;
-    }
 
-    private void mergeLevels(Api api, ControllerApiInfo controllerInfo) {
-        String path = PathUtils.path(controllerInfo.getPath(), api.getPath());
-        api.setPath(path);
-        api.setCategory(controllerInfo.getCategory());
+        // 3.合并信息
+        return mapping.getPaths().stream().map(path -> {
+            Api api = methodApi;
+            if (mapping.getPaths().size() > 1) {
+                api = gson.fromJson(gson.toJson(methodApi), Api.class);
+            }
+            api.setMethod(mapping.getMethod());
+            api.setPath(PathUtils.path(controllerInfo.getPath(), path));
+            api.setCategory(controllerInfo.getCategory());
+            return api;
+        }).collect(Collectors.toList());
     }
 
     /**
-     * 解析方法的通用信息，出path/method外
+     * 解析方法的通用信息，除请求路径、请求方法外.
      */
     private Api doParseMethod(PsiMethod method, PathParseInfo mapping) {
         Api api = new Api();
+        // 基本信息
         api.setMethod(mapping.getMethod());
         api.setSummary(parseHelper.getApiSummary(method));
         api.setDescription(parseHelper.getApiDescription(method));
         api.setDeprecated(parseHelper.getApiDeprecated(method));
-
+        // 请求信息
         RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
         api.setParameters(requestInfo.getParameters());
         api.setRequestBodyType(requestInfo.getRequestBodyType());
         api.setRequestBody(requestInfo.getRequestBody());
         api.setRequestBodyForm(requestInfo.getRequestBodyForm());
-        api.setResponses(responseParser.parse(method));
+        // 响应信息
+        Property response = responseParser.parse(method);
+        api.setResponses(response);
         return api;
     }
 }

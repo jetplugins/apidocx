@@ -30,7 +30,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 处理Yapi上传入口动作.
+ * API文档解析处理的动作模板类
  */
 public abstract class AbstractAction extends AnAction {
 

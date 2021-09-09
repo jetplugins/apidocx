@@ -38,20 +38,18 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 参数解析工具类
+ * 请求信息解析
+ *
+ * @see #parse(PsiMethod, HttpMethod)
  */
 public class RequestParser {
 
-    private final Project project;
-    private final Module module;
     private final YapixConfig settings;
     private final KernelParser kernelParser;
-    private final DateParser dateParser;
     private final ParseHelper parseHelper;
+    private final DateParser dateParser;
 
     public RequestParser(Project project, Module module, YapixConfig settings) {
-        this.project = project;
-        this.module = module;
         this.settings = settings;
         this.kernelParser = new KernelParser(project, module, settings, false);
         this.dateParser = new DateParser(settings);
@@ -60,14 +58,16 @@ public class RequestParser {
 
     /**
      * 解析请求参数信息
+     *
+     * @param method     待处理的方法
+     * @param httpMethod 当前方法的http请求方法
      */
     public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
-        // 解析参数: 请求方式、普通参数，请求体
-        List<PsiParameter> parameters = filterIgnoreParameter(method.getParameterList().getParameters());
-        RequestBodyType requestBodyType = parseRequestBodyType(parameters, httpMethod);
-        List<Property> requestParameters = parseParameters(method, parameters);
-        List<Property> requestBody = parseRequestBody(method, parameters, httpMethod, requestParameters,
-                requestBodyType);
+        List<PsiParameter> parameters = filterPsiParameters(method);
+        // 解析参数: 请求体类型，普通参数，请求体
+        RequestBodyType requestBodyType = getRequestBodyType(parameters, httpMethod);
+        List<Property> requestParameters = getRequestParameters(method, parameters);
+        List<Property> requestBody = getRequestBody(method, parameters, httpMethod, requestParameters);
 
         // 数据填充
         RequestParseInfo info = new RequestParseInfo();
@@ -87,7 +87,7 @@ public class RequestParser {
     /**
      * 解析请求方式
      */
-    private RequestBodyType parseRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
+    private RequestBodyType getRequestBodyType(List<PsiParameter> parameters, HttpMethod method) {
         if (!method.isAllowBody()) {
             return null;
         }
@@ -105,18 +105,19 @@ public class RequestParser {
     /**
      * 解析请求体内容
      */
-    private List<Property> parseRequestBody(PsiMethod method, List<PsiParameter> parameters, HttpMethod httpMethod,
-            List<Property> requestParameters, RequestBodyType requestBodyType) {
+    private List<Property> getRequestBody(PsiMethod method, List<PsiParameter> parameters, HttpMethod httpMethod,
+            List<Property> requestParameters) {
         if (!httpMethod.isAllowBody()) {
             return Lists.newArrayList();
         }
         Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
 
-        // Json请求
+        // Json请求: 找到@RequestBody注解参数
         PsiParameter bp = parameters.stream()
                 .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
         if (bp != null) {
             Property item = kernelParser.parseType(bp.getType(), bp.getType().getCanonicalText());
+
             // 方法上的参数描述
             String parameterDescription = paramTagMap.get(bp.getName());
             if (StringUtils.isNotEmpty(parameterDescription)) {
@@ -125,7 +126,7 @@ public class RequestParser {
             return Lists.newArrayList(item);
         }
 
-        // 文件上传
+        // 文件
         List<Property> items = Lists.newArrayList();
         List<PsiParameter> fileParameters = parameters.stream()
                 .filter(p -> PsiTypeUtils.isFileIncludeArray(p.getType())).collect(Collectors.toList());
@@ -141,7 +142,8 @@ public class RequestParser {
             }
             items.add(item);
         }
-        // 合并查询参数到表单
+
+        // 表单：查询参数合并查询参数到表单
         if (requestParameters != null) {
             List<Property> queries = requestParameters.stream()
                     .filter(p -> p.getIn() == ParameterIn.query).collect(Collectors.toList());
@@ -157,18 +159,20 @@ public class RequestParser {
     /**
      * 解析普通参数
      */
-    public List<Property> parseParameters(PsiMethod method, List<PsiParameter> allParameters) {
-        List<PsiParameter> parameters = allParameters.stream()
+    public List<Property> getRequestParameters(PsiMethod method, List<PsiParameter> parameterList) {
+        List<PsiParameter> parameters = parameterList.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
                 .filter(p -> !PsiTypeUtils.isFileIncludeArray(p.getType()))
                 .collect(Collectors.toList());
 
+        // 获取方法@param标记信息
         Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
+
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
             Property item = doParseParameter(parameter);
             item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap));
-
+            // 当参数是bean时，需要获取包括参数
             List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);
         }
@@ -196,9 +200,9 @@ public class RequestParser {
      */
     private Property doParseParameter(PsiParameter parameter) {
         Property item = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
-        // 时间类型
         dateParser.handle(item, parameter);
-        // 参数类型
+
+        // 处理参数注解: @RequestParam等
         PsiAnnotation annotation = null;
         ParameterIn in = ParameterIn.query;
         Map<String, ParameterIn> targets = new LinkedHashMap<>();
@@ -213,7 +217,6 @@ public class RequestParser {
                 break;
             }
         }
-
         // 字段名称
         Boolean required = null;
         String name = null;
@@ -262,7 +265,8 @@ public class RequestParser {
     /**
      * 过滤无需处理的参数
      */
-    private List<PsiParameter> filterIgnoreParameter(PsiParameter[] parameters) {
+    private List<PsiParameter> filterPsiParameters(PsiMethod method) {
+        PsiParameter[] parameters = method.getParameterList().getParameters();
         Set<String> ignoreTypes = Sets.newHashSet(settings.getParameterIgnoreTypes());
         return Arrays.stream(parameters)
                 .filter(p -> {

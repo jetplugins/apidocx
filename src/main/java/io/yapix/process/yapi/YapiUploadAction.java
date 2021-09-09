@@ -1,41 +1,23 @@
 package io.yapix.process.yapi;
 
-import static io.yapix.base.util.NotificationUtils.notifyError;
-import static io.yapix.base.util.NotificationUtils.notifyInfo;
-import static java.lang.String.format;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import io.yapix.action.AbstractAction;
+import io.yapix.action.AbstractionUploadAction;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
-import io.yapix.base.util.ConcurrentUtils;
-import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.process.yapi.config.YapiSettings;
 import io.yapix.process.yapi.config.YapiSettingsDialog;
 import io.yapix.process.yapi.process.YapiUploader;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 处理Yapi上传入口动作.
  */
-public class YapiUploadAction extends AbstractAction {
+public class YapiUploadAction extends AbstractionUploadAction {
 
     public static final String ACTION_TEXT = "Upload To YApi";
 
@@ -55,63 +37,23 @@ public class YapiUploadAction extends AbstractAction {
         Integer projectId = Integer.valueOf(config.getYapiProjectId());
         Project project = event.getData(CommonDataKeys.PROJECT);
 
-        // 异步处理
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                indicator.setIndeterminate(false);
-                YapiSettings settings = YapiSettings.getInstance();
-                YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                        settings.getCookies(), settings.getCookiesTtl());
-                YapiUploader uploader = new YapiUploader(client);
-                // 进度和并发
-                Semaphore semaphore = new Semaphore(3);
-                ExecutorService threadPool = Executors.newFixedThreadPool(3);
-                double step = 1.0 / apis.size();
-                AtomicInteger count = new AtomicInteger();
-                AtomicDouble fraction = new AtomicDouble();
+        YapiSettings settings = YapiSettings.getInstance();
+        YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                settings.getCookies(), settings.getCookiesTtl());
+        YapiUploader uploader = new YapiUploader(client);
 
-                List<YapiInterface> interfaces = null;
-                try {
-                    List<Future<YapiInterface>> futures = Lists.newArrayListWithExpectedSize(apis.size());
-                    for (int i = 0; i < apis.size() && !indicator.isCanceled(); i++) {
-                        Api api = apis.get(i);
-                        semaphore.acquire();
-                        Future<YapiInterface> future = threadPool.submit(() -> {
-                            try {
-                                // 上传
-                                String text = format("[%d/%d] %s %s", count.incrementAndGet(), apis.size(),
-                                        api.getMethod(), api.getPath());
-                                indicator.setText(text);
-                                return uploader.upload(projectId, api);
-                            } catch (Exception e) {
-                                notifyError(
-                                        String.format("Yapi Upload failed: [%s %s]", api.getMethod(), api.getPath()),
-                                        ExceptionUtils.getStackTrace(e));
-                            } finally {
-                                indicator.setFraction(fraction.addAndGet(step));
-                                semaphore.release();
-                            }
-                            return null;
-                        });
-                        futures.add(future);
-                    }
-                    interfaces = ConcurrentUtils.waitFuturesSilence(futures);
-                } catch (InterruptedException e) {
-                    // ignore
-                } finally {
-                    if (interfaces != null && interfaces.size() > 0) {
-                        YapiInterface yapi = interfaces.get(0);
-                        String url = interfaces.size() == 1 && yapi.getId() != null ?
-                                client.calculateInterfaceUrl(yapi.getProjectId(), yapi.getId())
-                                : client.calculateCatUrl(yapi.getProjectId(), yapi.getCatid());
-                        notifyInfo("Yapi Upload successful", format("<a href=\"%s\">%s</a>", url, url));
-                    }
+        super.handleUploadAsync(project, apis,
+                api -> {
+                    YapiInterface yapi = uploader.upload(projectId, api);
+
+                    ApiUploadResult result = new ApiUploadResult();
+                    result.setApiUrl(client.calculateInterfaceUrl(projectId, yapi.getId()));
+                    result.setCategoryUrl(client.calculateCatUrl(projectId, yapi.getCatid()));
+                    return result;
+                }, () -> {
                     client.close();
-                    threadPool.shutdown();
-                }
-            }
-        });
+                    return null;
+                });
     }
 
     @Override

@@ -91,22 +91,10 @@ public class KernelParser {
         if (DataTypes.FILE.equals(item.getType())) {
             return item;
         }
-
-        // Map: 无需要解析
+        // Map类型
         if (PsiTypeUtils.isMap(psiType, this.project, this.module) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
-            // 尝试解析map值得类型
-            if (StringUtils.isNotEmpty(genericTypes)) {
-                String[] kvGenericTypes = PsiGenericUtils.splitGenericParameters(genericTypes);
-                if (kvGenericTypes.length >= 2) {
-                    Property mapValueProperty = doParseType(null, kvGenericTypes[1], chains);
-                    if (mapValueProperty != null) {
-                        Map<String, Property> properties = Maps.newHashMap();
-                        properties.put("KEY", mapValueProperty);
-                        item.setProperties(properties);
-                    }
-                }
-            }
+            doHandleMap(item, genericTypes, chains);
             return item;
         }
         // 数组
@@ -125,19 +113,39 @@ public class KernelParser {
         boolean isNeedParseObject = psiClass != null && item.isObjectType()
                 && (chains == null || !chains.contains(psiClass));
         if (isNeedParseObject) {
-            Map<String, Property> properties = doParseBean(project, psiType, type, genericTypes, psiClass, chains);
+            Map<String, Property> properties = doParseBean(type, genericTypes, psiClass, chains);
             item.setProperties(properties);
         }
         return item;
     }
 
+    /**
+     * 处理Map类型
+     */
+    private void doHandleMap(Property item, String genericTypes, Set<PsiClass> chains) {
+        // 尝试解析map值得类型
+        if (StringUtils.isEmpty(genericTypes)) {
+            return;
+        }
+
+        String[] kvGenericTypes = PsiGenericUtils.splitGenericParameters(genericTypes);
+        if (kvGenericTypes.length >= 2) {
+            Property mapValueProperty = doParseType(null, kvGenericTypes[1], chains);
+            if (mapValueProperty != null) {
+                Map<String, Property> properties = Maps.newHashMap();
+                properties.put("KEY", mapValueProperty);
+                item.setProperties(properties);
+            }
+        }
+    }
+
     @NotNull
-    private Map<String, Property> doParseBean(Project project, PsiType psiType, String type, String genericTypes,
-            PsiClass psiClass, Set<PsiClass> chains) {
+    private Map<String, Property> doParseBean(String type, String genericTypes, PsiClass psiClass,
+            Set<PsiClass> chains) {
         // 防止循环引用
         HashSet<PsiClass> newChains = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
         newChains.add(psiClass);
-        BeanCustom beanCustom = getBeanCustom(type);
+        BeanCustom beanCustom = getBeanCustomSettings(type);
 
         Map<String, Property> properties = new LinkedHashMap<>();
         if (psiClass.isInterface()) {
@@ -217,7 +225,10 @@ public class KernelParser {
         filedItem.mergeCustom(customItem);
     }
 
-    private BeanCustom getBeanCustom(String type) {
+    /**
+     * 获取指定类型自定义的bean配置
+     */
+    private BeanCustom getBeanCustomSettings(String type) {
         BeanCustom custom = null;
         Map<String, BeanCustom> beans = settings.getBeans();
         if (beans != null) {

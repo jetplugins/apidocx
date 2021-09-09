@@ -35,9 +35,7 @@ public class Api {
     /** 请求体参数 */
     private Property requestBody;
 
-    /**
-     * 请求体表单
-     */
+    /** 请求体表单 */
     private List<Property> requestBodyForm;
 
     /** 响应体 */

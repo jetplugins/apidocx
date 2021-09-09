@@ -22,12 +22,15 @@ public class PathUtils {
         path = path(path);
         subPath = path(subPath);
         if (path == null) {
-            return path(subPath);
+            return subPath;
         }
         if (subPath == null) {
             return path;
         }
-        return path(path) + path(subPath);
+        if (path.endsWith("/") && subPath.startsWith("/")) {
+            return path + subPath.substring(1);
+        }
+        return path + subPath;
     }
 
 }

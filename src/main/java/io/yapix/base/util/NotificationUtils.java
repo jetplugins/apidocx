@@ -1,7 +1,6 @@
 package io.yapix.base.util;
 
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener.UrlOpeningListener;
 import com.intellij.notification.NotificationType;
@@ -13,8 +12,7 @@ import io.yapix.config.DefaultConstants;
  */
 public final class NotificationUtils {
 
-    public static final NotificationGroup DEFAULT_GROUP = new NotificationGroup(DefaultConstants.NAME,
-            NotificationDisplayType.BALLOON, true);
+    public static final NotificationGroup DEFAULT_GROUP = NotificationGroup.balloonGroup(DefaultConstants.NAME);
 
     /**
      * 提示普通消息
