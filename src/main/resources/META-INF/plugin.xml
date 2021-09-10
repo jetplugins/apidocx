@@ -61,6 +61,12 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.0.6</p>
+      <ul>
+        <li>Add YApi supports LDAP login.</li>
+        <li>Add parse map type.</li>
+        <li>Fix copy as curl escape.</li>
+      </ul>
       <p>0.0.5</p>
       <ul>
         <li>Optimize parse date.</li>

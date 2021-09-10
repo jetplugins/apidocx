@@ -101,6 +101,7 @@ public class Rap2Client extends AbstractClient {
             AuthCookies auth = new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
             result.setAuthCookies(auth);
         } catch (Rap2Exception e) {
+            result.setMessage(e.getMessage());
             if (e.isNeedAuth() || e.isAccountPasswordError()) {
                 result.setCode(Code.AUTH_ERROR);
             } else if (e.isCaptchaError()) {

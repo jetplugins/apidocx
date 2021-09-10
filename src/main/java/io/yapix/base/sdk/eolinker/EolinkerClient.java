@@ -78,6 +78,7 @@ public class EolinkerClient extends AbstractClient {
             result.setCode(Code.OK);
             result.setAuthSession(this.authSession);
         } catch (EolinkerException e) {
+            result.setMessage(e.getMessage());
             if (e.isNeedAuth() || e.isAccountPasswordError()) {
                 result.setCode(Code.AUTH_ERROR);
             } else {

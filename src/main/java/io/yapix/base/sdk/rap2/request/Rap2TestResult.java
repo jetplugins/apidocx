@@ -7,6 +7,7 @@ import io.yapix.base.sdk.rap2.model.Rap2User;
 public class Rap2TestResult {
 
     private Code code;
+    private String message;
     private AuthCookies authCookies;
     private Rap2User authUser;
 
@@ -16,6 +17,14 @@ public class Rap2TestResult {
 
     public void setCode(Code code) {
         this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public AuthCookies getAuthCookies() {

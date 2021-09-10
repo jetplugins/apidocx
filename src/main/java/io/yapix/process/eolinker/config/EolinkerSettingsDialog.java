@@ -69,10 +69,10 @@ public class EolinkerSettingsDialog extends DialogWrapper {
             super.doOKAction();
         }
         if (code == EolinkerTestResult.Code.NETWORK_ERROR) {
-            setErrorText("Network error", form.getUrlField());
+            setErrorText("Network error: " + testResult.getMessage(), form.getUrlField());
         }
         if (code == EolinkerTestResult.Code.AUTH_ERROR) {
-            setErrorText("Password incorrect", form.getPasswordField());
+            setErrorText("Auth failed: " + testResult.getMessage(), form.getPasswordField());
         }
     }
 

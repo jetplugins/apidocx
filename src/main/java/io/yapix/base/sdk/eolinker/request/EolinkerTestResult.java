@@ -5,6 +5,7 @@ import io.yapix.base.sdk.eolinker.AbstractClient.HttpSession;
 public class EolinkerTestResult {
 
     private Code code;
+    private String message;
     private HttpSession authSession;
 
     public Code getCode() {
@@ -13,6 +14,14 @@ public class EolinkerTestResult {
 
     public void setCode(Code code) {
         this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public HttpSession getAuthSession() {
