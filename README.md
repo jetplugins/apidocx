@@ -24,14 +24,16 @@
 ## 使用
 1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: Yapi X
 2. 配置: 项目根目录创建".yapix"文件, 内容: yapiProjectId=110
-3. 上传: 光标放置在你的控制类或方法，右键执行: Upload To YApi
+3. 上传: 光标放置在你的控制类或方法，右键执行: Upload To YApi ( 提示：如果未填登录信息，会弹窗提示 )
 
 ## 配置
+大多数情况下您只需要配置关联的项目标识（xxxProjectId）即可，更多配置项可满足你的99%的场景。
 ```properties
 # 项目id
 yapiProjectId=
 rap2ProjectId=
 eolinkerProjectId=
+
 # 包装类全称: 场景是有配置spring全局过滤器包装统一返回值的情况
 returnWrapType=
 # 解包装类型全称: 场景是有些返回类型不希望被统一spring过滤器包装
