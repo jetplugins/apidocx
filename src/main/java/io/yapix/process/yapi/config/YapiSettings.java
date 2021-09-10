@@ -5,6 +5,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import io.yapix.base.sdk.yapi.LoginWay;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
@@ -39,6 +40,11 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
     private String cookies;
 
     /**
+     * 登录方式
+     */
+    private LoginWay loginWay;
+
+    /**
      * 授权cookies的有效期.
      */
     private volatile long cookiesTtl;
@@ -69,7 +75,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         YapiSettings settings = this;
         // 测试账户
         try (YapiClient yapiClient = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getCookies(), settings.getCookiesTtl())) {
+                settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl())) {
             YapiTestResult testResult = yapiClient.test();
             Code code = testResult.getCode();
             if (code == Code.OK) {
@@ -106,6 +112,14 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         this.password = password;
     }
 
+    public LoginWay getLoginWay() {
+        return loginWay;
+    }
+
+    public void setLoginWay(LoginWay loginWay) {
+        this.loginWay = loginWay;
+    }
+
     public String getCookies() {
         return cookies;
     }
@@ -139,6 +153,10 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         if (account != null ? !account.equals(that.account) : that.account != null) {
             return false;
         }
-        return password != null ? password.equals(that.password) : that.password == null;
+        if (password != null ? !password.equals(that.password) : that.password != null) {
+            return false;
+        }
+        return loginWay == that.loginWay;
     }
+
 }

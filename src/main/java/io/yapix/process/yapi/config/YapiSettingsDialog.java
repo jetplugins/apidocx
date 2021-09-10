@@ -68,10 +68,10 @@ public class YapiSettingsDialog extends DialogWrapper {
             super.doOKAction();
         }
         if (code == Code.NETWORK_ERROR) {
-            setErrorText("Network error", form.getUrlField());
+            setErrorText("Network error: " + testResult.getMessage(), form.getUrlField());
         }
         if (code == Code.AUTH_ERROR) {
-            setErrorText("Password incorrect", form.getPasswordField());
+            setErrorText("Auth failed: " + testResult.getMessage(), form.getPasswordField());
         }
     }
 

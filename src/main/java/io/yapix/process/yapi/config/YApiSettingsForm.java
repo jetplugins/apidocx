@@ -1,8 +1,10 @@
 package io.yapix.process.yapi.config;
 
+import io.yapix.base.sdk.yapi.LoginWay;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 /**
@@ -14,6 +16,8 @@ public class YApiSettingsForm {
     private JFormattedTextField accountField;
     private JPasswordField passwordField;
     private JPanel panel;
+    private JRadioButton loginWayDefaultRadioButton;
+    private JRadioButton loginWayLdapRadioButton;
 
     public JPanel getPanel() {
         return panel;
@@ -23,6 +27,11 @@ public class YApiSettingsForm {
         urlField.setText(data.getUrl());
         accountField.setText(data.getAccount());
         passwordField.setText(data.getPassword());
+        if (data.getLoginWay() == LoginWay.LDAP) {
+            loginWayLdapRadioButton.doClick();
+        } else {
+            loginWayDefaultRadioButton.doClick();
+        }
     }
 
     public YapiSettings get() {
@@ -30,6 +39,11 @@ public class YApiSettingsForm {
         data.setUrl(urlField.getText().trim());
         data.setAccount(accountField.getText().trim());
         data.setPassword(new String(passwordField.getPassword()).trim());
+        LoginWay way = LoginWay.DEFAULT;
+        if (loginWayLdapRadioButton.isSelected()) {
+            way = LoginWay.LDAP;
+        }
+        data.setLoginWay(way);
         return data;
     }
 

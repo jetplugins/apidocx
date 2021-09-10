@@ -41,13 +41,17 @@ public class YapiClient extends AbstractClient {
      * 密码
      */
     private final String password;
+    /** 登录方式 */
+    private final LoginWay loginWay;
 
     private final Gson gson = new Gson();
 
-    public YapiClient(String url, String account, String password, String cookies, Long cookiesTtl) {
+    public YapiClient(String url, String account, String password, LoginWay loginWay,
+            String cookies, Long cookiesTtl) {
         this.url = url;
         this.account = account;
         this.password = password;
+        this.loginWay = loginWay == null ? LoginWay.DEFAULT : loginWay;
         this.authSession = new AbstractClient.HttpSession(cookies, cookiesTtl);
     }
 
@@ -70,8 +74,10 @@ public class YapiClient extends AbstractClient {
         } catch (YapiException e) {
             if (e.isNeedAuth() || e.isAuthFailed()) {
                 result.setCode(Code.AUTH_ERROR);
+                result.setMessage(e.getMessage());
             } else {
                 result.setCode(Code.NETWORK_ERROR);
+                result.setMessage(e.getMessage());
             }
         }
         return result;
@@ -162,7 +168,7 @@ public class YapiClient extends AbstractClient {
 
     @Override
     void doFreshAuth() {
-        String path = YapiConstants.yapiLogin;
+        String path = this.loginWay.getPath();
         JsonObject params = new JsonObject();
         params.addProperty("email", this.account);
         params.addProperty("password", this.password);

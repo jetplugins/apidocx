@@ -1,6 +1,6 @@
 package io.yapix.base.sdk.yapi;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 /**
  * Yapi客户端基异常
@@ -34,7 +34,12 @@ public class YapiException extends RuntimeException {
      * 认证失败，账户或密码错误
      */
     public boolean isAuthFailed() {
-        return Objects.equals(path, YapiConstants.yapiLogin) && Integer.valueOf(400).equals(code);
+        boolean isLoginPath = Arrays.stream(LoginWay.values())
+                .map(LoginWay::getPath).anyMatch(p -> path.equals(p));
+        return isLoginPath && (Integer.valueOf(400).equals(code)
+                || Integer.valueOf(404).equals(code)
+                || Integer.valueOf(401).equals(code)
+        );
     }
 
     public String getPath() {

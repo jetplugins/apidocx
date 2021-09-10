@@ -10,6 +10,9 @@ public interface YapiConstants {
      */
     String yapiLogin = "/api/user/login";
 
+    /** 登录地址LDAP */
+    String yapiLoginLdap = "/api/user/login_by_ldap";
+
     /**
      * 当前用户信息
      */

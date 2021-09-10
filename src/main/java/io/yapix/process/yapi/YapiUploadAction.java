@@ -39,7 +39,7 @@ public class YapiUploadAction extends AbstractionUploadAction {
 
         YapiSettings settings = YapiSettings.getInstance();
         YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getCookies(), settings.getCookiesTtl());
+                settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl());
         YapiUploader uploader = new YapiUploader(client);
 
         super.handleUploadAsync(project, apis,
