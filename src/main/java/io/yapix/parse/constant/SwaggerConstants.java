@@ -2,12 +2,12 @@ package io.yapix.parse.constant;
 
 public interface SwaggerConstants {
 
-    String ApiOperation = "io.swagger.annotations.ApiOperation";
+    String Api = "io.swagger.annotations.Api";
 
-    String ApiModelProperty = "io.swagger.annotations.ApiModelProperty";
+    String ApiOperation = "io.swagger.annotations.ApiOperation";
 
     String ApiParam = "io.swagger.annotations.ApiParam";
 
-    String ApiIgnore = "springfox.documentation.annotations.ApiIgnore";
+    String ApiModelProperty = "io.swagger.annotations.ApiModelProperty";
 
 }

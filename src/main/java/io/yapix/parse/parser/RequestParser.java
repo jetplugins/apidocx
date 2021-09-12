@@ -21,7 +21,6 @@ import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.constant.SpringConstants;
-import io.yapix.parse.constant.SwaggerConstants;
 import io.yapix.parse.model.RequestParseInfo;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
@@ -271,14 +270,7 @@ public class RequestParser {
         return Arrays.stream(parameters)
                 .filter(p -> {
                     String type = p.getType().getCanonicalText();
-                    if (ignoreTypes.contains(type)) {
-                        return false;
-                    }
-                    PsiAnnotation ignoreAnnotation = PsiAnnotationUtils.getAnnotation(p, SwaggerConstants.ApiIgnore);
-                    if (ignoreAnnotation != null) {
-                        return false;
-                    }
-                    return true;
+                    return !ignoreTypes.contains(type);
                 }).collect(Collectors.toList());
     }
 

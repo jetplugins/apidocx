@@ -20,10 +20,10 @@ import io.yapix.model.Value;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
-import io.yapix.parse.constant.SwaggerConstants;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiLinkUtils;
+import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.StringUtilsExt;
 import java.util.Arrays;
@@ -51,8 +51,11 @@ public class ParseHelper {
      * 获取接口分类
      */
     public String getApiCategory(PsiClass psiClass) {
-        // 优先级: 文档注释标记@menu > 文档注释第一行 > 类名按照羊肉串风格命名
+        // 优先级: 文档注释标记@menu > @Api > 文档注释第一行 > 类名按照羊肉串风格命名
         String category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Category);
+        if (StringUtils.isEmpty(category)) {
+            category = PsiSwaggerUtils.getApiCategory(psiClass);
+        }
         if (StringUtils.isEmpty(category)) {
             category = PsiDocCommentUtils.getDocCommentTitle(psiClass);
         }
@@ -67,12 +70,7 @@ public class ParseHelper {
      */
     public String getApiSummary(PsiMethod psiMethod) {
         // 优先级: swagger注解@ApiOperation > 文档注释标记@description >  文档注释第一行
-        String summary = null;
-
-        PsiAnnotation apiOptAnnotation = PsiAnnotationUtils.getAnnotation(psiMethod, SwaggerConstants.ApiOperation);
-        if (apiOptAnnotation != null) {
-            summary = PsiAnnotationUtils.getStringAttributeValueByAnnotation(apiOptAnnotation);
-        }
+        String summary = PsiSwaggerUtils.getApiSummary(psiMethod);
 
         PsiDocComment comment = psiMethod.getDocComment();
         if (comment != null) {
@@ -129,7 +127,11 @@ public class ParseHelper {
      */
     public String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap,
             List<Value> values) {
-        String summary = paramTagMap.get(parameter.getName());
+        // @ApiParam > @param
+        String summary = PsiSwaggerUtils.getParameterDescription(parameter);
+        if (StringUtils.isEmpty(summary)) {
+            summary = paramTagMap.get(parameter.getName());
+        }
         if (values != null && !values.isEmpty()) {
             String valuesText = values.stream().map(Value::getText).collect(Collectors.joining(", "));
             if (StringUtils.isEmpty(summary)) {
@@ -193,13 +195,8 @@ public class ParseHelper {
      * 获取字段描述
      */
     public String getFieldDescription(PsiField field, List<Value> values) {
-        // 优先级: swagger注解@ApiParam > 文档注释标记@description >  文档注释第一行
-        String summary = null;
-
-        PsiAnnotation swaggerAnnotation = PsiAnnotationUtils.getAnnotation(field, SwaggerConstants.ApiParam);
-        if (swaggerAnnotation != null) {
-            summary = PsiAnnotationUtils.getStringAttributeValueByAnnotation(swaggerAnnotation);
-        }
+        // 优先级: @ApiModelProperty > 文档注释标记@description >  文档注释第一行
+        String summary = PsiSwaggerUtils.getFieldDescription(field);
 
         PsiDocComment comment = field.getDocComment();
         if (comment != null) {
