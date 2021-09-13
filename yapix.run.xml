@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="Yapi X" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+    <configuration default="false" name="yapix" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
         <module name="yapix"/>
         <option name="VM_PARAMETERS" value="-Xmx1024m -Xms512m -ea"/>
         <option name="PROGRAM_PARAMETERS" value=""/>
