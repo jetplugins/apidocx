@@ -19,6 +19,11 @@ public interface YapiConstants {
     String yapiUserStatus = "/api/user/status";
 
     /**
+     * 获取项目基本信息
+     */
+    String yapiProjectGet = "/api/project/get";
+
+    /**
      * 新增或者更新接口
      */
     String yapiSave = "/api/interface/save";

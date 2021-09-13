@@ -16,6 +16,7 @@ import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -44,6 +45,9 @@ public class YapiClient extends AbstractClient {
     /** 登录方式 */
     private final LoginWay loginWay;
 
+    /** 项目token */
+    private final String token;
+
     private final Gson gson = new Gson();
 
     public YapiClient(String url, String account, String password, LoginWay loginWay,
@@ -53,6 +57,15 @@ public class YapiClient extends AbstractClient {
         this.password = password;
         this.loginWay = loginWay == null ? LoginWay.DEFAULT : loginWay;
         this.authSession = new AbstractClient.HttpSession(cookies, cookiesTtl);
+        this.token = null;
+    }
+
+    public YapiClient(String url, String token) {
+        this.url = url;
+        this.token = token;
+        this.account = null;
+        this.password = null;
+        this.loginWay = null;
     }
 
     public AuthCookies getAuthCookies() {
@@ -66,9 +79,10 @@ public class YapiClient extends AbstractClient {
      * 测试是否正常
      */
     public YapiTestResult test() {
+        String path = StringUtils.isNoneEmpty(token) ? YapiConstants.yapiProjectGet : YapiConstants.yapiUserStatus;
         YapiTestResult result = new YapiTestResult();
         try {
-            requestGet(YapiConstants.yapiUserStatus);
+            requestGet(path);
             result.setCode(Code.OK);
             result.setAuthCookies(getAuthCookies());
         } catch (YapiException e) {
@@ -150,7 +164,7 @@ public class YapiClient extends AbstractClient {
      * 执行Get请求
      */
     public String requestGet(String path) {
-        HttpGet request = new HttpGet(this.url + path);
+        HttpGet request = new HttpGet(this.url + pathWithToken(path));
         return doRequest(request);
     }
 
@@ -159,15 +173,28 @@ public class YapiClient extends AbstractClient {
      */
     public String requestPost(String path, Object data) {
         String json = gson.toJson(data);
-        HttpPost request = new HttpPost(url + path);
+        HttpPost request = new HttpPost(url + pathWithToken(path));
         request.setHeader("Content-type", "application/json;charset=utf-8");
         request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
         return doRequest(request);
     }
 
+    private String pathWithToken(String path) {
+        if (StringUtils.isEmpty(token)) {
+            return path;
+        }
+        if (path.indexOf('?') == -1) {
+            return path + "?token=" + token;
+        }
+        return path + "&token=" + token;
+    }
+
 
     @Override
     void doFreshAuth() {
+        if (StringUtils.isNotEmpty(token)) {
+            return;
+        }
         String path = this.loginWay.getPath();
         JsonObject params = new JsonObject();
         params.addProperty("email", this.account);

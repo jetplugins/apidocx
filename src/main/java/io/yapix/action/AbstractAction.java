@@ -136,6 +136,10 @@ public abstract class AbstractAction extends AnAction {
                 notifyError("Config file error", "yapiProjectId must not be empty.");
                 return false;
             }
+            if (StringUtils.isNotEmpty(config.getYapiProjectToken()) && StringUtils.isEmpty(config.getYapiUrl())) {
+                notifyError("Config file error", "yapiUrl must not be empty, when you config yapiProjectToken.");
+                return false;
+            }
         }
         // rap2
         if (this.getClass() == Rap2UploadAction.class) {

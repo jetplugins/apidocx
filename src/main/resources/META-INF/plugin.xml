@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.0.5.2021091001</version>
+    <version>0.0.5.2021091302</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -64,6 +64,7 @@
       <p>0.0.6</p>
       <ul>
         <li>Add YApi supports LDAP login.</li>
+        <li>Add YApi supports token auth.</li>
         <li>Add parse map type.</li>
         <li>Add basic swagger annotations.</li>
         <li>Fix copy as curl escape.</li>

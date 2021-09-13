@@ -50,16 +50,26 @@ public abstract class AbstractClient implements Closeable {
         if (this.authSession != null) {
             request.addHeader("Cookie", this.authSession.getCookies());
         }
+        YapiException exception = null;
         try {
             return execute(request, false);
         } catch (YapiException e) {
             if (!e.isNeedAuth()) {
                 throw e;
             }
+            exception = e;
         }
-        // 再执行一次
         freshAuth(true);
-        request.addHeader("Cookie", this.authSession.getCookies());
+
+        // 不需要再次登录
+        if (this.authSession == null && exception != null) {
+            throw exception;
+        }
+
+        // 再执行一次
+        if (this.authSession != null) {
+            request.addHeader("Cookie", this.authSession.getCookies());
+        }
         return execute(request, false);
     }
 

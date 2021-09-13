@@ -13,6 +13,7 @@ import io.yapix.process.yapi.config.YapiSettings;
 import io.yapix.process.yapi.config.YapiSettingsDialog;
 import io.yapix.process.yapi.process.YapiUploader;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 处理Yapi上传入口动作.
@@ -23,6 +24,10 @@ public class YapiUploadAction extends AbstractionUploadAction {
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
+        if (StringUtils.isNotEmpty(config.getYapiProjectToken())) {
+            return true;
+        }
+
         Project project = event.getData(CommonDataKeys.PROJECT);
         YapiSettings settings = YapiSettings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
@@ -38,8 +43,7 @@ public class YapiUploadAction extends AbstractionUploadAction {
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         YapiSettings settings = YapiSettings.getInstance();
-        YapiClient client = new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl());
+        YapiClient client = createClient(config, settings);
         YapiUploader uploader = new YapiUploader(client);
 
         super.handleUploadAsync(project, apis,
@@ -54,6 +58,14 @@ public class YapiUploadAction extends AbstractionUploadAction {
                     client.close();
                     return null;
                 });
+    }
+
+    private YapiClient createClient(YapixConfig config, YapiSettings settings) {
+        if (StringUtils.isNotEmpty(config.getYapiProjectToken())) {
+            return new YapiClient(config.getYapiUrl(), config.getYapiProjectToken());
+        }
+        return new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl());
     }
 
     @Override

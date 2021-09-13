@@ -30,6 +30,12 @@ public class YapixConfig {
     /** eolinker项目hashKey */
     private String eolinkerProjectId;
 
+    /** YApi服务地址: 用于统一登录场景 */
+    private String yapiUrl;
+
+    /** YApi项目token: 用于统一登录场景 */
+    private String yapiProjectToken;
+
     /** 返回值包装类 */
     private String returnWrapType;
 
@@ -61,6 +67,8 @@ public class YapixConfig {
     public static YapixConfig fromProperties(Properties properties) {
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
         String yapiProjectId = properties.getProperty("yapiProjectId", "");
+        String yapiUrl = properties.getProperty("yapiUrl", "");
+        String yapiProjectToken = properties.getProperty("yapiProjectToken", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
         String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");
@@ -71,6 +79,8 @@ public class YapixConfig {
         String dateTimeFormatJson = properties.getProperty("dateTimeFormatJson", "");
 
         YapixConfig config = new YapixConfig();
+        config.yapiUrl = yapiUrl.trim();
+        config.yapiProjectToken = yapiProjectToken.trim();
         config.yapiProjectId = yapiProjectId.trim();
         config.rap2ProjectId = rap2ProjectId.trim();
         config.eolinkerProjectId = eolinkerProjectId.trim();
@@ -116,7 +126,9 @@ public class YapixConfig {
         YapixConfig settings = this;
 
         YapixConfig config = new YapixConfig();
+        config.setYapiUrl(settings.getYapiUrl());
         config.setYapiProjectId(settings.getYapiProjectId());
+        config.setYapiProjectToken(settings.getYapiProjectToken());
         config.setRap2ProjectId(settings.getRap2ProjectId());
         config.setEolinkerProjectId(settings.getEolinkerProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
@@ -178,6 +190,22 @@ public class YapixConfig {
 
     public void setYapiProjectId(String yapiProjectId) {
         this.yapiProjectId = yapiProjectId;
+    }
+
+    public String getYapiUrl() {
+        return yapiUrl;
+    }
+
+    public void setYapiUrl(String yapiUrl) {
+        this.yapiUrl = yapiUrl;
+    }
+
+    public String getYapiProjectToken() {
+        return yapiProjectToken;
+    }
+
+    public void setYapiProjectToken(String yapiProjectToken) {
+        this.yapiProjectToken = yapiProjectToken;
     }
 
     public String getRap2ProjectId() {
