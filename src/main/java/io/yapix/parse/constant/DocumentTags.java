@@ -17,4 +17,6 @@ public interface DocumentTags {
 
     String Mock = "mock";
 
+    String Ignore = "ignore";
+
 }

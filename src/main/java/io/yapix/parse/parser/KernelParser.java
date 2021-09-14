@@ -20,7 +20,6 @@ import io.yapix.model.Property;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.util.PsiFieldUtils;
 import io.yapix.parse.util.PsiGenericUtils;
-import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
 import java.util.Collections;
@@ -181,7 +180,7 @@ public class KernelParser {
             for (PsiField field : fields) {
                 String filedName = field.getName();
                 PsiType fieldType = field.getType();
-                if (PsiSwaggerUtils.isFieldSkip(field)) {
+                if (parseHelper.isFieldIgnore(field)) {
                     continue;
                 }
                 // 自定义配置决定是否处理该字段

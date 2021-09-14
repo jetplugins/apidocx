@@ -258,6 +258,19 @@ public class ParseHelper {
         return nonNull(deprecatedTag);
     }
 
+
+    /**
+     * 字段是否被跳过
+     */
+    public boolean isFieldIgnore(PsiField field) {
+        // swagger -> @ignore
+        if (PsiSwaggerUtils.isFieldIgnore(field)) {
+            return true;
+        }
+        PsiDocTag ignoreTag = PsiDocCommentUtils.findTagByName(field, DocumentTags.Ignore);
+        return ignoreTag != null;
+    }
+
     //----------------------------- 类型 -----------------------------//
     public String getTypeDescription(PsiType type, List<Value> values) {
         if (values != null && !values.isEmpty()) {

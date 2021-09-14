@@ -48,7 +48,7 @@ public class PsiSwaggerUtils {
         return PsiAnnotationUtils.getStringAttributeValueByAnnotation(apiModelProperty);
     }
 
-    public static boolean isFieldSkip(PsiField psiField) {
+    public static boolean isFieldIgnore(PsiField psiField) {
         PsiAnnotation apiModelProperty = PsiAnnotationUtils.getAnnotation(psiField, SwaggerConstants.ApiModelProperty);
         if (apiModelProperty == null) {
             return false;
