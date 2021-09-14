@@ -131,12 +131,15 @@ public class Rap2DataConvector {
     }
 
     private static List<Rap2Property> doResolveRequestBodyProperties(Property item, long repositoryId) {
-        Rap2Property property = doResolveBeanProperties(item, repositoryId, PropertyScope.request, PropertyPos.BODY);
-        if (StringUtils.isEmpty(property.getName())) {
-            property.setName("root");
+        if (item == null) {
+            return Lists.newArrayList();
         }
+        List<Rap2Property> properties = doResolveBeanPropertiesUnwrapRoot(item, repositoryId, PropertyScope.request,
+                PropertyPos.BODY);
         List<Rap2Property> container = Lists.newArrayList();
-        flatRap2Property(container, property);
+        for (Rap2Property property : properties) {
+            flatRap2Property(container, property);
+        }
         return container;
     }
 
