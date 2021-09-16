@@ -61,6 +61,19 @@ public class Property {
     }
 
     /**
+     * 获取类型名称, 包括数组
+     */
+    public String getTypeWithArray() {
+        if (!DataTypes.ARRAY.equals(this.type)) {
+            return this.type;
+        }
+        if (this.items == null) {
+            return DataTypes.OBJECT + "[]";
+        }
+        return this.items.type + "[]";
+    }
+
+    /**
      * 合并自定义配置, 自定义优先
      */
     public void mergeCustom(Property custom) {

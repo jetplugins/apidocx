@@ -133,8 +133,9 @@ public class KernelParser {
         if (kvGenericTypes.length >= 2) {
             Property mapValueProperty = doParseType(null, kvGenericTypes[1], chains);
             if (mapValueProperty != null) {
+                mapValueProperty.setName("KEY");
                 Map<String, Property> properties = Maps.newHashMap();
-                properties.put("KEY", mapValueProperty);
+                properties.put(mapValueProperty.getName(), mapValueProperty);
                 item.setProperties(properties);
             }
         }

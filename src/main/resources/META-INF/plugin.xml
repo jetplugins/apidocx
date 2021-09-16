@@ -52,15 +52,20 @@
         <group id="yapix.ActionGroup" text="Yapi X" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction" text="Upload To YApi"/>
-            <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction" text="Upload To Rap2"/>
-            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"
-                text="Upload To Eolinker"/>
-            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction" text="Copy as cURL"/>
+            <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction"/>
+            <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction"/>
+            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"/>
+            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
+            <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
+            <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>
         </group>
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.7</p>
+      <ul>
+        <li>Export markdown.</li>
+      </ul>
       <p>0.6</p>
       <ul>
         <li>Supports @ignore tag.</li>
