@@ -19,7 +19,7 @@ public class CopyAsMarkdownAction extends AbstractAction {
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
         String markdown = new MarkdownGenerator().generate(apis);
         ClipboardUtils.setClipboard(markdown);
-        NotificationUtils.notifyInfo(ACTION_TEXT, "Copied");
+        NotificationUtils.notifyInfo("Copied");
     }
 
     @Override

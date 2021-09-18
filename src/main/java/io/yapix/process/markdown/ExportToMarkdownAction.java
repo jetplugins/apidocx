@@ -29,7 +29,7 @@ public class ExportToMarkdownAction extends AbstractAction {
         String markdown = new MarkdownGenerator().generate(apis);
         try {
             FileUtils.writeStringToFile(new File(file), markdown, StandardCharsets.UTF_8);
-            NotificationUtils.notifyInfo("Generate to markdown successful.");
+            NotificationUtils.notifyInfo("Export to markdown successful.");
         } catch (IOException e) {
             throw new RuntimeException("Write markdown file error: " + file, e);
         }

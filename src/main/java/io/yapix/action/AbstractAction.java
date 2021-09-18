@@ -28,6 +28,7 @@ import io.yapix.process.rap2.Rap2UploadAction;
 import io.yapix.process.yapi.YapiUploadAction;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * API文档解析处理的动作模板类
@@ -160,5 +161,23 @@ public abstract class AbstractAction extends AnAction {
         return true;
     }
 
+    //--------------- 辅助方法 -------------------//
 
+    /**
+     * 是否选中了方法
+     */
+    protected boolean isSelectedMethod(@NotNull AnActionEvent e) {
+        Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
+        PsiFile editorFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);
+        if (editor != null && editorFile != null) {
+
+            PsiElement referenceAt = editorFile.findElementAt(editor.getCaretModel().getOffset());
+            PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
+            if (selectClass != null) {
+                PsiMethod method = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
+                return method != null;
+            }
+        }
+        return true;
+    }
 }
