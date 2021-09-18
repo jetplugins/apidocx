@@ -40,4 +40,8 @@ public class ExportToMarkdownAction extends AbstractAction {
         e.getPresentation().setText(ACTION_TEXT);
     }
 
+    @Override
+    protected boolean requiredConfigFile() {
+        return false;
+    }
 }

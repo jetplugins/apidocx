@@ -33,4 +33,9 @@ public class CopyAsCurlAction extends AbstractAction {
     public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setEnabledAndVisible(isSelectedMethod(e));
     }
+
+    @Override
+    protected boolean requiredConfigFile() {
+        return false;
+    }
 }

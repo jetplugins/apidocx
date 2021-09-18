@@ -20,7 +20,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
-import io.yapix.config.YapixSettings;
 import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
 import io.yapix.process.eolinker.EolinkerUploadAction;
@@ -58,8 +57,6 @@ public abstract class AbstractAction extends AnAction {
         if (psiJavaFiles.size() == 0) {
             return;
         }
-        YapixSettings settings = YapixSettings.getInstance();
-        ActionType defaultAction = settings.getDefaultAction();
 
         // 配置文件解析
         VirtualFile file = psiFiles[0];
@@ -68,21 +65,24 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
         VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(project, module);
-        if (yapiConfigFile == null || !yapiConfigFile.exists()) {
-            notifyError("Not found config file .yapi or yapi.xml");
+        if (requiredConfigFile() && (yapiConfigFile == null || !yapiConfigFile.exists())) {
+            notifyError("Not found config file .yapi");
             return;
         }
         YapixConfig config = null;
-        try {
-            config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
-        } catch (Exception e) {
-            if (defaultAction == null || defaultAction.isRequiredConfigFile()) {
+        if (yapiConfigFile != null && yapiConfigFile.exists()) {
+            try {
+                config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
+            } catch (Exception e) {
                 notifyError(String.format("Config file error: %s", e.getMessage()));
                 return;
             }
+            if (!checkConfig(config)) {
+                return;
+            }
         }
-        if (!checkConfig(config)) {
-            return;
+        if (config == null) {
+            config = new YapixConfig();
         }
 
         boolean isContinue = before(event, config);
@@ -158,6 +158,13 @@ public abstract class AbstractAction extends AnAction {
                 return false;
             }
         }
+        return true;
+    }
+
+    /**
+     * 配置文件是否必须
+     */
+    protected boolean requiredConfigFile() {
         return true;
     }
 
