@@ -51,8 +51,12 @@ public class YapiUploadAction extends AbstractionUploadAction {
                     YapiInterface yapi = uploader.upload(projectId, api);
 
                     ApiUploadResult result = new ApiUploadResult();
-                    result.setApiUrl(client.calculateInterfaceUrl(projectId, yapi.getId()));
                     result.setCategoryUrl(client.calculateCatUrl(projectId, yapi.getCatid()));
+                    if (yapi.getId() != null) {
+                        result.setApiUrl(client.calculateInterfaceUrl(projectId, yapi.getId()));
+                    } else {
+                        result.setApiUrl(result.getCategoryUrl());
+                    }
                     return result;
                 }, () -> {
                     client.close();
