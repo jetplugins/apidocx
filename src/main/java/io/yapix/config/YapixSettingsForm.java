@@ -13,6 +13,7 @@ public class YapixSettingsForm {
     private JRadioButton yapiRadioButton;
     private JRadioButton rap2RadioButton;
     private JRadioButton eolinkerRadioButton;
+    private JRadioButton showdocRadioButton;
 
     public JPanel getPanel() {
         return panel;
@@ -27,6 +28,9 @@ public class YapixSettingsForm {
             case Eolinker:
                 eolinkerRadioButton.doClick();
                 break;
+            case ShowDoc:
+                showdocRadioButton.doClick();
+                break;
             default:
                 yapiRadioButton.doClick();
         }
@@ -40,6 +44,8 @@ public class YapixSettingsForm {
             defaultAction = ActionType.Rap2;
         } else if (eolinkerRadioButton.isSelected()) {
             defaultAction = ActionType.Eolinker;
+        } else if (showdocRadioButton.isSelected()) {
+            defaultAction = ActionType.ShowDoc;
         }
 
         YapixSettings data = new YapixSettings();

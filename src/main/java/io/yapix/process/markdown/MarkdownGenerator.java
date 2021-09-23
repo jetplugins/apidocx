@@ -6,6 +6,7 @@ import io.yapix.model.Property;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +25,13 @@ public class MarkdownGenerator {
     }
 
     /**
+     * 生成单个接口文档,不包含标题部分
+     */
+    public String generate(Api api) {
+        return generateApi(api, -1);
+    }
+
+    /**
      * 生成某个分类的接口文档
      */
     private String generateCategory(String category, List<Api> apis) {
@@ -38,17 +46,21 @@ public class MarkdownGenerator {
     private String generateApi(Api api, int serialNumber) {
         StringBuilder markdown = new StringBuilder();
         String summary = StringUtils.isNotEmpty(api.getSummary()) ? api.getSummary() : api.getPath();
-        markdown.append(format("## %d.%s", serialNumber, summary)).append("\n\n");
+        if (serialNumber >= 0) {
+            markdown.append(format("## %d.%s", serialNumber, summary)).append("\n\n");
+        }
         markdown.append(format("**路径**: %s %s", api.getMethod().name(), api.getPath())).append("\n\n");
+        if (serialNumber < 0 && !Objects.equals(api.getSummary(), api.getPath())) {
+            markdown.append(format("**描述**: %s", api.getSummary())).append("\n\n");
+        }
         markdown.append("**请求参数**").append("\n\n");
         markdown.append(getPropertiesSnippets("Headers", api.getParametersByIn(ParameterIn.header)));
         markdown.append(getPropertiesSnippets("Path", api.getParametersByIn(ParameterIn.path)));
         markdown.append(getPropertiesSnippets("Query", api.getParametersByIn(ParameterIn.query)));
         markdown.append(getPropertiesSnippets("Body", api.getRequestBodyForm()));
-        markdown.append(getBodySnippets("Body", api.getRequestBody()));
-        markdown.append("\n");
+        markdown.append(getBodySnippets("Body", api.getRequestBody())).append("\n");
         markdown.append("**响应参数**").append("\n\n");
-        markdown.append(getBodySnippets("Body", api.getResponses()));
+        markdown.append(getBodySnippets("Body", api.getResponses())).append("\n");
         return markdown.toString();
     }
 
@@ -57,7 +69,7 @@ public class MarkdownGenerator {
             return "";
         }
         StringBuilder markdown = new StringBuilder();
-        markdown.append(format("**%s:**", title)).append("\n\n");
+        markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
         markdown.append("| - | - | - | - | - |").append("\n");
         properties.forEach(h -> {
@@ -66,6 +78,7 @@ public class MarkdownGenerator {
                     h.getDefaultValue(), h.getDescription());
             markdown.append(hr).append("\n");
         });
+        markdown.append("\n");
         return markdown.toString();
     }
 
@@ -77,7 +90,7 @@ public class MarkdownGenerator {
             return "";
         }
         StringBuilder markdown = new StringBuilder();
-        markdown.append(format("**%s:**", title)).append("\n\n");
+        markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
         markdown.append("| - | - | - | - | - |").append("\n");
         if (property.isObjectType()) {
@@ -91,7 +104,7 @@ public class MarkdownGenerator {
     private String propertyRowSnippets(Property property, int depth) {
         String nameDepth = property.getName();
         if (depth > 1 && StringUtils.isNotEmpty(property.getName())) {
-            nameDepth = StringUtils.repeat("&nbsp;&nbsp;", depth - 1) + "|- " + property.getName();
+            nameDepth = StringUtils.repeat("&nbsp;&nbsp;", depth - 1) + "├ " + property.getName();
         }
         String row = formatTable("| %s | %s | %s | %s | %s |\n",
                 nameDepth, requiredText(property.getRequired()), property.getTypeWithArray(),

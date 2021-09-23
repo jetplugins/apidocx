@@ -24,6 +24,7 @@ import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
 import io.yapix.process.eolinker.EolinkerUploadAction;
 import io.yapix.process.rap2.Rap2UploadAction;
+import io.yapix.process.showdoc.ShowdocUploadAction;
 import io.yapix.process.yapi.YapiUploadAction;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -155,6 +156,14 @@ public abstract class AbstractAction extends AnAction {
             String projectId = config.getEolinkerProjectId();
             if (StringUtils.isEmpty(projectId)) {
                 notifyError("Config file error", "eolinkerProjectId must not be empty.");
+                return false;
+            }
+        }
+        // showdoc
+        if (this.getClass() == ShowdocUploadAction.class) {
+            String projectId = config.getShowdocProjectId();
+            if (StringUtils.isEmpty(projectId)) {
+                notifyError("Config file error", "showdocProjectId must not be empty.");
                 return false;
             }
         }

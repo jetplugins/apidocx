@@ -35,11 +35,15 @@
         <applicationService serviceImplementation="io.yapix.process.yapi.config.YapiSettings"/>
         <applicationService serviceImplementation="io.yapix.process.rap2.config.Rap2Settings"/>
         <applicationService serviceImplementation="io.yapix.process.eolinker.config.EolinkerSettings"/>
+        <applicationService serviceImplementation="io.yapix.process.showdoc.config.ShowdocSettings"/>
+
         <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixSettingsConfiguration">
             <configurable displayName="YApi" instance="io.yapix.process.yapi.config.YapiSettingsConfiguration"/>
             <configurable displayName="Rap2" instance="io.yapix.process.rap2.config.Rap2SettingsConfiguration"/>
             <configurable displayName="Eolinker"
                 instance="io.yapix.process.eolinker.config.EolinkerSettingsConfiguration"/>
+            <configurable displayName="ShowDoc"
+                instance="io.yapix.process.showdoc.config.ShowdocSettingsConfiguration"/>
         </applicationConfigurable>
     </extensions>
 
@@ -52,19 +56,21 @@
         <group id="yapix.ActionGroup" text="Yapi X" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
             <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction"/>
             <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction"/>
             <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"/>
-            <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
+            <action id="yapix.ShowdocUploadAction" class="io.yapix.process.showdoc.ShowdocUploadAction"/>
             <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>
+            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
+            <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
         </group>
     </actions>
 
     <change-notes><![CDATA[
       <p>0.7</p>
       <ul>
-        <li>Export to markdown.</li>
+        <li>Add upload to showdoc.</li>
+        <li>Add export to markdown.</li>
       </ul>
       <p>0.6</p>
       <ul>

@@ -3,6 +3,7 @@ package io.yapix.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import io.yapix.process.eolinker.EolinkerUploadAction;
 import io.yapix.process.rap2.Rap2UploadAction;
+import io.yapix.process.showdoc.ShowdocUploadAction;
 import io.yapix.process.yapi.YapiUploadAction;
 
 public enum ActionType {
@@ -25,6 +26,12 @@ public enum ActionType {
         @Override
         public AnAction getAction() {
             return new EolinkerUploadAction();
+        }
+    },
+    ShowDoc(ShowdocUploadAction.ACTION_TEXT) {
+        @Override
+        public AnAction getAction() {
+            return new ShowdocUploadAction();
         }
     },
 

@@ -30,6 +30,9 @@ public class YapixConfig {
     /** eolinker项目hashKey */
     private String eolinkerProjectId;
 
+    /** showdoc项目id */
+    private String showdocProjectId;
+
     /** YApi服务地址: 用于统一登录场景 */
     private String yapiUrl;
 
@@ -71,6 +74,7 @@ public class YapixConfig {
         String yapiProjectToken = properties.getProperty("yapiProjectToken", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
         String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
+        String showdocProjectId = properties.getProperty("showdocProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");
         String returnUnwrapTypes = properties.getProperty("returnUnwrapTypes", "");
         String parameterIgnoreTypes = properties.getProperty("parameterIgnoreTypes", "");
@@ -84,6 +88,7 @@ public class YapixConfig {
         config.yapiProjectId = yapiProjectId.trim();
         config.rap2ProjectId = rap2ProjectId.trim();
         config.eolinkerProjectId = eolinkerProjectId.trim();
+        config.showdocProjectId = showdocProjectId.trim();
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
@@ -131,6 +136,7 @@ public class YapixConfig {
         config.setYapiProjectToken(settings.getYapiProjectToken());
         config.setRap2ProjectId(settings.getRap2ProjectId());
         config.setEolinkerProjectId(settings.getEolinkerProjectId());
+        config.setShowdocProjectId(settings.getShowdocProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
         config.setDateTimeFormatMvc(settings.getDateTimeFormatMvc());
         config.setDateTimeFormatJson(settings.getDateTimeFormatJson());
@@ -278,5 +284,13 @@ public class YapixConfig {
 
     public void setDateTimeFormatJson(String dateTimeFormatJson) {
         this.dateTimeFormatJson = dateTimeFormatJson;
+    }
+
+    public String getShowdocProjectId() {
+        return showdocProjectId;
+    }
+
+    public void setShowdocProjectId(String showdocProjectId) {
+        this.showdocProjectId = showdocProjectId;
     }
 }

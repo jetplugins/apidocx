@@ -41,7 +41,6 @@ public class MainAction extends AnAction {
         Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile editorFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);
         if (editor != null && editorFile != null) {
-
             PsiElement referenceAt = editorFile.findElementAt(editor.getCaretModel().getOffset());
             PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
             if (selectClass != null) {

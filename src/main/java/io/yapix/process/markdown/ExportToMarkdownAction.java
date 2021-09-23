@@ -18,7 +18,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class ExportToMarkdownAction extends AbstractAction {
 
-    public static final String ACTION_TEXT = "Export to Markdown";
+    public static final String ACTION_TEXT = "Export To Markdown";
 
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
