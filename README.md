@@ -13,6 +13,8 @@
 - [x] 上传到YApi平台
 - [x] 上传到Rap2平台
 - [x] 上传到Eolinker平台
+- [x] 上传到ShowDoc平台
+- [x] 导出markdown文件
 - [x] 复制为cURL命令
 
 <img src="doc/screenshots.gif" height="360">

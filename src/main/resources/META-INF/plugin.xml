@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.6.2021091801</version>
+    <version>0.7</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -17,6 +17,8 @@
             <li>Upload to YApi platform.</li>
             <li>Upload to Rap2 platform.</li>
             <li>Upload to Eolinker platform.</li>
+            <li>Upload to ShowDoc platform.</li>
+            <li>Export to markdown.</li>
             <li>Copy as cURL.</li>
         </ul>
         <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/doc/screenshots.gif" height="360">

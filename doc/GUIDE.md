@@ -33,6 +33,7 @@ TODO
 #### Eolinker
 目前支持eolinker5.0版本，仅测试了官方提供的sass版本: https://riag.w.eolinker.com
 
+#### ShowDoc
 
 ## 配置文件
 大多数情况下您只需要配置关联的项目标识（xxxProjectId）即可，更多配置项可满足你的99%的场景。
@@ -46,6 +47,7 @@ TODO
 | yapiProjectId | integer | YApi项目id |
 | rap2ProjectId | integer | Rap2项目id |
 | eolinkerProjectId | string | Eolinker项目id |
+| showdocProjectId | string | ShowDoc项目id |
 | yapiUrl | string | YApi服务地址 | 场景：插件无法支持YApi统一登录方式，此时可使用项目token方式 |
 | yapiProjectToken | string | YApi项目访问token |
 |  | | |
