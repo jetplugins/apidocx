@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.7</version>
+    <version>0.7.1</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -69,6 +69,10 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.7.1</p>
+      <ul>
+        <li>Fix compatibility issues.</li>
+      </ul>
       <p>0.7</p>
       <ul>
         <li>Add upload to showdoc.</li>
