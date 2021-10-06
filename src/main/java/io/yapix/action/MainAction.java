@@ -27,16 +27,15 @@ public class MainAction extends AnAction {
     }
 
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
+        // 菜单名称
         YapixSettings settings = YapixSettings.getInstance();
         ActionType actionType = settings.getDefaultAction();
         if (actionType != null) {
             e.getPresentation().setText(actionType.getName());
         }
-    }
 
-    @Override
-    public void update(@NotNull AnActionEvent e) {
+        // 是否可见
         boolean visible = false;
         Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile editorFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);

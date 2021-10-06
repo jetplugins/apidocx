@@ -7,6 +7,7 @@ import io.yapix.base.util.NotificationUtils;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 复制成Markdown字符串处理器
@@ -23,7 +24,7 @@ public class CopyAsMarkdownAction extends AbstractAction {
     }
 
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText(ACTION_TEXT);
     }
 

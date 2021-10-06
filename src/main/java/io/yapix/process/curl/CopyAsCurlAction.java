@@ -25,12 +25,8 @@ public class CopyAsCurlAction extends AbstractAction {
     }
 
     @Override
-    public void applyTextOverride(AnActionEvent e) {
-        e.getPresentation().setText(ACTION_TEXT);
-    }
-
-    @Override
     public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
         e.getPresentation().setEnabledAndVisible(isSelectedMethod(e));
     }
 

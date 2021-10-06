@@ -13,6 +13,7 @@ import io.yapix.process.showdoc.config.ShowdocSettings;
 import io.yapix.process.showdoc.config.ShowdocSettingsDialog;
 import io.yapix.process.showdoc.process.ShowdocUploader;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Showdoc上传入口动作.
@@ -57,7 +58,7 @@ public class ShowdocUploadAction extends AbstractionUploadAction {
     }
 
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText(ACTION_TEXT);
     }
 

@@ -14,6 +14,7 @@ import io.yapix.process.rap2.config.Rap2Settings;
 import io.yapix.process.rap2.config.Rap2SettingsDialog;
 import io.yapix.process.rap2.process.Rap2Uploader;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Rap2上传入口动作.
@@ -62,8 +63,9 @@ public class Rap2UploadAction extends AbstractionUploadAction {
                 });
     }
 
+
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText(ACTION_TEXT);
     }
 

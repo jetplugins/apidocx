@@ -14,6 +14,7 @@ import io.yapix.process.eolinker.config.EolinkerSettings;
 import io.yapix.process.eolinker.config.EolinkerSettingsDialog;
 import io.yapix.process.eolinker.process.EolinkerUploader;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Eolinker上传入口动作.
@@ -60,8 +61,7 @@ public class EolinkerUploadAction extends AbstractionUploadAction {
     }
 
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText(ACTION_TEXT);
     }
-
 }

@@ -14,6 +14,7 @@ import io.yapix.process.yapi.config.YapiSettingsDialog;
 import io.yapix.process.yapi.process.YapiUploader;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 处理Yapi上传入口动作.
@@ -72,8 +73,9 @@ public class YapiUploadAction extends AbstractionUploadAction {
                 settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl());
     }
 
+
     @Override
-    public void applyTextOverride(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText(ACTION_TEXT);
     }
 }
