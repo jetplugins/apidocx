@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 public class Rap2SettingsDialog extends DialogWrapper {
 
     private Rap2SettingsForm form;
-    private boolean canceled;
 
     Rap2SettingsDialog(@Nullable Project project, String title) {
         super(project);
@@ -53,7 +52,6 @@ public class Rap2SettingsDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        this.canceled = false;
         Rap2Settings settings = form.get();
         if (!settings.isValidate()) {
             return;
@@ -109,11 +107,10 @@ public class Rap2SettingsDialog extends DialogWrapper {
 
     @Override
     public void doCancelAction() {
-        this.canceled = true;
         super.doCancelAction();
     }
 
     public boolean isCanceled() {
-        return canceled;
+        return this.getExitCode() == DialogWrapper.CANCEL_EXIT_CODE;
     }
 }

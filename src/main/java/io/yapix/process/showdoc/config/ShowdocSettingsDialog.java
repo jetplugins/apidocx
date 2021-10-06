@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 public class ShowdocSettingsDialog extends DialogWrapper {
 
     private ShowdocSettingsForm form;
-    private boolean canceled;
 
     ShowdocSettingsDialog(@Nullable Project project, String title) {
         super(project);
@@ -53,7 +52,6 @@ public class ShowdocSettingsDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        this.canceled = false;
         ShowdocSettings settings = form.get();
         if (!settings.isValidate()) {
             return;
@@ -106,11 +104,10 @@ public class ShowdocSettingsDialog extends DialogWrapper {
 
     @Override
     public void doCancelAction() {
-        this.canceled = true;
         super.doCancelAction();
     }
 
     public boolean isCanceled() {
-        return canceled;
+        return this.getExitCode() == DialogWrapper.CANCEL_EXIT_CODE;
     }
 }

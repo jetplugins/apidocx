@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 public class YapiSettingsDialog extends DialogWrapper {
 
     private YApiSettingsForm form;
-    private boolean canceled;
 
     public YapiSettingsDialog(@Nullable Project project, String title) {
         super(project);
@@ -51,7 +50,6 @@ public class YapiSettingsDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        this.canceled = false;
         YapiSettings originSettings = YapiSettings.getInstance();
         YapiSettings settings = form.get();
         settings.setCookies(originSettings.getCookies());
@@ -93,12 +91,11 @@ public class YapiSettingsDialog extends DialogWrapper {
 
     @Override
     public void doCancelAction() {
-        this.canceled = true;
         super.doCancelAction();
     }
 
     public boolean isCanceled() {
-        return canceled;
+        return this.getExitCode() == DialogWrapper.CANCEL_EXIT_CODE;
     }
 
     public YApiSettingsForm getForm() {

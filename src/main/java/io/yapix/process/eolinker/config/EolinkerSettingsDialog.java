@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 public class EolinkerSettingsDialog extends DialogWrapper {
 
     private EolinkerSettingsForm form;
-    private boolean canceled;
 
     EolinkerSettingsDialog(@Nullable Project project, String title) {
         super(project);
@@ -49,7 +48,6 @@ public class EolinkerSettingsDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        this.canceled = false;
         EolinkerSettings originSettings = EolinkerSettings.getInstance();
         EolinkerSettings settings = form.get();
         settings.setCookies(originSettings.getCookies());
@@ -97,11 +95,10 @@ public class EolinkerSettingsDialog extends DialogWrapper {
 
     @Override
     public void doCancelAction() {
-        this.canceled = true;
         super.doCancelAction();
     }
 
     public boolean isCanceled() {
-        return canceled;
+        return this.getExitCode() == DialogWrapper.CANCEL_EXIT_CODE;
     }
 }
