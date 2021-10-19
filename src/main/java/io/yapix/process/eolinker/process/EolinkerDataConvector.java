@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class EolinkerDataConvector {
 
-    private static final String PROPERTIES_FILE = "eolinkertypes.properties";
+    private static final String PROPERTIES_FILE = "yapix/eolinkertypes.properties";
 
     public static EolinkerApiInfo convert(String projectId, Api api) {
         EolinkerApiInfo eapi = new EolinkerApiInfo();

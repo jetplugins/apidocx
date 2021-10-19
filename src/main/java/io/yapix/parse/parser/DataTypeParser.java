@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class DataTypeParser {
 
-    private static final String FILE = "types.properties";
+    private static final String FILE = "yapix/types.properties";
     private final Project project;
     private final Module module;
     private final YapixConfig settings;

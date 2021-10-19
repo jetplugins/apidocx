@@ -126,7 +126,7 @@ public class YapixConfig {
      * 合并配置
      */
     public YapixConfig getMergedInternalConfig() {
-        Properties properties = PropertiesLoader.getProperties(FILE_NAME);
+        Properties properties = PropertiesLoader.getProperties("yapix/.yapix");
         YapixConfig internal = YapixConfig.fromProperties(properties);
         YapixConfig settings = this;
 

@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MockParser {
 
-    private static final String FILE = "mocks.properties";
+    private static final String FILE = "yapix/mocks.properties";
     private final Project project;
     private final Module module;
     private final YapixConfig settings;

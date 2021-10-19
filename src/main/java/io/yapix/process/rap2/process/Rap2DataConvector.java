@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Rap2DataConvector {
 
-    private static final String PROPERTIES_FILE = "rap2types.properties";
+    private static final String PROPERTIES_FILE = "yapix/rap2types.properties";
 
     public static Rap2Interface convert(Integer projectId, Api api) {
         Rap2Interface rapApi = new Rap2Interface();
