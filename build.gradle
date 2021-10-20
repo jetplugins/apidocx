@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.intellij' version '0.7.3'
+    id 'java'
+}
+
+group 'com.github.jetplugins'
+version '0.7.1'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version = '2019.3'
+    sandboxDirectory = "${project.rootDir}/.sandbox"
+    updateSinceUntilBuild = false
+    plugins = ['java']
+}
+
+test {
+    useJUnitPlatform()
+}
