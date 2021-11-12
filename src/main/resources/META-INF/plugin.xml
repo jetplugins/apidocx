@@ -66,6 +66,7 @@
             <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>
             <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
             <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
+            <action id="yapix.OpenSettings" class="io.yapix.action.OpenSettingsAction" text="Open Settings"/>
         </group>
     </actions>
 
