@@ -71,6 +71,13 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.7.2</p>
+      <ul>
+        <li>Fix http request timeout.</li>
+        <li>Fix unable parse when annotation @XxxMapping without any parameters.</li>
+        <li>Fix update eolinker default url.</li>
+        <li>Add quick open settings action.</li>
+      </ul>
       <p>0.7.1</p>
       <ul>
         <li>Fix compatibility issues.</li>
