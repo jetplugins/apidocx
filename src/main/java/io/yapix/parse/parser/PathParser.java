@@ -113,6 +113,9 @@ public class PathParser {
         if (paths.isEmpty()) {
             paths = PsiAnnotationUtils.getStringArrayAttribute(annotation, "value");
         }
+        if (paths.isEmpty()) {
+            paths.add("");
+        }
         return paths;
     }
 
