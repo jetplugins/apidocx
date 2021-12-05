@@ -67,7 +67,7 @@ public abstract class AbstractAction extends AnAction {
         }
         VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(project, module);
         if (requiredConfigFile() && (yapiConfigFile == null || !yapiConfigFile.exists())) {
-            notifyError("Not found config file .yapi");
+            notifyError("Not found config file .yapix");
             return;
         }
         YapixConfig config = null;
