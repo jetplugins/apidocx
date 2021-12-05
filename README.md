@@ -1,12 +1,12 @@
 # Yapi X
-> 👏👏👏 本项目已收录到[YApi](https://github.com/YMFE/yapi), [Rap2](https://github.com/thx/rap2-delos)官方仓库
+> 本项目已收录到[YApi](https://github.com/YMFE/yapi), [Rap2](https://github.com/thx/rap2-delos)官方仓库
 
 **一键生成API接口文档, 上传到YApi, Rap2, Eolinker等平台的IDEA插件.**
 
 **亮点**
-- 零成本、零入侵： 编写标准Javadoc即可，无需依赖swagger注解, 生成API文档准确性高达99%。
+- 零成本、零入侵： 编写标准Javadoc即可，无需依赖swagger注解, 生成文档准确性高达99%。
 - 开箱即用、智能mock规则: 几乎零配置直接可生成文档，也支持复杂配置满足你95%的场景。
-- 多平台支持：支持YApi, Rap2, Eolinker等，并支持账户密码登录
+- 多平台支持：支持YApi, Rap2, Eolinker等，并支持账户密码登录。
 
 **特性**
 - [x] 一键从源代码生成api文档
@@ -24,7 +24,7 @@
 2. 配置: 项目根目录创建".yapix"文件, 内容: yapiProjectId=110
 3. 上传: 光标放置在你的控制类或方法，右键执行: Upload To YApi ( 提示：如果未填登录信息，会弹窗提示 )
 
-更多：[十分钟使用指南](doc/GUIDE.md)
+更多：[十分钟使用指南](docs/GUIDE.md)
 
 ## 交流
 欢迎提出您的发现问题、需求、建议、以及提交代码来参与贡献。
