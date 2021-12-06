@@ -139,8 +139,8 @@ public class YapiClient extends AbstractClient {
     /**
      * 获取接口列表
      */
-    public YapiListInterfaceResponse listInterfaceByCat(String catId, int page, int limit) {
-        String path = format("%s?catid=%s&page=%d&limit=%d", YapiConstants.yapiListByCatId, encodeUri(catId), page,
+    public YapiListInterfaceResponse listInterfaceByCat(Integer catId, int page, int limit) {
+        String path = format("%s?catid=%s&page=%d&limit=%d", YapiConstants.yapiListByCatId, encodeUri(String.valueOf(catId)), page,
                 limit);
         String data = requestGet(path);
         return gson.fromJson(data, YapiListInterfaceResponse.class);
@@ -149,7 +149,7 @@ public class YapiClient extends AbstractClient {
     /**
      * 计算类别地址
      */
-    public String calculateCatUrl(Integer projectId, String catId) {
+    public String calculateCatUrl(Integer projectId, Integer catId) {
         return format("%s/project/%d/interface/api/cat_%s", url, projectId, catId);
     }
 

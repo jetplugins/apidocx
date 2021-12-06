@@ -68,7 +68,6 @@ public class YapiDataConvector {
         List<YapiParameter> data = parameters.stream().map(p -> {
             YapiParameter parameter = new YapiParameter();
             parameter.setName(p.getName());
-            parameter.setType(p.getType());
             parameter.setDesc(p.getDescription());
             parameter.setExample(p.getExample());
             parameter.setRequired(p.getRequired() ? "1" : "0");

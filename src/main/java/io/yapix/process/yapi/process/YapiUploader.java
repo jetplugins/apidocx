@@ -29,7 +29,7 @@ public class YapiUploader {
     public YapiInterface upload(Integer projectId, Api api) {
         YapiInterface data = YapiDataConvector.convert(projectId, api);
         Integer categoryId = getCatIdOrCreate(data.getProjectId(), data.getMenu());
-        data.setCatid(String.valueOf(categoryId));
+        data.setCatid(categoryId);
         addOrUpdate(data);
         return data;
     }
@@ -85,13 +85,14 @@ public class YapiUploader {
 
     /**
      * 创建或更新接口
-     * <p>
-     * 判断接口是否存在，不存在直接添加，存在检查接口状态完成不去更新，未完成则更新
      */
     private void addOrUpdate(YapiInterface api) {
         YapiInterface originApi = findOldParamByTitle(api);
         if (originApi != null) {
             api.setId(originApi.getId());
+            if(YapiInterfaceComparator.compare(originApi, api)) {
+                return;
+            }
         }
         client.saveInterface(api);
     }

@@ -74,7 +74,7 @@ public class YapiInterface implements Serializable {
     /**
      * 分类id
      */
-    private String catid;
+    private Integer catid;
 
     /**
      * 请求数据类型   raw,form,json
@@ -239,11 +239,11 @@ public class YapiInterface implements Serializable {
         this.title = title;
     }
 
-    public String getCatid() {
+    public Integer getCatid() {
         return catid;
     }
 
-    public void setCatid(String catid) {
+    public void setCatid(Integer catid) {
         this.catid = catid;
     }
 

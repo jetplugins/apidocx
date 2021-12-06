@@ -38,8 +38,8 @@ public abstract class AbstractClient implements Closeable {
     public AbstractClient() {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(15000)
-                .setConnectTimeout(5000)
-                .setConnectionRequestTimeout(5000)
+                .setConnectTimeout(15000)
+                .setConnectionRequestTimeout(15000)
                 .build();
         this.httpClient = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
     }
