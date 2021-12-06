@@ -87,25 +87,26 @@ public class YapiUploader {
      * 创建或更新接口
      */
     private void addOrUpdate(YapiInterface api) {
-        YapiInterface originApi = findOldParamByTitle(api);
+        YapiInterface originApi = findOriginApi(api);
         if (originApi != null) {
             api.setId(originApi.getId());
-            if(YapiInterfaceComparator.compare(originApi, api)) {
+            if (YapiInterfaceComparator.compare(originApi, api)) {
                 return;
             }
         }
         client.saveInterface(api);
     }
 
-    public YapiInterface findOldParamByTitle(YapiInterface yapiInterface) {
+    public YapiInterface findOriginApi(YapiInterface yapiInterface) {
+        // 查找顺序：path+method > title
         YapiListInterfaceResponse interfacesList = client.listInterfaceByCat(yapiInterface.getCatid(), 1, 1000);
         InterfaceVo originInterface = interfacesList.getList().stream()
-                .filter(o -> o.getTitle().equals(yapiInterface.getTitle()))
+                .filter(o -> Objects.equals(o.getPath(), yapiInterface.getPath()) && Objects
+                        .equals(o.getMethod(), yapiInterface.getMethod()))
                 .findFirst().orElse(null);
         if (originInterface == null) {
             originInterface = interfacesList.getList().stream()
-                    .filter(o -> Objects.equals(o.getPath(), yapiInterface.getPath()) && Objects
-                            .equals(o.getMethod(), yapiInterface.getMethod()))
+                    .filter(o -> o.getTitle().equals(yapiInterface.getTitle()))
                     .findFirst().orElse(null);
         }
         if (originInterface != null) {
