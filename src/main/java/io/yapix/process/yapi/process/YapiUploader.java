@@ -90,7 +90,7 @@ public class YapiUploader {
         YapiInterface originApi = findInterface(api);
         if (originApi != null) {
             api.setId(originApi.getId());
-            if (YapiInterfaceComparator.compare(originApi, api)) {
+            if (!YapiInterfaceModifyJudge.isModify(originApi, api)) {
                 return;
             }
         }
