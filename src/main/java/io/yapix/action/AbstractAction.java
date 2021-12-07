@@ -73,7 +73,7 @@ public abstract class AbstractAction extends AnAction {
         YapixConfig config = null;
         if (yapiConfigFile != null && yapiConfigFile.exists()) {
             try {
-                config = YapixConfigUtils.readYapixConfig(yapiConfigFile, module != null ? module.getName() : null);
+                config = YapixConfigUtils.readYapixConfig(yapiConfigFile);
             } catch (Exception e) {
                 notifyError(String.format("Config file error: %s", e.getMessage()));
                 return;

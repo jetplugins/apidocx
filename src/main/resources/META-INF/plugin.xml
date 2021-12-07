@@ -68,6 +68,10 @@
             <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
             <action id="yapix.OpenSettings" class="io.yapix.action.OpenSettingsAction" text="Open Settings"/>
         </group>
+        <action id="yapix.ConvertYapiXmlAction" class="io.yapix.action.ConvertYapiXmlAction" text="Convert to .yapix">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
     </actions>
 
     <change-notes><![CDATA[

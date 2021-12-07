@@ -8,6 +8,9 @@ import com.intellij.openapi.project.Project;
 import io.yapix.config.YapixSettingsConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 打开设置菜单项
+ */
 public class OpenSettingsAction extends AnAction {
 
     @Override
