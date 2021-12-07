@@ -46,29 +46,35 @@ public class Rap2Uploader {
 
         // 接口基本信息
         Rap2InterfaceBase originRapApi = findInterface(module, rapApi);
+        boolean isModify = true;
         if (originRapApi != null) {
-            InterfaceUpdateRequest request = doConvertUpdateInterfaceRequest(rapApi, originRapApi);
-            client.updateInterface(request);
+            Rap2Interface theOriginApi = client.getInterface(originRapApi.getId());
+            isModify = Rap2InterfaceModifyJudge.isModify(theOriginApi, rapApi);
+            if (isModify) {
+                InterfaceUpdateRequest request = doConvertUpdateInterfaceRequest(rapApi, originRapApi);
+                client.updateInterface(request);
+            }
         } else {
             originRapApi = client.createInterface(rapApi);
         }
         rapApi.setId(originRapApi.getId());
-        rapApi.setModuleId(originRapApi.getModuleId());
         rapApi.setRepositoryId(originRapApi.getRepositoryId());
 
         // 接口参数信息
-        List<Rap2Property> properties =
-                nonNull(rapApi.getProperties()) ? rapApi.getProperties() : Collections.emptyList();
-        properties.forEach(p -> {
-            p.setInterfaceId(rapApi.getId());
-            p.setModuleId(rapApi.getModuleId());
-            p.setRepositoryId(rapApi.getRepositoryId());
-        });
-        InterfacePropertiesUpdateRequest propertiesRequest = new InterfacePropertiesUpdateRequest();
-        propertiesRequest.setInterfaceId(rapApi.getId());
-        propertiesRequest.setProperties(properties);
-        propertiesRequest.setSummary(new Summary(rapApi.getBodyOption(), 0));
-        client.updateInterfaceProperties(propertiesRequest);
+        if (isModify) {
+            List<Rap2Property> properties =
+                    nonNull(rapApi.getProperties()) ? rapApi.getProperties() : Collections.emptyList();
+            properties.forEach(p -> {
+                p.setInterfaceId(rapApi.getId());
+                p.setModuleId(rapApi.getModuleId());
+                p.setRepositoryId(rapApi.getRepositoryId());
+            });
+            InterfacePropertiesUpdateRequest propertiesRequest = new InterfacePropertiesUpdateRequest();
+            propertiesRequest.setInterfaceId(rapApi.getId());
+            propertiesRequest.setProperties(properties);
+            propertiesRequest.setSummary(new Summary(rapApi.getBodyOption(), 0));
+            client.updateInterfaceProperties(propertiesRequest);
+        }
         return rapApi;
     }
 
