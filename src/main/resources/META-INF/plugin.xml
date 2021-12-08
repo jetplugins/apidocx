@@ -20,7 +20,7 @@
             <li>Export to markdown.</li>
             <li>Copy as cURL.</li>
         </ul>
-        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/doc/screenshots.gif" height="360">
+        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/docs/screenshots.gif" height="360">
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
