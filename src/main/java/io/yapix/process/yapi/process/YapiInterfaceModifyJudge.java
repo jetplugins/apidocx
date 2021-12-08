@@ -3,9 +3,7 @@ package io.yapix.process.yapi.process;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.model.YapiParameter;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class YapiInterfaceModifyJudge {
 
@@ -17,11 +15,10 @@ public class YapiInterfaceModifyJudge {
      */
     public static boolean isModify(YapiInterface api1, YapiInterface api2) {
         // 简单参数比较
-        boolean simpleEqual = Objects.equals(api1.getProjectId(), api2.getProjectId())
-                && Objects.equals(api1.getMethod(), api2.getMethod())
-                && Objects.equals(api1.getPath(), api2.getPath())
+        boolean simpleEqual = Objects.equals(api1.getCatid(), api2.getCatid())
                 && Objects.equals(api1.getTitle(), api2.getTitle())
-                && Objects.equals(api1.getCatid(), api2.getCatid())
+                && Objects.equals(api1.getPath(), api2.getPath())
+                && Objects.equals(api1.getMethod(), api2.getMethod())
                 && (api1.isReqBodyIsJsonSchema() == api2.isReqBodyIsJsonSchema() || Objects.equals(
                 api1.getReqBodyType(), api2.getReqBodyType()))
                 && Objects.equals(api1.getReqBodyOther(), api2.getReqBodyOther())
@@ -50,11 +47,10 @@ public class YapiInterfaceModifyJudge {
             return true;
         }
         // 参数值比较
-        Map<String, YapiParameter> nameToParameterMap = parameters2.stream()
-                .collect(Collectors.toMap(YapiParameter::getName, o -> o, (o1, o2) -> o1));
-        for (YapiParameter p : parameters1) {
-            YapiParameter p2 = nameToParameterMap.get(p.getName());
-            if (!p.equals(p2)) {
+        for (int i = 0; i < parameters1.size(); i++) {
+            YapiParameter p1 = parameters1.get(i);
+            YapiParameter p2 = parameters2.get(i);
+            if (!p1.equals(p2)) {
                 return false;
             }
         }
