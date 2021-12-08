@@ -39,7 +39,7 @@
         <applicationService serviceImplementation="io.yapix.process.eolinker.config.EolinkerSettings"/>
         <applicationService serviceImplementation="io.yapix.process.showdoc.config.ShowdocSettings"/>
 
-        <applicationConfigurable parentId="tools" instance="io.yapix.config.YapixSettingsConfiguration">
+        <applicationConfigurable instance="io.yapix.config.YapixSettingsConfiguration">
             <configurable displayName="YApi" instance="io.yapix.process.yapi.config.YapiSettingsConfiguration"/>
             <configurable displayName="Rap2" instance="io.yapix.process.rap2.config.Rap2SettingsConfiguration"/>
             <configurable displayName="Eolinker"
