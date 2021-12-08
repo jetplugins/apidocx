@@ -1,7 +1,6 @@
 <idea-plugin>
     <id>yapix</id>
     <name>Yapi X</name>
-    <version>0.7.1</version>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
@@ -56,7 +55,7 @@
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
-        <group id="yapix.ActionGroup" text="Yapi X" popup="true">
+        <group id="yapix.YapixActionGroup" class="io.yapix.action.YapixActionGroup" text="Yapi X" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction"/>
@@ -75,16 +74,15 @@
     </actions>
 
     <change-notes><![CDATA[
-      <p>0.7.2</p>
+      <p>0.8</p>
       <ul>
+        <li>Feat: Update only when API changes for yapi/rap2.</li>
+        <li>Feat: Add quick open settings action.</li>
         <li>Fix http request timeout.</li>
         <li>Fix unable parse when annotation @XxxMapping without any parameters.</li>
         <li>Fix update eolinker default url.</li>
-        <li>Add quick open settings action.</li>
-      </ul>
-      <p>0.7.1</p>
-      <ul>
         <li>Fix compatibility issues.</li>
+        <li>Remove support yapi.xml.</li>
       </ul>
       <p>0.7</p>
       <ul>
