@@ -55,8 +55,9 @@ public class ResponseParser {
             // 需要解开包赚类处理
             String[] types = splitTypeAndGenericPair(unwrappedType);
             PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, types[0]);
-            type = PsiTypesUtil.getClassType(psiClass);
+            type = psiClass != null ? PsiTypesUtil.getClassType(psiClass) : null;
             typeText = unwrappedType;
+
         } else {
             // 包装类处理
             PsiClass returnClass = getWrapperPsiClass(method);

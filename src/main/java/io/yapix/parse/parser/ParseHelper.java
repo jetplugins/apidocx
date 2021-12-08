@@ -275,8 +275,10 @@ public class ParseHelper {
     public String getTypeDescription(PsiType type, List<Value> values) {
         if (values != null && !values.isEmpty()) {
             return values.stream().map(Value::getText).collect(Collectors.joining(", "));
+        } else if (type != null) {
+            return type.getPresentableText();
         }
-        return type.getPresentableText();
+        return null;
     }
 
     /**
