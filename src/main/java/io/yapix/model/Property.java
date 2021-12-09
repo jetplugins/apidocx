@@ -49,6 +49,15 @@ public class Property {
     /** 当type为array */
     private Property items;
 
+    /** 当type为array, item元素是否唯一 */
+    private Boolean uniqueItems;
+
+    /** 当type为array, 最小元素个数 */
+    private Integer minItems;
+
+    /** 当type为array, 最大元素个数 */
+    private Integer maxItems;
+
     /** 当type为object */
     private Map<String, Property> properties;
 
@@ -218,5 +227,29 @@ public class Property {
 
     public void setValues(List<Value> values) {
         this.values = values;
+    }
+
+    public Boolean getUniqueItems() {
+        return uniqueItems;
+    }
+
+    public void setUniqueItems(Boolean uniqueItems) {
+        this.uniqueItems = uniqueItems;
+    }
+
+    public Integer getMinItems() {
+        return minItems;
+    }
+
+    public void setMinItems(Integer minItems) {
+        this.minItems = minItems;
+    }
+
+    public Integer getMaxItems() {
+        return maxItems;
+    }
+
+    public void setMaxItems(Integer maxItems) {
+        this.maxItems = maxItems;
     }
 }
