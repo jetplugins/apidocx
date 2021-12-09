@@ -5,10 +5,12 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import io.yapix.base.sdk.yapi.LoginWay;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.response.YapiTestResult;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.base.util.PasswordSafeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
  */
 @State(name = "YapixYapiSettings", storages = @Storage("YapixYapiSettings.xml"))
 public class YapiSettings implements PersistentStateComponent<YapiSettings> {
+
+    private static final String PASSWORD_KEY = "yapi";
 
     /**
      * 服务地址
@@ -32,6 +36,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
     /**
      * 密码
      */
+    @Transient
     private String password;
 
     /**
@@ -50,7 +55,9 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
     private volatile long cookiesTtl;
 
     public static YapiSettings getInstance() {
-        return ServiceManager.getService(YapiSettings.class);
+        YapiSettings settings = ServiceManager.getService(YapiSettings.class);
+        settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
+        return settings;
     }
 
     @Nullable
@@ -61,6 +68,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
 
     @Override
     public void loadState(@NotNull YapiSettings state) {
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
         XmlSerializerUtil.copyBean(state, this);
     }
 
@@ -104,6 +112,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         this.account = account;
     }
 
+    @Transient
     public String getPassword() {
         return password;
     }

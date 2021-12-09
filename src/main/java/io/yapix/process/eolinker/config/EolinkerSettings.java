@@ -5,10 +5,12 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import io.yapix.base.sdk.eolinker.AbstractClient.HttpSession;
 import io.yapix.base.sdk.eolinker.EolinkerClient;
 import io.yapix.base.sdk.eolinker.request.EolinkerTestResult;
 import io.yapix.base.sdk.eolinker.request.EolinkerTestResult.Code;
+import io.yapix.base.util.PasswordSafeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
  */
 @State(name = "YapixEolinkerSettings", storages = @Storage("YapixEolinkerSettings.xml"))
 public class EolinkerSettings implements PersistentStateComponent<EolinkerSettings> {
+
+    private static final String PASSWORD_KEY = "eolinker";
 
     /** 登录根地址 */
     private String loginUrl;
@@ -29,6 +33,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     private String account;
 
     /** 密码 */
+    @Transient
     private String password;
 
     /** 登录后的cookies */
@@ -41,7 +46,9 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     private String spaceKey;
 
     public static EolinkerSettings getInstance() {
-        return ServiceManager.getService(EolinkerSettings.class);
+        EolinkerSettings settings = ServiceManager.getService(EolinkerSettings.class);
+        settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
+        return settings;
     }
 
     @Nullable
@@ -52,6 +59,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
 
     @Override
     public void loadState(@NotNull EolinkerSettings state) {
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
         XmlSerializerUtil.copyBean(state, this);
     }
 
@@ -99,6 +107,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
         this.account = account;
     }
 
+    @Transient
     public String getPassword() {
         return password;
     }

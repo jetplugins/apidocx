@@ -5,10 +5,12 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import io.yapix.base.sdk.showdoc.AbstractClient.HttpSession;
 import io.yapix.base.sdk.showdoc.ShowdocClient;
 import io.yapix.base.sdk.showdoc.model.AuthCookies;
 import io.yapix.base.sdk.showdoc.model.ShowdocTestResult;
+import io.yapix.base.util.PasswordSafeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
  */
 @State(name = "YapixShowdocSettings", storages = @Storage("YapixShowdocSettings.xml"))
 public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings> {
+
+    private static final String PASSWORD_KEY = "showdoc";
 
     /**
      * 服务地址
@@ -32,6 +36,7 @@ public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings
     /**
      * 密码
      */
+    @Transient
     private String password;
 
     /**
@@ -45,7 +50,9 @@ public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings
     private long cookiesTtl;
 
     public static ShowdocSettings getInstance() {
-        return ServiceManager.getService(ShowdocSettings.class);
+        ShowdocSettings settings = ServiceManager.getService(ShowdocSettings.class);
+        settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
+        return settings;
     }
 
     @Nullable
@@ -56,6 +63,7 @@ public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings
 
     @Override
     public void loadState(@NotNull ShowdocSettings state) {
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
         XmlSerializerUtil.copyBean(state, this);
     }
 
@@ -102,6 +110,7 @@ public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings
         this.account = account;
     }
 
+    @Transient
     public String getPassword() {
         return password;
     }
