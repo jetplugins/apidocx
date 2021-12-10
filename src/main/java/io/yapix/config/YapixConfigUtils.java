@@ -4,9 +4,11 @@ import static io.yapix.config.DefaultConstants.FILE_NAME;
 
 import com.google.common.base.Splitter;
 import com.google.gson.reflect.TypeToken;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.yapix.base.util.JsonUtils;
 import java.io.ByteArrayInputStream;
@@ -39,6 +41,10 @@ public final class YapixConfigUtils {
      * 查找配置文件
      */
     public static VirtualFile findConfigFile(Project project, Module module) {
+        // make sure documents all saved before refresh v-files in sync/recursive.
+        // it's effective when modify/delete/create v-file
+        FileDocumentManager.getInstance().saveAllDocuments();
+        VfsUtil.markDirtyAndRefresh(false, true, true, project.getBaseDir());
         VirtualFile yapiConfigFile = null;
         if (module != null) {
             VirtualFile[] moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots();

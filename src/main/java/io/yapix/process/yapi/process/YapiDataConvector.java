@@ -160,6 +160,9 @@ public class YapiDataConvector {
         yapiProperty.setRequired(required);
         // 数组
         if (property.getItems() != null) {
+            yapiProperty.setUniqueItems(property.getUniqueItems());
+            yapiProperty.setMinItems(property.getMinItems());
+            yapiProperty.setMaxItems(property.getMaxItems());
             yapiProperty.setItems(copyProperty(property.getItems()));
         }
         // 对象
