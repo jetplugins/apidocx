@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * properties文件加载，内部会缓存.
  */
-public class PropertiesLoader {
+public class PropertiesLoader  {
 
     private static final Map<String, Properties> cache = new ConcurrentHashMap<>();
 
