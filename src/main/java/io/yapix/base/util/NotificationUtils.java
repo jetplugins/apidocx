@@ -38,6 +38,15 @@ public final class NotificationUtils {
         Notification notification = DEFAULT_GROUP.createNotification(content, NotificationType.WARNING);
         Notifications.Bus.notify(notification);
     }
+    
+    /**
+     * 提示警告消息
+     */
+    public static void notifyWarning(String title, String content) {
+        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.WARNING, null);
+        Notifications.Bus.notify(notification);
+    }
+    
 
     /**
      * 提示错误消息
