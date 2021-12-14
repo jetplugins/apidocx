@@ -14,12 +14,11 @@ public class YapixActionGroup extends DefaultActionGroup {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        boolean visible = true;
+        boolean visible = false;
         // 编辑器上下文非java文件不展示
-        Editor editor = event.getDataContext().getData(CommonDataKeys.EDITOR);
         VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
-        if (editor != null && file != null && !"java".equals(file.getExtension())) {
-            visible = false;
+        if (file != null){
+            visible = file.isDirectory() || "java".equals(file.getExtension());
         }
         event.getPresentation().setVisible(visible);
     }
