@@ -1,7 +1,6 @@
 package io.yapix.action;
 
-import static io.yapix.base.util.NotificationUtils.notifyError;
-import static io.yapix.base.util.NotificationUtils.notifyInfo;
+import static io.yapix.base.util.NotificationUtils.*;
 import static java.lang.String.format;
 
 import com.google.common.collect.Lists;
@@ -13,8 +12,8 @@ import com.intellij.openapi.project.Project;
 import io.yapix.base.util.ConcurrentUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.model.Api;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -54,7 +53,7 @@ public abstract class AbstractionUploadAction extends AbstractAction {
                 AtomicInteger count = new AtomicInteger();
                 AtomicDouble fraction = new AtomicDouble();
 
-                List<ApiUploadResult> urls = null;
+                List<ApiUploadResult> urls = new ArrayList<>();
                 try {
                     List<Future<ApiUploadResult>> futures = Lists.newArrayListWithExpectedSize(apis.size());
                     for (int i = 0; i < apis.size() && !indicator.isCanceled(); i++) {
@@ -84,9 +83,9 @@ public abstract class AbstractionUploadAction extends AbstractAction {
                 } catch (InterruptedException e) {
                     // ignore
                 } finally {
-                    if (urls != null && urls.size() > 0) {
-                        ApiUploadResult uploadResult = urls.get(0);
-                        String url = urls.size() == 1 ? uploadResult.getApiUrl() : uploadResult.getCategoryUrl();
+                    Set<String> categories = urls.stream().collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl)).keySet();
+                    notifyInfo("Upload result", format("categories(%d) - apis(%d/%d)", categories.size(), urls.size(), apis.size()));
+                    for (String url : categories) {
                         notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
                     }
                     threadPool.shutdown();
