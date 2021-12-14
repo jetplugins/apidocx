@@ -110,6 +110,15 @@ public class Property {
         if (StringUtils.isNotEmpty(custom.getMock())) {
             this.mock = custom.getMock();
         }
+        if (custom.getMaxItems() != null){
+            this.maxItems = custom.getMaxItems();
+        }
+        if (custom.getMinItems() != null){
+            this.minItems = custom.getMinItems();
+        }
+        if (custom.getUniqueItems() != null){
+            this.uniqueItems = custom.getUniqueItems();
+        }
     }
 
     /**
