@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +41,7 @@ public abstract class AbstractionUploadAction extends AbstractAction {
      * @param afterAction 所有接口列表处理完毕后的回调执行，用于关闭资源
      */
     protected <T> void handleUploadAsync(Project project, List<Api> apis, Function<Api, ApiUploadResult> apiConsumer,
-            Supplier<?> afterAction) {
+                                         Supplier<?> afterAction) {
         // 异步处理
         ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
             @Override
@@ -83,10 +85,13 @@ public abstract class AbstractionUploadAction extends AbstractAction {
                 } catch (InterruptedException e) {
                     // ignore
                 } finally {
-                    Set<String> categories = urls.stream().collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl)).keySet();
-                    notifyInfo("Upload result", format("categories(%d) - apis(%d/%d)", categories.size(), urls.size(), apis.size()));
-                    for (String url : categories) {
+                    if (urls.size() == 1){
+                        String url = urls.get(0).getApiUrl();
                         notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                    } else {
+                        Map<String, List<ApiUploadResult>> categories = urls.stream().collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl));
+                        notifyInfo("Upload result", format("categories(%d) - apis(%d/%d)", categories.size(), urls.size(), apis.size()));
+                        categories.keySet().forEach(url -> notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url)));
                     }
                     threadPool.shutdown();
                     afterAction.get();
