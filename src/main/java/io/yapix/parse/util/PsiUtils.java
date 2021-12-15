@@ -12,8 +12,11 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class PsiUtils {
 
@@ -33,15 +36,41 @@ public class PsiUtils {
         return false;
     }
 
+    /**
+     * 根据类短名来获取PsiClass, 而非类全限定名
+     * 优先从当前模块依赖, 其次当前工程作用域
+     */
+    public static PsiClass findPsiClassByShortName(Project project, Module module, String shortName) {
+        PsiClass psiClass = null;
+        if (module != null) {
+            psiClass = Optional.ofNullable(PsiShortNamesCache.getInstance(project)
+                    .getClassesByName(shortName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, false)))
+                    .filter(it -> it.length >= 1)
+                    .map(it -> it[0])
+                    .orElse(null);
+        }
+        if (psiClass == null) {
+            psiClass = Optional.ofNullable(PsiShortNamesCache.getInstance(project)
+                    .getClassesByName(shortName, GlobalSearchScope.projectScope(project)))
+                    .filter(it -> it.length >= 1)
+                    .map(it -> it[0])
+                    .orElse(null);
+        }
+        return psiClass;
+    }
 
-    public static PsiClass findPsiClass(Project project, Module module, String type) {
+    /**
+     * 根据类全限定名获取PsiClass
+     * 优先从当前模块依赖, 其次当前工程作用域
+     */
+    public static PsiClass findPsiClass(Project project, Module module, String qualifiedName) {
         PsiClass psiClass = null;
         if (module != null) {
             psiClass = JavaPsiFacade.getInstance(project)
-                    .findClass(type, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+                    .findClass(qualifiedName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
         }
         if (psiClass == null) {
-            psiClass = JavaPsiFacade.getInstance(project).findClass(type, GlobalSearchScope.allScope(project));
+            psiClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.allScope(project));
         }
         return psiClass;
     }

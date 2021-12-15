@@ -1,7 +1,6 @@
 package io.yapix.action;
 
-import static io.yapix.base.util.NotificationUtils.notifyError;
-import static io.yapix.base.util.NotificationUtils.notifyInfo;
+import static io.yapix.base.util.NotificationUtils.*;
 import static java.lang.String.format;
 
 import com.google.common.collect.Lists;
@@ -13,8 +12,8 @@ import com.intellij.openapi.project.Project;
 import io.yapix.base.util.ConcurrentUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.model.Api;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +41,7 @@ public abstract class AbstractionUploadAction extends AbstractAction {
      * @param afterAction 所有接口列表处理完毕后的回调执行，用于关闭资源
      */
     protected <T> void handleUploadAsync(Project project, List<Api> apis, Function<Api, ApiUploadResult> apiConsumer,
-            Supplier<?> afterAction) {
+                                         Supplier<?> afterAction) {
         // 异步处理
         ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
             @Override
@@ -54,7 +55,7 @@ public abstract class AbstractionUploadAction extends AbstractAction {
                 AtomicInteger count = new AtomicInteger();
                 AtomicDouble fraction = new AtomicDouble();
 
-                List<ApiUploadResult> urls = null;
+                List<ApiUploadResult> urls = new ArrayList<>();
                 try {
                     List<Future<ApiUploadResult>> futures = Lists.newArrayListWithExpectedSize(apis.size());
                     for (int i = 0; i < apis.size() && !indicator.isCanceled(); i++) {
@@ -84,10 +85,13 @@ public abstract class AbstractionUploadAction extends AbstractAction {
                 } catch (InterruptedException e) {
                     // ignore
                 } finally {
-                    if (urls != null && urls.size() > 0) {
-                        ApiUploadResult uploadResult = urls.get(0);
-                        String url = urls.size() == 1 ? uploadResult.getApiUrl() : uploadResult.getCategoryUrl();
+                    if (urls.size() == 1){
+                        String url = urls.get(0).getApiUrl();
                         notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                    } else {
+                        Map<String, List<ApiUploadResult>> categories = urls.stream().collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl));
+                        notifyInfo("Upload result", format("categories(%d) - apis(%d/%d)", categories.size(), urls.size(), apis.size()));
+                        categories.keySet().forEach(url -> notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url)));
                     }
                     threadPool.shutdown();
                     afterAction.get();

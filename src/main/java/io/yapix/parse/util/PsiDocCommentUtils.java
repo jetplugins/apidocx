@@ -10,6 +10,8 @@ import io.yapix.parse.constant.DocumentTags;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * PsiDocComment相关工具类
@@ -21,9 +23,8 @@ public class PsiDocCommentUtils {
 
 
     /**
-     * 获取获取标记自定字段名
+     * 获取标记自定义字段名(包括字段描述)
      *
-     * @param element sdfdsf
      */
     public static Map<String, String> getTagParamTextMap(PsiJavaDocumentedElement element) {
         Map<String, String> map = new HashMap<>();
@@ -37,6 +38,28 @@ public class PsiDocCommentUtils {
             }
         }
         return map;
+    }
+
+    /**
+     * 获取标记自定义字段名(不包括字段描述)
+     * @param tag 实例变量类型为接口类/实体类  可通过@see 来获取扁平后的字段
+     *
+     * /**
+     *   * @see SubInterfaceImpl {field1, field2}
+     *   * @see SubxInterfaceImpl {field3, field4, field5}
+     *   *\/
+     * interface BaseInterface {}
+     *
+     * BaseInterface {field1, field2, field3, ...}
+     * 至于如何区分field1,field2,field3隶属于哪个实现类, 是用户写desc需要考量的, 而非插件程序逻辑.
+     *
+     */
+    public static Set<String> getTagTextSet(PsiJavaDocumentedElement element, String tag){
+        return Arrays.stream(findTagsByName(element, tag))
+                .map(PsiDocTag::getDataElements)
+                .filter(it -> it.length >= 1)
+                .map(it -> it[0].getText().trim())
+                .collect(Collectors.toSet());
     }
 
     /**

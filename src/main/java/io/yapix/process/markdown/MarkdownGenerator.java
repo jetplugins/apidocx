@@ -3,11 +3,11 @@ package io.yapix.process.markdown;
 import io.yapix.model.Api;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -94,7 +94,11 @@ public class MarkdownGenerator {
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
         markdown.append("| - | - | - | - | - |").append("\n");
         if (property.isObjectType()) {
-            property.getProperties().values().forEach(p -> markdown.append(propertyRowSnippets(p, 1)));
+            Optional.ofNullable(property.getProperties())
+                    .map(Map::values)
+                    .map(Collection::stream)
+                    .orElseGet(Stream::empty)
+                    .forEach(p -> markdown.append(propertyRowSnippets(p, 1)));
         } else {
             markdown.append(propertyRowSnippets(property, 1));
         }
