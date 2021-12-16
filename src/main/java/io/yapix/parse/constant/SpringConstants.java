@@ -2,6 +2,10 @@ package io.yapix.parse.constant;
 
 public interface SpringConstants {
 
+    String RestController = "org.springframework.web.bind.annotation.RestController";
+
+    String Controller = "org.springframework.stereotype.Controller";
+
     String RequestMapping = "org.springframework.web.bind.annotation.RequestMapping";
 
     String GetMapping = "org.springframework.web.bind.annotation.GetMapping";

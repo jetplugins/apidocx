@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiArrayInitializerMemberValue;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiExpression;
@@ -27,6 +29,26 @@ public class PsiAnnotationUtils {
      */
     public static PsiAnnotation getAnnotation(PsiModifierListOwner element, String fqn) {
         return element.getAnnotation(fqn);
+    }
+
+    /**
+     * 获取指定注解
+     */
+    public static PsiAnnotation getAnnotationIncludeExtends(PsiClass element, String fqn) {
+        PsiAnnotation annotation = element.getAnnotation(fqn);
+        if (annotation == null) {
+            for (PsiClassType type : element.getExtendsListTypes()) {
+                PsiClass psiClass = type.resolve();
+                if (psiClass == null) {
+                    continue;
+                }
+                annotation = psiClass.getAnnotation(fqn);
+                if (annotation != null) {
+                    break;
+                }
+            }
+        }
+        return annotation;
     }
 
     /**

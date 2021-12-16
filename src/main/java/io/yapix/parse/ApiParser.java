@@ -54,6 +54,9 @@ public class ApiParser {
      * 解析接口
      */
     public List<Api> parse(PsiClass psiClass, PsiMethod selectMethod) {
+        if (!isNeedParseController(psiClass)) {
+            return Collections.emptyList();
+        }
         // 获得待处理方法
         List<PsiMethod> methods = filterPsiMethods(psiClass, selectMethod);
         if (methods.isEmpty()) {
@@ -71,10 +74,20 @@ public class ApiParser {
     }
 
     /**
+     * 判断是否是控制类或接口
+     */
+    private boolean isNeedParseController(PsiClass psiClass) {
+        // 接口是为了满足接口继承的情况
+        return psiClass.isInterface()
+                || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.RestController) != null
+                || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.Controller) != null;
+    }
+
+    /**
      * 获取待处理的方法列表
      */
     private List<PsiMethod> filterPsiMethods(PsiClass psiClass, PsiMethod selectMethod) {
-        return Arrays.stream(psiClass.getMethods())
+        return Arrays.stream(psiClass.getAllMethods())
                 .filter(m -> {
                     PsiModifierList modifier = m.getModifierList();
                     return !modifier.hasModifierProperty("private")
@@ -89,7 +102,8 @@ public class ApiParser {
      */
     private ControllerApiInfo parseController(PsiClass controller) {
         String path = null;
-        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(controller, SpringConstants.RequestMapping);
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotationIncludeExtends(controller,
+                SpringConstants.RequestMapping);
         if (annotation != null) {
             PathParseInfo mapping = PathParser.parseRequestMappingAnnotation(annotation);
             path = mapping.getPath();
