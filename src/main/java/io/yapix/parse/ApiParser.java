@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
@@ -90,8 +91,8 @@ public class ApiParser {
         return Arrays.stream(psiClass.getAllMethods())
                 .filter(m -> {
                     PsiModifierList modifier = m.getModifierList();
-                    return !modifier.hasModifierProperty("private")
-                            && !modifier.hasModifierProperty("static")
+                    return !modifier.hasModifierProperty(PsiModifier.PRIVATE)
+                            && !modifier.hasModifierProperty(PsiModifier.STATIC)
                             && (selectMethod == null || m == selectMethod);
                 })
                 .collect(Collectors.toList());

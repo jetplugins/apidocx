@@ -1,9 +1,11 @@
 package io.yapix.process.showdoc;
 
+import static io.yapix.base.util.NotificationUtils.notifyError;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
-import io.yapix.action.AbstractionUploadAction;
+import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.showdoc.ShowdocClient;
 import io.yapix.base.sdk.showdoc.model.ShowdocTestResult.Code;
 import io.yapix.base.sdk.showdoc.model.ShowdocUpdateResponse;
@@ -13,17 +15,24 @@ import io.yapix.process.showdoc.config.ShowdocSettings;
 import io.yapix.process.showdoc.config.ShowdocSettingsDialog;
 import io.yapix.process.showdoc.process.ShowdocUploader;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Showdoc上传入口动作.
  */
-public class ShowdocUploadAction extends AbstractionUploadAction {
+public class ShowdocUploadAction extends AbstractAction {
 
     public static final String ACTION_TEXT = "Upload To ShowDoc";
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
+        String projectId = config.getShowdocProjectId();
+        if (StringUtils.isEmpty(projectId)) {
+            notifyError("Config file error", "showdocProjectId must not be empty.");
+            return false;
+        }
+
         Project project = event.getData(CommonDataKeys.PROJECT);
         ShowdocSettings settings = ShowdocSettings.getInstance();
         if (!settings.isValidate() || Code.OK != settings.testSettings(null, null).getCode()) {

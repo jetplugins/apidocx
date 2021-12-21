@@ -3,16 +3,16 @@ package io.yapix.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.yapix.base.util.FileUtilsExt;
 import io.yapix.base.util.NotificationUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -33,7 +33,8 @@ public class ConvertYapiXmlAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         // 参数校验
         Project project = event.getData(CommonDataKeys.PROJECT);
-        if (project == null) {
+        Module module = event.getData(LangDataKeys.MODULE);
+        if (project == null || module == null) {
             return;
         }
         VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
@@ -41,16 +42,11 @@ public class ConvertYapiXmlAction extends AnAction {
             NotificationUtils.notifyError("Convert error not found file");
             return;
         }
-        Module module = ModuleUtil.findModuleForFile(file, project);
-        if (module == null) {
-            NotificationUtils.notifyError("Convert error not found module");
-            return;
-        }
 
         // 转换文件
         try {
             String content = new String(file.contentsToByteArray(), StandardCharsets.UTF_8);
-            YapixConfig config = YapixConfigUtils.readFromXml(content);
+            YapixConfig config = YapixConfigUtils.readFromXml(content, module.getName());
             writeFile(module, config);
             NotificationUtils.notifyInfo("Convert to .yapi successful");
         } catch (IOException | ParserConfigurationException | SAXException ex) {
@@ -61,22 +57,17 @@ public class ConvertYapiXmlAction extends AnAction {
     private void writeFile(Module module, YapixConfig config) throws IOException {
         File moduleRoot = new File(module.getModuleFilePath()).getParentFile();
         File file = Paths.get(moduleRoot.getPath(), DefaultConstants.FILE_NAME).toFile();
-        if (!file.exists()) {
-            file.createNewFile();
+        Properties properties = new Properties();
+        if (config.getYapiProjectId() != null) {
+            properties.setProperty("yapiProjectId", config.getYapiProjectId());
         }
-        try (FileOutputStream fos = new FileOutputStream(file);) {
-            Properties properties = new Properties();
-            if (config.getYapiProjectId() != null) {
-                properties.setProperty("yapiProjectId", config.getYapiProjectId());
-            }
-            if (config.getReturnWrapType() != null) {
-                properties.setProperty("returnWrapType", config.getReturnWrapType());
-            }
-            if (config.getReturnUnwrapTypes() != null) {
-                properties.setProperty("returnUnwrapTypes", StringUtils.join(config.getReturnUnwrapTypes(), ","));
-            }
-            properties.store(fos, " https://github.com/jetplugins/yapix/blob/main/docs/GUIDE.md");
+        if (config.getReturnWrapType() != null) {
+            properties.setProperty("returnWrapType", config.getReturnWrapType());
         }
+        if (config.getReturnUnwrapTypes() != null) {
+            properties.setProperty("returnUnwrapTypes", StringUtils.join(config.getReturnUnwrapTypes(), ","));
+        }
+        FileUtilsExt.writeProperties(file, properties, " https://github.com/jetplugins/yapix/blob/main/docs/GUIDE.md");
     }
 
     @Override

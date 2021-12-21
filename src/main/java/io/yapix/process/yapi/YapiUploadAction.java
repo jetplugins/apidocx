@@ -1,9 +1,11 @@
 package io.yapix.process.yapi;
 
+import static io.yapix.base.util.NotificationUtils.notifyError;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
-import io.yapix.action.AbstractionUploadAction;
+import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.model.YapiInterface;
 import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
@@ -19,12 +21,21 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 处理Yapi上传入口动作.
  */
-public class YapiUploadAction extends AbstractionUploadAction {
+public class YapiUploadAction extends AbstractAction {
 
     public static final String ACTION_TEXT = "Upload To YApi";
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
+        String projectId = config.getYapiProjectId();
+        if (StringUtils.isEmpty(projectId)) {
+            notifyError("Config file error", "yapiProjectId must not be empty.");
+            return false;
+        }
+        if (StringUtils.isNotEmpty(config.getYapiProjectToken()) && StringUtils.isEmpty(config.getYapiUrl())) {
+            notifyError("Config file error", "yapiUrl must not be empty, when you config yapiProjectToken.");
+            return false;
+        }
         if (StringUtils.isNotEmpty(config.getYapiProjectToken())) {
             return true;
         }

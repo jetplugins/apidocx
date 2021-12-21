@@ -1,9 +1,11 @@
 package io.yapix.process.eolinker;
 
+import static io.yapix.base.util.NotificationUtils.notifyError;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
-import io.yapix.action.AbstractionUploadAction;
+import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.eolinker.AbstractClient.HttpSession;
 import io.yapix.base.sdk.eolinker.EolinkerClient;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiInfo;
@@ -14,17 +16,24 @@ import io.yapix.process.eolinker.config.EolinkerSettings;
 import io.yapix.process.eolinker.config.EolinkerSettingsDialog;
 import io.yapix.process.eolinker.process.EolinkerUploader;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Eolinker上传入口动作.
  */
-public class EolinkerUploadAction extends AbstractionUploadAction {
+public class EolinkerUploadAction extends AbstractAction {
 
     public static final String ACTION_TEXT = "Upload To Eolinker";
 
     @Override
     public boolean before(AnActionEvent event, YapixConfig config) {
+        String projectId = config.getEolinkerProjectId();
+        if (StringUtils.isEmpty(projectId)) {
+            notifyError("Config file error", "eolinkerProjectId must not be empty.");
+            return false;
+        }
+
         Project project = event.getData(CommonDataKeys.PROJECT);
         EolinkerSettings settings = EolinkerSettings.getInstance();
         if (!settings.isValidate() || EolinkerTestResult.Code.OK != settings.testSettings().getCode()) {

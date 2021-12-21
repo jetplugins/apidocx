@@ -2,7 +2,7 @@
 重要的事情说三遍！无依赖、无成本、开箱即用，只需要花几分钟了解下。
 
 ## 快速开始
-1. 安装插件: [Yapi x](https://plugins.jetbrains.com/plugin/17425-yapi-x)
+1. 安装插件: [Yapi X](https://plugins.jetbrains.com/plugin/17425-yapi-x)
 2. 添加配置文件: .yapix, 内容: `yapiProjectId=你的项目id`
 3. 选中上传的方法: 执行"Upload To YApi"
 
