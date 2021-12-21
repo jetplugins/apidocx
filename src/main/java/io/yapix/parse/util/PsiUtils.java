@@ -1,6 +1,7 @@
 package io.yapix.parse.util;
 
 import com.google.common.collect.Lists;
+import com.intellij.lang.jvm.JvmModifier;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
@@ -29,11 +30,7 @@ public class PsiUtils {
     }
 
     public static boolean isNeedField(PsiField field) {
-        PsiModifierList modifierList = field.getModifierList();
-        if (modifierList == null || !modifierList.hasExplicitModifier(PsiModifier.STATIC)) {
-            return true;
-        }
-        return false;
+        return !field.hasModifier(JvmModifier.STATIC);
     }
 
     /**
