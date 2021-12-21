@@ -6,6 +6,7 @@ import static java.lang.String.format;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -26,6 +27,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.yapix.base.StepResult;
 import io.yapix.base.util.ConcurrentUtils;
+import io.yapix.base.util.NotificationUtils;
 import io.yapix.base.util.PsiFileUtils;
 import io.yapix.config.DefaultConstants;
 import io.yapix.config.YapixConfig;
@@ -58,7 +60,7 @@ public abstract class AbstractAction extends AnAction {
     private final boolean requiredConfigFile;
 
     protected AbstractAction() {
-        this.requiredConfigFile = false;
+        this.requiredConfigFile = true;
     }
 
     protected AbstractAction(boolean requiredConfigFile) {
@@ -124,7 +126,9 @@ public abstract class AbstractAction extends AnAction {
         // 配置文件解析
         VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(data.project, data.module);
         if (requiredConfigFile && (yapiConfigFile == null || !yapiConfigFile.exists())) {
-            notifyError("Not found config file .yapix");
+            NotificationUtils.notify(NotificationType.ERROR, "",
+                    "Not found config file .yapix",
+                    new CreateConfigFileAction(data.project, data.module, "Create Config File"));
             return StepResult.stop();
         }
         YapixConfig config = null;

@@ -1,6 +1,5 @@
 package io.yapix.parse.util;
 
-import io.yapix.parse.parser.MockParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +32,7 @@ public class PropertiesLoader  {
     public static Properties readProperties(String file) {
         Properties properties = new Properties();
         try {
-            InputStream is = MockParser.class.getClassLoader().getResourceAsStream(file);
+            InputStream is = PropertiesLoader.class.getClassLoader().getResourceAsStream(file);
             BufferedReader bf = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             properties.load(bf);
         } catch (IOException e) {

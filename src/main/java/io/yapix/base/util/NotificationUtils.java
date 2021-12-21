@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener.UrlOpeningListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.AnAction;
 import io.yapix.config.DefaultConstants;
 
 /**
@@ -38,7 +39,7 @@ public final class NotificationUtils {
         Notification notification = DEFAULT_GROUP.createNotification(content, NotificationType.WARNING);
         Notifications.Bus.notify(notification);
     }
-    
+
     /**
      * 提示警告消息
      */
@@ -46,7 +47,7 @@ public final class NotificationUtils {
         Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.WARNING, null);
         Notifications.Bus.notify(notification);
     }
-    
+
 
     /**
      * 提示错误消息
@@ -61,6 +62,20 @@ public final class NotificationUtils {
      */
     public static void notifyError(String title, String content) {
         Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.ERROR, null);
+        Notifications.Bus.notify(notification);
+    }
+
+    /**
+     * 通知
+     */
+    public static void notify(NotificationType type, String title, String content, AnAction... actions) {
+        Notification notification = DEFAULT_GROUP
+                .createNotification(title, content, type, new UrlOpeningListener(false));
+        if (actions != null) {
+            for (AnAction action : actions) {
+                notification.addAction(action);
+            }
+        }
         Notifications.Bus.notify(notification);
     }
 }

@@ -2,13 +2,16 @@ package io.yapix.base.util;
 
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.yapix.parse.util.PropertiesLoader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 public class FileUtilsExt {
     private FileUtilsExt() {
@@ -38,5 +41,10 @@ public class FileUtilsExt {
             properties.store(new OutputStreamWriter(fos, StandardCharsets.UTF_8), comments);
             return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
         }
+    }
+
+    public static String readTextInResource(String relativeFile) throws IOException {
+        InputStream is = PropertiesLoader.class.getClassLoader().getResourceAsStream(relativeFile);
+        return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
 }
