@@ -1,7 +1,5 @@
 package io.yapix.config;
 
-import static io.yapix.config.DefaultConstants.FILE_NAME;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -21,31 +19,54 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class YapixConfig {
 
-    /** yapi项目id */
+    /**
+     * 严格模式: 未指定分类、接口名不处理
+     */
+    private boolean strict = true;
+
+    /**
+     * yapi项目id
+     */
     private String yapiProjectId;
 
-    /** rap2项目id */
+    /**
+     * rap2项目id
+     */
     private String rap2ProjectId;
 
-    /** eolinker项目hashKey */
+    /**
+     * eolinker项目hashKey
+     */
     private String eolinkerProjectId;
 
-    /** showdoc项目id */
+    /**
+     * showdoc项目id
+     */
     private String showdocProjectId;
 
-    /** YApi服务地址: 用于统一登录场景 */
+    /**
+     * YApi服务地址: 用于统一登录场景
+     */
     private String yapiUrl;
 
-    /** YApi项目token: 用于统一登录场景 */
+    /**
+     * YApi项目token: 用于统一登录场景
+     */
     private String yapiProjectToken;
 
-    /** 返回值包装类 */
+    /**
+     * 返回值包装类
+     */
     private String returnWrapType;
 
-    /** 返回值解包装类 */
+    /**
+     * 返回值解包装类
+     */
     private List<String> returnUnwrapTypes;
 
-    /** 参数忽略类 */
+    /**
+     * 参数忽略类
+     */
     private List<String> parameterIgnoreTypes;
 
     /**
@@ -53,13 +74,19 @@ public class YapixConfig {
      */
     private Map<String, BeanCustom> beans;
 
-    /** 智能mock规则 */
+    /**
+     * 智能mock规则
+     */
     private List<MockRule> mockRules;
 
-    /** 时间格式: 查询参数和表单 */
+    /**
+     * 时间格式: 查询参数和表单
+     */
     private String dateTimeFormatMvc;
 
-    /** 时间格式: Json */
+    /**
+     * 时间格式: Json
+     */
     private String dateTimeFormatJson;
 
     private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
@@ -69,6 +96,7 @@ public class YapixConfig {
      */
     public static YapixConfig fromProperties(Properties properties) {
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
+        String strict = properties.getProperty("strict", "");
         String yapiProjectId = properties.getProperty("yapiProjectId", "");
         String yapiUrl = properties.getProperty("yapiUrl", "");
         String yapiProjectToken = properties.getProperty("yapiProjectToken", "");
@@ -83,6 +111,9 @@ public class YapixConfig {
         String dateTimeFormatJson = properties.getProperty("dateTimeFormatJson", "");
 
         YapixConfig config = new YapixConfig();
+        if (StringUtils.isNotEmpty(strict)) {
+            config.strict = Boolean.parseBoolean(strict);
+        }
         config.yapiUrl = yapiUrl.trim();
         config.yapiProjectToken = yapiProjectToken.trim();
         config.yapiProjectId = yapiProjectId.trim();
@@ -125,10 +156,9 @@ public class YapixConfig {
     /**
      * 合并配置
      */
-    public YapixConfig getMergedInternalConfig() {
+    public static YapixConfig getMergedInternalConfig(YapixConfig settings) {
         Properties properties = PropertiesLoader.getProperties("yapix/.yapix");
         YapixConfig internal = YapixConfig.fromProperties(properties);
-        YapixConfig settings = this;
 
         YapixConfig config = new YapixConfig();
         config.setYapiUrl(settings.getYapiUrl());
@@ -189,6 +219,15 @@ public class YapixConfig {
     }
 
     //-----------------------generated------------------------------//
+
+
+    public boolean isStrict() {
+        return strict;
+    }
+
+    public void setStrict(boolean strict) {
+        this.strict = strict;
+    }
 
     public String getYapiProjectId() {
         return yapiProjectId;

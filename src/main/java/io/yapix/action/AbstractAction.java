@@ -34,6 +34,8 @@ import io.yapix.config.YapixConfig;
 import io.yapix.config.YapixConfigUtils;
 import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
+import io.yapix.parse.model.ClassParseData;
+import io.yapix.parse.model.MethodParseData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,8 +89,12 @@ public abstract class AbstractAction extends AnAction {
             return;
         }
         // 3.解析文档
-        List<Api> apis = parse(data, config);
+        StepResult<List<Api>> apisResult = parse(data, config);
+        if (!apisResult.isContinue()) {
+            return;
+        }
         // 4.文档处理
+        List<Api> apis = apisResult.getData();
         handle(event, config, apis);
     }
 
@@ -106,17 +113,60 @@ public abstract class AbstractAction extends AnAction {
     /**
      * 解析文档模型数据
      */
-    private List<Api> parse(EventData data, YapixConfig config) {
-        List<PsiClass> controllers = PsiFileUtils.getPsiClassByFile(data.selectedJavaFiles);
+    private StepResult<List<Api>> parse(EventData data, YapixConfig config) {
         ApiParser parser = new ApiParser(data.project, data.module, config);
+        // 选中方法
+        if (data.selectedMethod != null) {
+            MethodParseData methodData = parser.parse(data.selectedMethod);
+            if (!methodData.valid) {
+                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current method is not a valid api");
+                return StepResult.stop();
+            }
+            if (config.isStrict() && StringUtils.isEmpty(methodData.declaredApiSummary)) {
+                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current method must declare summary");
+                return StepResult.stop();
+            }
+            return StepResult.ok(methodData.apis);
+        }
+
+        // 选中类
+        if (data.selectedClass != null) {
+            ClassParseData controllerData = parser.parse(data.selectedClass);
+            if (!controllerData.valid) {
+                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current class is not a valid controller");
+                return StepResult.stop();
+            }
+            if (config.isStrict() && StringUtils.isEmpty(controllerData.declaredCategory)) {
+                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current class must declare category");
+                return StepResult.stop();
+            }
+            return StepResult.ok(controllerData.getApis());
+        }
+
+        // 批量
+        List<PsiClass> controllers = PsiFileUtils.getPsiClassByFile(data.selectedJavaFiles);
+        if (controllers.isEmpty()) {
+            NotificationUtils.notifyWarning(DefaultConstants.NAME, "Not found valid controller class");
+            return StepResult.stop();
+        }
         List<Api> apis = Lists.newLinkedList();
         for (PsiClass controller : controllers) {
-            List<Api> controllerApis = parser.parse(controller, data.selectedMethod);
-            if (controllerApis != null) {
-                apis.addAll(controllerApis);
+            ClassParseData controllerData = parser.parse(controller);
+            if (!controllerData.valid) {
+                continue;
             }
+            if (config.isStrict() && StringUtils.isEmpty(controllerData.declaredCategory)) {
+                continue;
+            }
+            List<Api> controllerApis = controllerData.getApis();
+            if (config.isStrict()) {
+                controllerApis = controllerApis.stream().filter(o -> StringUtils.isNotEmpty(o.getSummary()))
+                        .collect(Collectors.toList());
+                ;
+            }
+            apis.addAll(controllerApis);
         }
-        return apis;
+        return StepResult.ok(apis);
     }
 
     /**
@@ -124,17 +174,17 @@ public abstract class AbstractAction extends AnAction {
      */
     private StepResult<YapixConfig> resolveConfig(EventData data) {
         // 配置文件解析
-        VirtualFile yapiConfigFile = YapixConfigUtils.findConfigFile(data.project, data.module);
-        if (requiredConfigFile && (yapiConfigFile == null || !yapiConfigFile.exists())) {
-            NotificationUtils.notify(NotificationType.ERROR, "",
+        VirtualFile file = YapixConfigUtils.findConfigFile(data.project, data.module);
+        if (requiredConfigFile && (file == null || !file.exists())) {
+            NotificationUtils.notify(NotificationType.WARNING, "",
                     "Not found config file .yapix",
                     new CreateConfigFileAction(data.project, data.module, "Create Config File"));
             return StepResult.stop();
         }
         YapixConfig config = null;
-        if (yapiConfigFile != null && yapiConfigFile.exists()) {
+        if (file != null && file.exists()) {
             try {
-                config = YapixConfigUtils.readYapixConfig(yapiConfigFile);
+                config = YapixConfigUtils.readYapixConfig(file);
             } catch (Exception e) {
                 notifyError(String.format("Config file error: %s", e.getMessage()));
                 return StepResult.stop();
@@ -143,7 +193,7 @@ public abstract class AbstractAction extends AnAction {
         if (config == null) {
             config = new YapixConfig();
         }
-        config = config.getMergedInternalConfig();
+        config = YapixConfig.getMergedInternalConfig(config);
         return StepResult.ok(config);
     }
 
@@ -157,7 +207,7 @@ public abstract class AbstractAction extends AnAction {
      * @param afterAction 所有接口列表处理完毕后的回调执行，用于关闭资源
      */
     protected void handleUploadAsync(Project project, List<Api> apis, Function<Api, ApiUploadResult> apiConsumer,
-                                     Supplier<?> afterAction) {
+            Supplier<?> afterAction) {
         // 异步处理
         ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
             @Override
@@ -205,9 +255,12 @@ public abstract class AbstractAction extends AnAction {
                         String url = urls.get(0).getApiUrl();
                         notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
                     } else {
-                        Map<String, List<ApiUploadResult>> categories = urls.stream().collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl));
-                        notifyInfo("Upload result", format("categories(%d) - apis(%d/%d)", categories.size(), urls.size(), apis.size()));
-                        categories.keySet().forEach(url -> notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url)));
+                        Map<String, List<ApiUploadResult>> categories = urls.stream()
+                                .collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl));
+                        notifyInfo(format("Upload result: categories=%d - apis=%d/%d", categories.size(), urls.size(),
+                                apis.size()));
+                        categories.keySet().forEach(
+                                url -> notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url)));
                     }
                     threadPool.shutdown();
                     afterAction.get();
@@ -242,6 +295,7 @@ public abstract class AbstractAction extends AnAction {
     }
 
     static class EventData {
+
         /**
          * 源事件
          */

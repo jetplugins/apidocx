@@ -5,11 +5,20 @@ package io.yapix.parse.model;
  */
 public class ControllerApiInfo {
 
-    /** 分类 */
+    /**
+     * 路径
+     */
+    private String path;
+
+    /**
+     * 分类
+     */
     private String category;
 
-    /** 路径 */
-    private String path;
+    /**
+     * 声明的分类
+     */
+    private String declareCategory;
 
     public String getCategory() {
         return category;
@@ -25,5 +34,13 @@ public class ControllerApiInfo {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getDeclareCategory() {
+        return declareCategory;
+    }
+
+    public void setDeclareCategory(String declareCategory) {
+        this.declareCategory = declareCategory;
     }
 }

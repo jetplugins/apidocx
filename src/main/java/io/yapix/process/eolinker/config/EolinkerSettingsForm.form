@@ -23,7 +23,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="password："/>
+              <text value="Password："/>
             </properties>
           </component>
           <component id="4a5e" class="javax.swing.JLabel">
@@ -31,7 +31,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="account："/>
+              <text value="Account："/>
             </properties>
           </component>
           <component id="ccd3f" class="javax.swing.JLabel">
@@ -39,7 +39,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="api url："/>
+              <text value="Api URL："/>
             </properties>
           </component>
           <component id="d44eb" class="javax.swing.JTextField" binding="urlField">
@@ -75,7 +75,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="login url："/>
+              <text value="Login URL："/>
             </properties>
           </component>
           <component id="142f2" class="javax.swing.JTextField" binding="loginUrlField">

@@ -50,8 +50,8 @@ public class ParseHelper {
     /**
      * 获取接口分类
      */
-    public String getApiCategory(PsiClass psiClass) {
-        // 优先级: 文档注释标记@menu > @Api > 文档注释第一行 > 类名按照羊肉串风格命名
+    public String getDeclareApiCategory(PsiClass psiClass) {
+        // 优先级: 文档注释标记@menu > @Api > 文档注释第一行
         String category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Category);
         if (StringUtils.isEmpty(category)) {
             category = PsiSwaggerUtils.getApiCategory(psiClass);
@@ -59,10 +59,11 @@ public class ParseHelper {
         if (StringUtils.isEmpty(category)) {
             category = PsiDocCommentUtils.getDocCommentTitle(psiClass);
         }
-        if (StringUtils.isEmpty(category)) {
-            category = StringUtilsExt.camelToLine(psiClass.getName(), null);
-        }
         return category;
+    }
+
+    public String getDefaultApiCategory(PsiClass psiClass) {
+        return StringUtilsExt.camelToLine(psiClass.getName(), null);
     }
 
     /**
