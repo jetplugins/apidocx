@@ -24,7 +24,7 @@ intellij {
     version = '2019.3'
     sandboxDirectory = "${project.rootDir}/.sandbox"
     updateSinceUntilBuild = false
-    plugins = ['java']
+    plugins = ['java', 'properties']
 }
 
 test {
