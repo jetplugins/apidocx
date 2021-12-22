@@ -161,6 +161,7 @@ public class YapixConfig {
         YapixConfig internal = YapixConfig.fromProperties(properties);
 
         YapixConfig config = new YapixConfig();
+        config.setStrict(settings.isStrict());
         config.setYapiUrl(settings.getYapiUrl());
         config.setYapiProjectId(settings.getYapiProjectId());
         config.setYapiProjectToken(settings.getYapiProjectToken());

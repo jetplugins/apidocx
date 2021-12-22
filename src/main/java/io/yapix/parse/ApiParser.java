@@ -1,6 +1,7 @@
 package io.yapix.parse;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.yapix.parse.util.PsiDocCommentUtils.findTagByName;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.intellij.psi.PsiModifierList;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.model.Property;
+import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.model.ClassParseData;
 import io.yapix.parse.model.ControllerApiInfo;
@@ -63,7 +65,7 @@ public class ApiParser {
      * 解析接口
      */
     public ClassParseData parse(PsiClass psiClass) {
-        if (!isNeedParseController(psiClass)) {
+        if (!isNeedParseController(psiClass) || findTagByName(psiClass, DocumentTags.Ignore) != null) {
             return ClassParseData.invalid(psiClass);
         }
 
@@ -135,6 +137,9 @@ public class ApiParser {
      * 解析某个方法的接口信息
      */
     private MethodParseData parseMethod(ControllerApiInfo controllerInfo, PsiMethod method) {
+        if (findTagByName(method, DocumentTags.Ignore) != null) {
+            return MethodParseData.invalid(method);
+        }
         // 1.解析路径信息: @XxxMapping
         PathParseInfo mapping = PathParser.parse(method);
         if (mapping == null || mapping.getPaths() == null) {

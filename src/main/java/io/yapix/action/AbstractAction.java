@@ -119,7 +119,8 @@ public abstract class AbstractAction extends AnAction {
         if (data.selectedMethod != null) {
             MethodParseData methodData = parser.parse(data.selectedMethod);
             if (!methodData.valid) {
-                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current method is not a valid api");
+                NotificationUtils.notifyWarning(DefaultConstants.NAME,
+                        "The current method is not a valid api or ignored");
                 return StepResult.stop();
             }
             if (config.isStrict() && StringUtils.isEmpty(methodData.declaredApiSummary)) {
@@ -133,7 +134,8 @@ public abstract class AbstractAction extends AnAction {
         if (data.selectedClass != null) {
             ClassParseData controllerData = parser.parse(data.selectedClass);
             if (!controllerData.valid) {
-                NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current class is not a valid controller");
+                NotificationUtils.notifyWarning(DefaultConstants.NAME,
+                        "The current class is not a valid controller or ignored");
                 return StepResult.stop();
             }
             if (config.isStrict() && StringUtils.isEmpty(controllerData.declaredCategory)) {
@@ -162,7 +164,6 @@ public abstract class AbstractAction extends AnAction {
             if (config.isStrict()) {
                 controllerApis = controllerApis.stream().filter(o -> StringUtils.isNotEmpty(o.getSummary()))
                         .collect(Collectors.toList());
-                ;
             }
             apis.addAll(controllerApis);
         }
