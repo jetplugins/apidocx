@@ -48,8 +48,7 @@
             <configurable displayName="ShowDoc"
                 instance="io.yapix.process.showdoc.config.ShowdocSettingsConfiguration"/>
         </applicationConfigurable>
-        <fileType name="Properties" language="Properties" fileNames=".yapix" fieldName="INSTANCE"
-                  implementationClass="com.intellij.lang.properties.PropertiesFileType"/>
+        <fileTypeDetector implementation="io.yapix.config.YapixFileTypeDetector"/>
     </extensions>
 
     <actions>
