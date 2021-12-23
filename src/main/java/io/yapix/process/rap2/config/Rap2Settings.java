@@ -54,13 +54,20 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
      */
     private long cookiesTtl;
 
-    /** 授权用户id */
+    /**
+     * 授权用户id
+     */
     private Long cookiesUserId;
 
     public static Rap2Settings getInstance() {
         Rap2Settings settings = ServiceManager.getService(Rap2Settings.class);
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
         return settings;
+    }
+
+    public static void storeInstance(@NotNull Rap2Settings state) {
+        getInstance().loadState(state);
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
     }
 
     @Nullable

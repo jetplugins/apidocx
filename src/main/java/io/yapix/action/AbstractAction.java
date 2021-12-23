@@ -36,9 +36,7 @@ import io.yapix.model.Api;
 import io.yapix.parse.ApiParser;
 import io.yapix.parse.model.ClassParseData;
 import io.yapix.parse.model.MethodParseData;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -222,7 +220,7 @@ public abstract class AbstractAction extends AnAction {
                 AtomicInteger count = new AtomicInteger();
                 AtomicDouble fraction = new AtomicDouble();
 
-                List<ApiUploadResult> urls = new ArrayList<>();
+                List<ApiUploadResult> urls = null;
                 try {
                     List<Future<ApiUploadResult>> futures = Lists.newArrayListWithExpectedSize(apis.size());
                     for (int i = 0; i < apis.size() && !indicator.isCanceled(); i++) {
@@ -252,16 +250,10 @@ public abstract class AbstractAction extends AnAction {
                 } catch (InterruptedException e) {
                     // ignore
                 } finally {
-                    if (urls.size() == 1) {
-                        String url = urls.get(0).getApiUrl();
+                    if (urls != null && !urls.isEmpty()) {
+                        ApiUploadResult uploadResult = urls.get(0);
+                        String url = urls.size() == 1 ? uploadResult.getApiUrl() : uploadResult.getCategoryUrl();
                         notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
-                    } else {
-                        Map<String, List<ApiUploadResult>> categories = urls.stream()
-                                .collect(Collectors.groupingBy(ApiUploadResult::getCategoryUrl));
-                        notifyInfo(format("Upload result: categories=%d - apis=%d/%d", categories.size(), urls.size(),
-                                apis.size()));
-                        categories.keySet().forEach(
-                                url -> notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url)));
                     }
                     threadPool.shutdown();
                     afterAction.get();

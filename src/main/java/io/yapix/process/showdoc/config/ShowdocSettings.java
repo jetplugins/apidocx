@@ -55,6 +55,11 @@ public class ShowdocSettings implements PersistentStateComponent<ShowdocSettings
         return settings;
     }
 
+    public static void storeInstance(@NotNull ShowdocSettings state) {
+        getInstance().loadState(state);
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
+    }
+
     @Nullable
     @Override
     public ShowdocSettings getState() {

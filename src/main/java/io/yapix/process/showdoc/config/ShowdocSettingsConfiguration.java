@@ -38,7 +38,7 @@ public class ShowdocSettingsConfiguration implements Configurable {
     @Override
     public void apply() {
         ShowdocSettings data = form.get();
-        ShowdocSettings.getInstance().loadState(data);
+        ShowdocSettings.storeInstance(data);
     }
 
     @Override

@@ -76,6 +76,15 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.9</p>
+      <ul>
+        <li>feat: 默认严格不上传未指定分类和名称接口</li>
+        <li>feat: 支持类和方法级别忽略ignore标记</li>
+        <li>feat: 支持解析抽象类型see标记指定多个实现</li>
+        <li>fix: 安全存储密码敏感信息</li>
+        <li>fix: 支持控制层继承接口方法</li>
+        <li>optimize: 细节优化体验交互</li>
+      </ul>
       <p>0.8</p>
       <ul>
         <li>Feat: Update only when API changes for yapi/rap2.</li>

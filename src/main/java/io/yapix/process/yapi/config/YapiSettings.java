@@ -60,6 +60,11 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
         return settings;
     }
 
+    public static void storeInstance(@NotNull YapiSettings state) {
+        getInstance().loadState(state);
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
+    }
+
     @Nullable
     @Override
     public YapiSettings getState() {
@@ -68,7 +73,6 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
 
     @Override
     public void loadState(@NotNull YapiSettings state) {
-        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
         XmlSerializerUtil.copyBean(state, this);
     }
 

@@ -63,7 +63,7 @@ public class EolinkerSettingsDialog extends DialogWrapper {
             settings.setSpaceKey(testResult.getAuthSession().getSpaceKey());
 
             // 存储配置
-            EolinkerSettings.getInstance().loadState(settings);
+            EolinkerSettings.storeInstance(settings);
             super.doOKAction();
         }
         if (code == EolinkerTestResult.Code.NETWORK_ERROR) {

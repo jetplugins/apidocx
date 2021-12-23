@@ -38,7 +38,7 @@ public class EolinkerSettingsConfiguration implements Configurable {
     @Override
     public void apply() {
         EolinkerSettings data = form.get();
-        EolinkerSettings.getInstance().loadState(data);
+        EolinkerSettings.storeInstance(data);
     }
 
     @Override

@@ -66,7 +66,7 @@ public class Rap2SettingsDialog extends DialogWrapper {
             settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
             settings.setCookiesUserId(testResult.getAuthUser().getId());
             // 存储配置
-            Rap2Settings.getInstance().loadState(settings);
+            Rap2Settings.storeInstance(settings);
             super.doOKAction();
         }
         if (code == Code.NETWORK_ERROR) {

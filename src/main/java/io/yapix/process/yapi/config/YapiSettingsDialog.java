@@ -62,7 +62,7 @@ public class YapiSettingsDialog extends DialogWrapper {
             settings.setCookies(testResult.getAuthCookies().getCookies());
             settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
             // 存储配置
-            YapiSettings.getInstance().loadState(settings);
+            YapiSettings.storeInstance(settings);
             super.doOKAction();
         }
         if (code == Code.NETWORK_ERROR) {

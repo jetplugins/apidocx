@@ -65,7 +65,7 @@ public class ShowdocSettingsDialog extends DialogWrapper {
             settings.setCookies(testResult.getAuthCookies().getCookies());
             settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
             // 存储配置
-            ShowdocSettings.getInstance().loadState(settings);
+            ShowdocSettings.storeInstance(settings);
             super.doOKAction();
         }
         if (code == Code.NETWORK_ERROR) {

@@ -38,7 +38,7 @@ public class YapiSettingsConfiguration implements Configurable {
     @Override
     public void apply() {
         YapiSettings data = form.get();
-        YapiSettings.getInstance().loadState(data);
+        YapiSettings.storeInstance(data);
     }
 
     @Override

@@ -42,7 +42,9 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     /** 授权cookies的有效期. */
     private Long cookiesTtl;
 
-    /** 空间key */
+    /**
+     * 空间key
+     */
     private String spaceKey;
 
     public static EolinkerSettings getInstance() {
@@ -50,6 +52,12 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
         return settings;
     }
+
+    public static void storeInstance(@NotNull EolinkerSettings state) {
+        getInstance().loadState(state);
+        PasswordSafeUtils.storePassword(PASSWORD_KEY, state.account, state.password);
+    }
+
 
     @Nullable
     @Override

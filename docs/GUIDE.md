@@ -3,11 +3,10 @@
 
 ## 快速开始
 1. 安装插件: [Yapi X](https://plugins.jetbrains.com/plugin/17425-yapi-x)
-2. 添加配置文件: .yapix, 内容: `yapiProjectId=你的项目id`
-3. 选中上传的方法: 执行"Upload To YApi"
+2. 选中上传的方法: 执行"Upload To YApi"
 
 - 支持整个类、多个类、当个方法API文档上传
-- 插件配置路径: File -> Settings -> Tools -> Yapi X
+- 插件配置路径: File -> Settings -> Other Settings -> Yapi X
 
 提示: 默认情况下右键菜单是"Upload To YApi", 可通过插件菜单配置为Rap2, Eolinker等
 
@@ -16,7 +15,12 @@
 1. 文档注释: 类、方法、字段文档注释应完善
 2. 使用实体类: 接收参数、响应参数，避免使用map等类型
 
-TODO
+| 目标 | 描述 |
+| :---  | :--- |
+| 接口分类 |  文档标记@menu > 类文档注释第一行(推荐)|
+| 接口名称 |  文档标记@description > 方法文档注释第一行(推荐) |
+| 字段名称 | 字段描述 （也兼容swagger） |
+| 文档标记 @ignore | 标记的类、方法、字段会被忽略（有浸入性） |
 
 ## 平台
 目前支持多个平台YApi, Rap2, Eolinker，包括公有部署和私有部署，支持账户密码登录。
@@ -48,8 +52,11 @@ TODO
 | rap2ProjectId | integer | Rap2项目id |
 | eolinkerProjectId | string | Eolinker项目id |
 | showdocProjectId | string | ShowDoc项目id |
+|  | | |
 | yapiUrl | string | YApi服务地址 | 场景：插件无法支持YApi统一登录方式，此时可使用项目token方式 |
 | yapiProjectToken | string | YApi项目访问token |
+|  | | |
+| strict | boolean | 是否开启严格模式, true(默认), false | 严格模式下不会解析无分类、无接口名的 |
 |  | | |
 | returnWrapType | string | 方法返回值，统一包装类限定名 | 场景: spring统一配置了返回包装类 |
 | returnUnwrapTypes | string | 方法返回值，指定不需要包装的类 | 场景: 某些类不需要spring统一包装, 多个用英文逗号分割 |

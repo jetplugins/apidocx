@@ -38,7 +38,7 @@ public class Rap2SettingsConfiguration implements Configurable {
     @Override
     public void apply() {
         Rap2Settings data = form.get();
-        Rap2Settings.getInstance().loadState(data);
+        Rap2Settings.storeInstance(data);
     }
 
     @Override
