@@ -1,10 +1,12 @@
 package io.yapix.config;
 
+import com.google.common.collect.Lists;
 import com.intellij.lang.properties.PropertiesFileType;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeRegistry.FileTypeDetector;
 import com.intellij.openapi.util.io.ByteSequence;
 import com.intellij.openapi.vfs.VirtualFile;
+import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,5 +30,11 @@ public class YapixFileTypeDetector implements FileTypeDetector {
     @Override
     public int getVersion() {
         return 0;
+    }
+
+    @Nullable
+    @Override
+    public Collection<? extends FileType> getDetectedFileTypes() {
+        return Lists.newArrayList(PropertiesFileType.INSTANCE);
     }
 }

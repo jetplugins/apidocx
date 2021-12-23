@@ -1,13 +1,18 @@
 package io.yapix.process.markdown;
 
+import com.google.common.collect.Lists;
 import io.yapix.model.Api;
 import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
-
-import java.util.*;
+import io.yapix.model.RequestBodyType;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -57,10 +62,12 @@ public class MarkdownGenerator {
         markdown.append(getPropertiesSnippets("Headers", api.getParametersByIn(ParameterIn.header)));
         markdown.append(getPropertiesSnippets("Path", api.getParametersByIn(ParameterIn.path)));
         markdown.append(getPropertiesSnippets("Query", api.getParametersByIn(ParameterIn.query)));
-        markdown.append(getPropertiesSnippets("Body", api.getRequestBodyForm()));
-        markdown.append(getBodySnippets("Body", api.getRequestBody())).append("\n");
+        markdown.append(
+                getPropertiesSnippets(api.getRequestBodyType() == RequestBodyType.form_data ? "Form Data" : "Form",
+                        api.getRequestBodyForm()));
+        markdown.append(getBodySnippets("Body", api.getRequestBody(), true)).append("\n");
         markdown.append("**响应参数**").append("\n\n");
-        markdown.append(getBodySnippets("Body", api.getResponses())).append("\n");
+        markdown.append(getBodySnippets("Body", api.getResponses(), true)).append("\n");
         return markdown.toString();
     }
 
@@ -85,7 +92,7 @@ public class MarkdownGenerator {
     /**
      * 获取请求体或响应体的markdown拼接
      */
-    private String getBodySnippets(String title, Property property) {
+    private String getBodySnippets(String title, Property property, boolean isLast) {
         if (property == null) {
             return "";
         }
@@ -94,21 +101,26 @@ public class MarkdownGenerator {
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
         markdown.append("| - | - | - | - | - |").append("\n");
         if (property.isObjectType()) {
-            Optional.ofNullable(property.getProperties())
+            List<Property> propertyList = Optional.ofNullable(property.getProperties())
                     .map(Map::values)
                     .map(Collection::stream)
                     .orElseGet(Stream::empty)
-                    .forEach(p -> markdown.append(propertyRowSnippets(p, 1)));
+                    .collect(Collectors.toList());
+            for (int i = 0; i < propertyList.size(); i++) {
+                Property p = propertyList.get(i);
+                markdown.append(propertyRowSnippets(p, 1, i == propertyList.size() - 1));
+            }
         } else {
-            markdown.append(propertyRowSnippets(property, 1));
+            markdown.append(propertyRowSnippets(property, 1, isLast));
         }
         return markdown.toString();
     }
 
-    private String propertyRowSnippets(Property property, int depth) {
+    private String propertyRowSnippets(Property property, int depth, boolean isLast) {
         String nameDepth = property.getName();
+        String tree = isLast ? "└ " : "├ ";
         if (depth > 1 && StringUtils.isNotEmpty(property.getName())) {
-            nameDepth = StringUtils.repeat("&nbsp;&nbsp;", depth - 1) + "├ " + property.getName();
+            nameDepth = StringUtils.repeat("&nbsp;&nbsp;", depth - 1) + tree + property.getName();
         }
         String row = formatTable("| %s | %s | %s | %s | %s |\n",
                 nameDepth, requiredText(property.getRequired()), property.getTypeWithArray(),
@@ -124,16 +136,18 @@ public class MarkdownGenerator {
             properties = property.getItems().getProperties();
         }
         if (properties != null) {
-            properties.forEach((k, v) -> {
-                markdown.append(propertyRowSnippets(v, depth + 1));
-            });
+            List<Property> propertyList = Lists.newArrayList(properties.values());
+            for (int i = 0; i < propertyList.size(); i++) {
+                Property p = propertyList.get(i);
+                markdown.append(propertyRowSnippets(p, depth + 1, i == propertyList.size() - 1));
+            }
         }
 
         // 多维普通数组
         boolean multipleArray = property.isArrayType() && property.getItems() != null
                 && property.getItems().isArrayType();
         if (multipleArray) {
-            markdown.append(propertyRowSnippets(property.getItems(), depth + 1));
+            markdown.append(propertyRowSnippets(property.getItems(), depth + 1, isLast));
         }
         return markdown.toString();
     }
