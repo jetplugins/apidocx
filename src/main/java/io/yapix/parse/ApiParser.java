@@ -177,6 +177,7 @@ public class ApiParser {
         api.setSummary(parseHelper.getApiSummary(method));
         api.setDescription(parseHelper.getApiDescription(method));
         api.setDeprecated(parseHelper.getApiDeprecated(method));
+        api.setTags(parseHelper.getApiTags(method));
         // 请求信息
         RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
         api.setParameters(requestInfo.getParameters());

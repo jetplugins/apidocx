@@ -31,6 +31,7 @@ public class YapiDataConvector {
         yapi.setTitle(StringUtils.isNotEmpty(api.getSummary()) ? api.getSummary() : api.getPath());
         yapi.setPath(api.getPath());
         yapi.setMethod(api.getMethod().name());
+        yapi.setTag(api.getTags());
         yapi.setDesc(api.getDescription());
         yapi.setMenu(api.getCategory());
         yapi.setStatus(YapiInterfaceStatus.undone.name());

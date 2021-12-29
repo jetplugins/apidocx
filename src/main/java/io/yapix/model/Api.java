@@ -9,22 +9,39 @@ import java.util.stream.Collectors;
  */
 public class Api {
 
-    /** 路径 */
+    /**
+     * 路径
+     */
     private String path;
 
-    /** 请求方法 */
+    /**
+     * 请求方法
+     */
     private HttpMethod method;
 
-    /** 概述标题 */
+    /**
+     * 概述标题
+     */
     private String summary;
 
-    /** 描述 */
+    /**
+     * 标签
+     */
+    private List<String> tags;
+
+    /**
+     * 描述
+     */
     private String description;
 
-    /** 是否标记过期 */
+    /**
+     * 是否标记过期
+     */
     private Boolean deprecated;
 
-    /** 参数 */
+    /**
+     * 参数
+     */
     private List<Property> parameters;
 
     /**
@@ -139,5 +156,13 @@ public class Api {
 
     public void setRequestBodyForm(List<Property> requestBodyForm) {
         this.requestBodyForm = requestBodyForm;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

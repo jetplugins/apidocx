@@ -20,4 +20,6 @@ public interface DocumentTags {
     String Ignore = "ignore";
 
     String See = "see";
+
+    String Tags = "tags";
 }

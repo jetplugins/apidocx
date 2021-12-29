@@ -3,6 +3,7 @@ package io.yapix.parse.parser;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.trim;
 
+import com.google.common.base.Splitter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
@@ -27,6 +28,7 @@ import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.StringUtilsExt;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -119,6 +121,19 @@ public class ParseHelper {
         }
         PsiDocTag deprecatedTag = PsiDocCommentUtils.findTagByName(method, DocumentTags.Deprecated);
         return nonNull(deprecatedTag);
+    }
+
+    /**
+     * 获取接口标签
+     */
+    public List<String> getApiTags(PsiMethod method) {
+        String tagsContent = PsiDocCommentUtils.getDocCommentTagText(method, DocumentTags.Tags);
+        if (tagsContent == null) {
+            return Collections.emptyList();
+        }
+        List<String> tags = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(tagsContent)
+                .stream().distinct().collect(Collectors.toList());
+        return tags;
     }
 
     //------------------------ 参数Parameter ----------------------------//
@@ -271,8 +286,8 @@ public class ParseHelper {
         PsiDocTag ignoreTag = PsiDocCommentUtils.findTagByName(field, DocumentTags.Ignore);
         return ignoreTag != null;
     }
-
     //----------------------------- 类型 -----------------------------//
+
     public String getTypeDescription(PsiType type, List<Value> values) {
         if (values != null && !values.isEmpty()) {
             return values.stream().map(Value::getText).collect(Collectors.joining(", "));
