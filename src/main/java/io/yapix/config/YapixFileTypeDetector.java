@@ -22,7 +22,7 @@ public class YapixFileTypeDetector implements FileTypeDetector {
             @NotNull ByteSequence firstBytes,
             @Nullable CharSequence firstCharsIfText) {
         if (DefaultConstants.FILE_NAME.equals(file.getName())) {
-            return PropertiesFileType.INSTANCE;
+            return getFileType();
         }
         return null;
     }
@@ -35,6 +35,14 @@ public class YapixFileTypeDetector implements FileTypeDetector {
     @Nullable
     @Override
     public Collection<? extends FileType> getDetectedFileTypes() {
-        return Lists.newArrayList(PropertiesFileType.INSTANCE);
+        return Lists.newArrayList(getFileType());
+    }
+
+    private FileType getFileType() {
+        try {
+            return PropertiesFileType.INSTANCE;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
