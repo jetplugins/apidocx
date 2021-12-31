@@ -27,7 +27,7 @@ public class PsiGenericUtils {
         Map<String, String> genericMap = new HashMap<>();
         PsiTypeParameter[] parameters = clazz.getTypeParameters();
         for (int i = 0; i < parameters.length; i++) {
-            String key = parameters[i].getText();
+            String key = parameters[i].getText().split("\\s")[0];
             String value = (i < generics.length) ? generics[i].trim() : "java.lang.Object";
             genericMap.put(key, value);
         }
