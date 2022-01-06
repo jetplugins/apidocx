@@ -76,6 +76,11 @@
     </actions>
 
     <change-notes><![CDATA[
+      <p>0.9.2</p>
+      <ul>
+        <li>fix: 修复重复创建接口问题</li>
+        <li>fix: 修复泛型问题</li>
+      </ul>
       <p>0.9</p>
       <ul>
         <li>feat: 默认严格不上传未指定分类和名称接口</li>
@@ -109,37 +114,6 @@
         <li>Add basic swagger annotations.</li>
         <li>Optimize rap2 remove request body wrap root.</li>
         <li>Fix copy as curl escape.</li>
-      </ul>
-      <p>0.0.5</p>
-      <ul>
-        <li>Optimize parse date.</li>
-        <li>Add supports default value.</li>
-        <li>Add supports multiple file.</li>
-        <li>Add supports annotation constants.</li>
-        <li>Fix yapi mock.</li>
-        <li>Fix others.</li>
-      </ul>
-      <p>0.0.4</p>
-      <ul>
-        <li>Add mock rules.</li>
-        <li>Add rap2 supports mock.</li>
-        <li>Fix bean field orders.</li>
-        <li>Fix yapi mock error.</li>
-        <li>Fix bugs.</li>
-      </ul>
-      <p>0.0.3</p>
-      <ul>
-        <li>Add Copy as cURL.</li>
-        <li>Add supports custom bean config.</li>
-        <li>Fix upload eolinker error.</li>
-        <li>Optimize right menu.</li>
-      </ul>
-      <p>0.0.2</p>
-      <ul>
-        <li>Generate API documents from Java source code.</li>
-        <li>Upload to YAPI platform.</li>
-        <li>Upload to RAP2 platform.</li>
-        <li>Upload to Eolinker platform.</li>
       </ul>
       ]]></change-notes>
 

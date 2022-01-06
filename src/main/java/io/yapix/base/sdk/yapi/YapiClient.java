@@ -121,18 +121,22 @@ public class YapiClient extends AbstractClient {
     public YapiInterface getInterface(int id) {
         String path = format("%s?id=%d", YapiConstants.yapiGet, id);
         String data = requestGet(path);
-        return gson.fromJson(data, YapiInterface.class);
+        YapiInterface api = gson.fromJson(data, YapiInterface.class);
+        if (api != null) {
+            api.setId(id);
+        }
+        return api;
     }
 
     /**
      * 新增分类
      */
-    public void saveInterface(YapiInterface request) {
-        String data = requestPost(YapiConstants.yapiSave, request);
+    public void saveInterface(YapiInterface api) {
+        String data = requestPost(YapiConstants.yapiSave, api);
         JsonArray dataArray = gson.fromJson(data, JsonArray.class);
         if (dataArray != null && dataArray.size() > 0) {
             int apiId = dataArray.get(0).getAsJsonObject().get("_id").getAsInt();
-            request.setId(apiId);
+            api.setId(apiId);
         }
     }
 
