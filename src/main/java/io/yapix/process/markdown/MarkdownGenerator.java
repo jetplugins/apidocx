@@ -78,7 +78,7 @@ public class MarkdownGenerator {
         StringBuilder markdown = new StringBuilder();
         markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
-        markdown.append("| - | - | - | - | - |").append("\n");
+        markdown.append("| --- | --- | --- | --- | --- |").append("\n");
         properties.forEach(h -> {
             String hr = formatTable("| %s | %s | %s | %s | %s |",
                     h.getName(), requiredText(h.getRequired()), h.getTypeWithArray(),
@@ -99,7 +99,7 @@ public class MarkdownGenerator {
         StringBuilder markdown = new StringBuilder();
         markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
-        markdown.append("| - | - | - | - | - |").append("\n");
+        markdown.append("| --- | --- | --- | --- | --- |").append("\n");
         if (property.isObjectType()) {
             List<Property> propertyList = Optional.ofNullable(property.getProperties())
                     .map(Map::values)
