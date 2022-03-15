@@ -279,12 +279,21 @@ public class ParseHelper {
      * 字段是否被跳过
      */
     public boolean isFieldIgnore(PsiField field) {
-        // swagger -> @ignore
+        // swagger -> @ignore -> @JsonIgnore
         if (PsiSwaggerUtils.isFieldIgnore(field)) {
             return true;
         }
+
         PsiDocTag ignoreTag = PsiDocCommentUtils.findTagByName(field, DocumentTags.Ignore);
-        return ignoreTag != null;
+        if (ignoreTag != null) {
+            return true;
+        }
+
+        String jsonIgnore = PsiAnnotationUtils.getStringAttributeValue(field, SpringConstants.JsonIgnore);
+        if ("true".equals(jsonIgnore)) {
+            return true;
+        }
+        return false;
     }
     //----------------------------- 类型 -----------------------------//
 
