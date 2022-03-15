@@ -132,11 +132,14 @@ public class YapiClient extends AbstractClient {
      * 新增分类
      */
     public void saveInterface(YapiInterface api) {
-        String data = requestPost(YapiConstants.yapiSave, api);
-        JsonArray dataArray = gson.fromJson(data, JsonArray.class);
-        if (dataArray != null && dataArray.size() > 0) {
-            int apiId = dataArray.get(0).getAsJsonObject().get("_id").getAsInt();
-            api.setId(apiId);
+        boolean add = api.getId() == null;
+        String data = requestPost(add ? YapiConstants.yapiSave : YapiConstants.yapiUp, api);
+        if (add) {
+            JsonArray dataArray = gson.fromJson(data, JsonArray.class);
+            if (dataArray != null && dataArray.size() > 0) {
+                int apiId = dataArray.get(0).getAsJsonObject().get("_id").getAsInt();
+                api.setId(apiId);
+            }
         }
     }
 

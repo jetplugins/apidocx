@@ -24,9 +24,14 @@ public interface YapiConstants {
     String yapiProjectGet = "/api/project/get";
 
     /**
-     * 新增或者更新接口
+     * 新增接口
      */
     String yapiSave = "/api/interface/save";
+
+    /**
+     * 更新接口
+     */
+    String yapiUp = "/api/interface/up";
 
     /**
      * 新增接口分类
