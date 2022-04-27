@@ -93,19 +93,19 @@ public class PsiAnnotationUtils {
             return Collections.emptyList();
         }
 
-        List<String> paths = Lists.newArrayListWithExpectedSize(1);
+        List<String> attributes = Lists.newArrayListWithExpectedSize(1);
         if (memberValue instanceof PsiArrayInitializerMemberValue) {
             PsiArrayInitializerMemberValue theMemberValue = (PsiArrayInitializerMemberValue) memberValue;
             PsiAnnotationMemberValue[] values = theMemberValue.getInitializers();
             for (PsiAnnotationMemberValue value : values) {
                 String text = getAnnotationMemberValue(value);
-                paths.add(text);
+                attributes.add(text);
             }
         } else {
             String text = getAnnotationMemberValue(memberValue);
-            paths.add(text);
+            attributes.add(text);
         }
-        return paths;
+        return attributes;
     }
 
     /**
@@ -113,11 +113,6 @@ public class PsiAnnotationUtils {
      */
     public static String getAnnotationMemberValue(PsiAnnotationMemberValue memberValue) {
         PsiReference reference = memberValue.getReference();
-        if (memberValue instanceof PsiExpression) {
-            Object constant = JavaConstantExpressionEvaluator
-                    .computeConstantExpression((PsiExpression) memberValue, false);
-            return constant == null ? null : constant.toString();
-        }
         if (reference != null) {
             PsiElement resolve = reference.resolve();
             if (resolve instanceof PsiEnumConstant) {
@@ -127,6 +122,12 @@ public class PsiAnnotationUtils {
                 // 引用其他字段
                 return PsiFieldUtils.getFieldDefaultValue((PsiField) resolve);
             }
+        }
+
+        if (memberValue instanceof PsiExpression) {
+            Object constant = JavaConstantExpressionEvaluator
+                    .computeConstantExpression((PsiExpression) memberValue, false);
+            return constant == null ? null : constant.toString();
         }
         return "";
     }
