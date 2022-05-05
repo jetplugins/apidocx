@@ -76,6 +76,12 @@
     </actions>
 
     <change-notes><![CDATA[
+     <p>0.9.3</p>
+      <ul>
+        <li>feat: 支持@JsonIgnore注解</li>
+        <li>feat: 支持组合自定义@Controller注解</li>
+        <li>fix: 修复@RequestMapping无法解析method参数</li>
+      </ul>
       <p>0.9.2</p>
       <ul>
         <li>fix: 修复重复创建接口问题</li>
