@@ -2,6 +2,7 @@ package io.yapix.parse;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.yapix.parse.util.PsiDocCommentUtils.findTagByName;
+import static java.util.Objects.isNull;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -28,6 +29,7 @@ import io.yapix.parse.parser.RequestParser;
 import io.yapix.parse.parser.ResponseParser;
 import io.yapix.parse.util.PathUtils;
 import io.yapix.parse.util.PsiAnnotationUtils;
+import io.yapix.parse.util.PsiUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,11 +44,15 @@ public class ApiParser {
     private final RequestParser requestParser;
     private final ResponseParser responseParser;
     private final ParseHelper parseHelper;
+    private final Project project;
+    private final Module module;
 
     public ApiParser(Project project, Module module, YapixConfig settings) {
         checkNotNull(project);
         checkNotNull(module);
         checkNotNull(settings);
+        this.project = project;
+        this.module = module;
         this.requestParser = new RequestParser(project, module, settings);
         this.responseParser = new ResponseParser(project, module, settings);
         this.parseHelper = new ParseHelper(project, module);
@@ -94,9 +100,27 @@ public class ApiParser {
      */
     private boolean isNeedParseController(PsiClass psiClass) {
         // 接口是为了满足接口继承的情况
-        return psiClass.isInterface()
+        boolean isController = psiClass.isInterface()
                 || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.RestController) != null
                 || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.Controller) != null;
+        if (!isController) {
+            return true;
+        }
+
+        // 支持一级组合继承@RestController、@Controller的情况
+        PsiAnnotation[] annotations = psiClass.getAnnotations();
+        for (PsiAnnotation annotation : annotations) {
+            PsiClass thePsiClass = PsiUtils.findPsiClass(project, module, annotation.getQualifiedName());
+            if (isNull(thePsiClass)) {
+                continue;
+            }
+            isController = PsiAnnotationUtils.getAnnotation(thePsiClass, SpringConstants.RestController) != null
+                    || PsiAnnotationUtils.getAnnotation(thePsiClass, SpringConstants.Controller) != null;
+            if (isController) {
+                break;
+            }
+        }
+        return isController;
     }
 
     /**
