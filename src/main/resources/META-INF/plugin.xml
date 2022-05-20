@@ -76,51 +76,13 @@
     </actions>
 
     <change-notes><![CDATA[
-     <p>0.9.3</p>
-      <ul>
-        <li>feat: 支持@JsonIgnore注解</li>
-        <li>feat: 支持组合自定义@Controller注解</li>
-        <li>fix: 修复@RequestMapping无法解析method参数</li>
-      </ul>
-      <p>0.9.2</p>
-      <ul>
-        <li>fix: 修复重复创建接口问题</li>
-        <li>fix: 修复泛型问题</li>
-      </ul>
-      <p>0.9</p>
-      <ul>
-        <li>feat: 默认严格不上传未指定分类和名称接口</li>
-        <li>feat: 支持类和方法级别忽略ignore标记</li>
-        <li>feat: 支持解析抽象类型see标记指定多个实现</li>
-        <li>fix: 安全存储密码敏感信息</li>
-        <li>fix: 支持控制层继承接口方法</li>
-        <li>optimize: 细节优化体验交互</li>
-      </ul>
-      <p>0.8</p>
-      <ul>
-        <li>Feat: Update only when API changes for yapi/rap2.</li>
-        <li>Feat: Add quick open settings action.</li>
-        <li>Fix http request timeout.</li>
-        <li>Fix unable parse when annotation @XxxMapping without any parameters.</li>
-        <li>Fix update eolinker default url.</li>
-        <li>Fix compatibility issues.</li>
-        <li>Remove support yapi.xml.</li>
-      </ul>
-      <p>0.7</p>
-      <ul>
-        <li>Add upload to showdoc.</li>
-        <li>Add export to markdown.</li>
-      </ul>
-      <p>0.6</p>
-      <ul>
-        <li>Supports @ignore tag.</li>
-        <li>Supports parse map type.</li>
-        <li>Add YApi supports LDAP login.</li>
-        <li>Add YApi supports token auth.</li>
-        <li>Add basic swagger annotations.</li>
-        <li>Optimize rap2 remove request body wrap root.</li>
-        <li>Fix copy as curl escape.</li>
-      </ul>
+        0.9.4: <br>
+        - fix: 修复Controller注解无法识别问题<br>
+        <br>
+        0.9.3: <br>
+        - feat: 支持@JsonIgnore注解<br>
+        - feat: 支持组合自定义@Controller注解<br>
+        - fix: 修复@RequestMapping无法解析method参数<br>
       ]]></change-notes>
 
 </idea-plugin>
