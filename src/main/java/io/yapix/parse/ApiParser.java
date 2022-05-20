@@ -103,7 +103,7 @@ public class ApiParser {
         boolean isController = psiClass.isInterface()
                 || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.RestController) != null
                 || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.Controller) != null;
-        if (!isController) {
+        if (isController) {
             return true;
         }
 
