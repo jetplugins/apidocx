@@ -8,6 +8,7 @@ import io.yapix.model.HttpMethod;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.constant.WxbConstants;
 import io.yapix.parse.model.PathParseInfo;
+import io.yapix.parse.util.PathUtils;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,6 +117,8 @@ public class PathParser {
         if (paths.isEmpty()) {
             paths.add("");
         }
+        // 清除路径变量正则部分
+        paths = paths.stream().map(PathUtils::clearPathPattern).collect(Collectors.toList());
         return paths;
     }
 
