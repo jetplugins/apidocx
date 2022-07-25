@@ -26,7 +26,7 @@ public class YapiCategoryAddRequest implements Serializable {
     /**
      * 描述
      */
-    private String desc = "工具上传临时文件夹";
+    private String desc;
 
     /**
      * 父级菜单id
