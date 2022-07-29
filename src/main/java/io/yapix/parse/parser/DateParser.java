@@ -38,7 +38,19 @@ public class DateParser {
             return true;
         }
 
-        // 2: 全局配置
+        // 2: 日期或时间类型
+        if (isTimeOnlyType(parameter.getType())) {
+            property.setType(DataTypes.STRING);
+            property.setDateFormat(settings.getTimeFormat());
+            return true;
+        }
+        if (isDateOnlyType(parameter.getType())) {
+            property.setType(DataTypes.STRING);
+            property.setDateFormat(settings.getDateFormat());
+            return true;
+        }
+
+        // 3: 全局配置
         String dateTimeFormatMvc = settings.getDateTimeFormatMvc();
         if (DataTypes.INTEGER.equals(dateTimeFormatMvc)) {
             property.setType(DataTypes.INTEGER);
@@ -75,7 +87,19 @@ public class DateParser {
             return true;
         }
 
-        // 3: 全局配置
+        // 3: 日期或时间类型
+        if (isTimeOnlyType(field.getType())) {
+            property.setType(DataTypes.STRING);
+            property.setDateFormat(settings.getTimeFormat());
+            return true;
+        }
+        if (isDateOnlyType(field.getType())) {
+            property.setType(DataTypes.STRING);
+            property.setDateFormat(settings.getDateFormat());
+            return true;
+        }
+
+        // 4: 全局配置
         String dateTimeFormatMvc = settings.getDateTimeFormatJson();
         if (DataTypes.INTEGER.equals(dateTimeFormatMvc)) {
             property.setType(DataTypes.INTEGER);
@@ -96,4 +120,13 @@ public class DateParser {
         return dateTypes.contains(type.getCanonicalText());
     }
 
+    public static boolean isDateOnlyType(PsiType type) {
+        Set<String> dateTypes = Sets.newHashSet("java.time.LocalDate");
+        return dateTypes.contains(type.getCanonicalText());
+    }
+
+    public static boolean isTimeOnlyType(PsiType type) {
+        Set<String> dateTypes = Sets.newHashSet("java.time.LocalTime");
+        return dateTypes.contains(type.getCanonicalText());
+    }
 }

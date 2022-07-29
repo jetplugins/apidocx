@@ -89,6 +89,16 @@ public class YapixConfig {
      */
     private String dateTimeFormatJson;
 
+    /**
+     * 日期格式
+     */
+    private String dateFormat;
+
+    /**
+     * 时间格式
+     */
+    private String timeFormat;
+
     private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
 
     /**
@@ -109,6 +119,8 @@ public class YapixConfig {
         String mockRules = properties.getProperty("mockRules");
         String dateTimeFormatMvc = properties.getProperty("dateTimeFormatMvc", "");
         String dateTimeFormatJson = properties.getProperty("dateTimeFormatJson", "");
+        String dateFormat = properties.getProperty("dateFormat", "");
+        String timeFormat = properties.getProperty("timeFormat", "");
 
         YapixConfig config = new YapixConfig();
         if (StringUtils.isNotEmpty(strict)) {
@@ -125,6 +137,8 @@ public class YapixConfig {
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
         config.dateTimeFormatMvc = dateTimeFormatMvc;
         config.dateTimeFormatJson = dateTimeFormatJson;
+        config.dateFormat = dateFormat;
+        config.timeFormat = timeFormat;
 
         // 解析自定义bean配置: beans[xxx].json=xxx
         Gson gson = new Gson();
@@ -171,6 +185,8 @@ public class YapixConfig {
         config.setReturnWrapType(settings.getReturnWrapType());
         config.setDateTimeFormatMvc(settings.getDateTimeFormatMvc());
         config.setDateTimeFormatJson(settings.getDateTimeFormatJson());
+        config.setDateFormat(settings.getDateFormat());
+        config.setTimeFormat(settings.getTimeFormat());
 
         // 时间格式
         if (StringUtils.isBlank(settings.getDateTimeFormatMvc())) {
@@ -178,6 +194,12 @@ public class YapixConfig {
         }
         if (StringUtils.isBlank(settings.getDateTimeFormatJson())) {
             config.setDateTimeFormatJson(internal.getDateTimeFormatJson());
+        }
+        if (StringUtils.isBlank(settings.getDateFormat())) {
+            config.setDateFormat(internal.getDateFormat());
+        }
+        if (StringUtils.isBlank(settings.getTimeFormat())) {
+            config.setTimeFormat(internal.getTimeFormat());
         }
 
         // 解包装类型
@@ -324,6 +346,22 @@ public class YapixConfig {
 
     public void setDateTimeFormatJson(String dateTimeFormatJson) {
         this.dateTimeFormatJson = dateTimeFormatJson;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public String getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setTimeFormat(String timeFormat) {
+        this.timeFormat = timeFormat;
     }
 
     public String getShowdocProjectId() {

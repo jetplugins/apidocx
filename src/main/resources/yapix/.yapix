@@ -1,7 +1,8 @@
 # 时间默认格式: @DateTimeFormat, @JsonFormat优先
 dateTimeFormatMvc=yyyy-MM-dd HH:mm:ss
 dateTimeFormatJson=yyyy-MM-dd HH:mm:ss
-
+dateFormat=yyyy-MM-dd
+timeFormat=HH:mm:ss
 # 参数和返回值
 returnUnwrapTypes=\
     org.springframework.http.ResponseEntity, \

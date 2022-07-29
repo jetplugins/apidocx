@@ -27,13 +27,11 @@ public class YapixFileTypeDetector implements FileTypeDetector {
         return null;
     }
 
-    @Override
     public int getVersion() {
         return 0;
     }
 
     @Nullable
-    @Override
     public Collection<? extends FileType> getDetectedFileTypes() {
         return Lists.newArrayList(getFileType());
     }
