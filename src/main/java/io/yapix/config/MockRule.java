@@ -17,7 +17,7 @@ public class MockRule {
     /** mock表达式 */
     private String mock;
 
-    private Pattern matchPattern;
+    private transient Pattern matchPattern;
 
     /**
      * 匹配规则
