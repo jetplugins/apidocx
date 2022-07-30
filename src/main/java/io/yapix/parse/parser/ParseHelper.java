@@ -142,7 +142,7 @@ public class ParseHelper {
      * 获取参数描述
      */
     public String getParameterDescription(PsiParameter parameter, Map<String, String> paramTagMap,
-            List<Value> values) {
+                                          List<Value> values) {
         // @ApiParam > @param
         String summary = PsiSwaggerUtils.getParameterDescription(parameter);
         if (StringUtils.isEmpty(summary)) {

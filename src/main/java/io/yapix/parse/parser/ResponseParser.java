@@ -70,7 +70,7 @@ public class ResponseParser {
         // 解析
         Property item = kernelParser.parseType(type, typeText);
         if (item != null) {
-            item.setDescription(parseHelper.getTypeDescription(type, item.getValues()));
+            item.setDescription(parseHelper.getTypeDescription(type, item.getPropertyValues()));
         }
         return item;
     }

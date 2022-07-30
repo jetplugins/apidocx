@@ -71,9 +71,11 @@ public class MockParser {
         }
 
         // 自定义规则
-        String mock = matchRulesMock(property.getType(), filedName);
-        if (StringUtils.isNotEmpty(mock)) {
-            return mock;
+        if (StringUtils.isNotEmpty(filedName)) {
+            String mock = matchRulesMock(property.getType(), filedName);
+            if (StringUtils.isNotEmpty(mock)) {
+                return mock;
+            }
         }
 
         // 规定规则

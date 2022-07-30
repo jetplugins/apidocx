@@ -9,7 +9,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiArrayType;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.config.BeanCustom;
 import io.yapix.config.YapixConfig;
@@ -17,10 +21,17 @@ import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
-import io.yapix.parse.util.*;
-
-import java.util.*;
-
+import io.yapix.parse.util.PsiDocCommentUtils;
+import io.yapix.parse.util.PsiFieldUtils;
+import io.yapix.parse.util.PsiGenericUtils;
+import io.yapix.parse.util.PsiTypeUtils;
+import io.yapix.parse.util.PsiUtils;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -111,6 +122,9 @@ public class KernelParser {
             Map<String, Property> properties = doParseBean(type, genericTypes, psiClass, chains);
             item.setProperties(properties);
         }
+
+        String mock = mockParser.parseMock(item, psiType, null, null);
+        item.setMock(mock);
         return item;
     }
 
@@ -137,7 +151,7 @@ public class KernelParser {
 
     @NotNull
     private Map<String, Property> doParseBean(String type, String genericTypes, PsiClass psiClass,
-            Set<PsiClass> chains) {
+                                              Set<PsiClass> chains) {
         // 防止循环引用
         HashSet<PsiClass> newChains = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
         newChains.add(psiClass);
@@ -155,7 +169,7 @@ public class KernelParser {
                     .orElse(PsiUtils.findPsiClassByShortName(project, module, typeName));
 
             // 引用类必须跟当前类存在派生关系(适用于接口和实体类)
-            if (refPsiClass == null || !refPsiClass.isInheritor(psiClass, true)){
+            if (refPsiClass == null || !refPsiClass.isInheritor(psiClass, true)) {
                 notifyWarning("Parse skipped", format("%s @see %s", type, typeName));
                 continue;
             }
@@ -219,7 +233,7 @@ public class KernelParser {
                 }
                 fieldProperty.setValues(parseHelper.getFieldValues(field));
                 fieldProperty.setName(parseHelper.getFieldName(field));
-                fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getValues()));
+                fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getPropertyValues()));
                 fieldProperty.setDeprecated(parseHelper.getFieldDeprecated(field));
                 fieldProperty.setRequired(parseHelper.getFieldRequired(field));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));

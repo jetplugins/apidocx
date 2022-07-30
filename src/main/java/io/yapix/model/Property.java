@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -129,6 +130,18 @@ public class Property {
             return Collections.emptyList();
         }
         return values.stream().map(Value::getValue).collect(Collectors.toList());
+    }
+
+    public List<Value> getPropertyValues() {
+        Property item = this;
+        List<Value> values = item.getValues();
+        boolean isArrayEnum = DataTypes.ARRAY.equals(item.getType())
+                && item.getItems() != null
+                && CollectionUtils.isNotEmpty(item.getItems().getValues());
+        if (isArrayEnum) {
+            values = item.getItems().getValues();
+        }
+        return values;
     }
 
     //---------------------------generated-------------------------------//
