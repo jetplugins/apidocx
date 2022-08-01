@@ -24,7 +24,7 @@ public class EolinkerApiInfo {
     private List<EolinkerProperty> requestInfo;
 
     /** 响应数据 */
-    private List<EolinkerProperty> resultInfo;
+    private List<EolinkerResponseItem> resultInfo;
 
     /** 响应头信息 */
     private List<EolinkerHeaderProperty> responseHeader;
@@ -93,11 +93,11 @@ public class EolinkerApiInfo {
         this.restfulParam = restfulParam;
     }
 
-    public List<EolinkerProperty> getResultInfo() {
+    public List<EolinkerResponseItem> getResultInfo() {
         return resultInfo;
     }
 
-    public void setResultInfo(List<EolinkerProperty> resultInfo) {
+    public void setResultInfo(List<EolinkerResponseItem> resultInfo) {
         this.resultInfo = resultInfo;
     }
 

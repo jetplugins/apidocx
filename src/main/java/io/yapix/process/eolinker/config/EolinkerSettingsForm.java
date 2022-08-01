@@ -17,8 +17,8 @@ public class EolinkerSettingsForm {
     private JPanel panel;
     private JTextField loginUrlField;
 
-    private static final String EOLINKER_URL = "https://riag.w.eolink.com";
-    private static final String EOLINKER_LOGIN_URL = "https://www.eolink.com";
+    private static final String EOLINKER_URL = "https://apis.eolink.com/api";
+    private static final String EOLINKER_LOGIN_URL = "https://apis.eolink.com";
 
     public JPanel getPanel() {
         return panel;

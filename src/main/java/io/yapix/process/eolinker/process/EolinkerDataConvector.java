@@ -10,6 +10,7 @@ import io.yapix.base.sdk.eolinker.model.EolinkerApiBase;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiInfo;
 import io.yapix.base.sdk.eolinker.model.EolinkerHeaderProperty;
 import io.yapix.base.sdk.eolinker.model.EolinkerProperty;
+import io.yapix.base.sdk.eolinker.model.EolinkerResponseItem;
 import io.yapix.model.Api;
 import io.yapix.model.DataTypes;
 import io.yapix.model.HttpMethod;
@@ -17,6 +18,7 @@ import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.util.PropertiesLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +43,9 @@ public class EolinkerDataConvector {
         eapi.setUrlParam(getEolinkerProperties(api.getParameters(), ParameterIn.query));
         eapi.setRestfulParam(getEolinkerProperties(api.getParameters(), ParameterIn.path));
         eapi.setRequestInfo(getRequestInfo(api));
-        eapi.setResultInfo(getResultInfo(api));
+        ArrayList<EolinkerResponseItem> objects = new ArrayList<>();
+        objects.add(new EolinkerResponseItem(getResultInfo(api)));
+        eapi.setResultInfo(objects);
         eapi.setResultParamType(ResultParamType.JSON);
         if (api.getResponses() != null && DataTypes.ARRAY.equals(api.getResponses().getType())) {
             eapi.setResultParamJsonType(1);
