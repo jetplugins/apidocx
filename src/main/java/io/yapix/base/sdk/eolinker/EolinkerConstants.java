@@ -3,9 +3,9 @@ package io.yapix.base.sdk.eolinker;
 public interface EolinkerConstants {
 
     String GetUserInfo = "/common/User/getUserInfo";
-    String Login = "/common/Guest/login";
+    String Login = "/userCenter/common/sso/login";
     String AddGroup = "/generalFunction/Group/addGroup";
-    String GetGroupList = "/generalFunction/Group/getGroupList";
+    String GetGroupList = "/apiManagementPro/ApiGroup/getApiGroupData";
     String AddApi = "/apiManagementPro/Api/addApi";
     String EditApi = "/apiManagementPro/Api/editApi";
     String GetApiList = "/apiManagementPro/Api/getApiListByCondition";

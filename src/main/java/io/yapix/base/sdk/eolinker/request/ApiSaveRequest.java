@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiBase;
 import io.yapix.base.sdk.eolinker.model.EolinkerHeaderProperty;
 import io.yapix.base.sdk.eolinker.model.EolinkerProperty;
+import io.yapix.base.sdk.eolinker.model.EolinkerResponseItem;
 import java.util.List;
 
 public class ApiSaveRequest extends EolinkerApiBase {
@@ -28,7 +29,7 @@ public class ApiSaveRequest extends EolinkerApiBase {
     private List<EolinkerProperty> apiRequestParam;
 
     /** 响应数据 */
-    private List<EolinkerProperty> apiResultParam;
+    private List<EolinkerResponseItem> apiResultParam;
 
     /** 响应头信息 */
     private List<EolinkerHeaderProperty> responseHeader;
@@ -105,11 +106,11 @@ public class ApiSaveRequest extends EolinkerApiBase {
         this.apiRequestParam = apiRequestParam;
     }
 
-    public List<EolinkerProperty> getApiResultParam() {
+    public List<EolinkerResponseItem> getApiResultParam() {
         return apiResultParam;
     }
 
-    public void setApiResultParam(List<EolinkerProperty> apiResultParam) {
+    public void setApiResultParam(List<EolinkerResponseItem> apiResultParam) {
         this.apiResultParam = apiResultParam;
     }
 

@@ -50,6 +50,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     public static EolinkerSettings getInstance() {
         EolinkerSettings settings = ServiceManager.getService(EolinkerSettings.class);
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
+        settings.setCookies(null);
         return settings;
     }
 

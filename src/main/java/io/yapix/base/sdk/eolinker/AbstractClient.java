@@ -49,7 +49,9 @@ public abstract class AbstractClient implements Closeable {
      */
     public abstract void doFreshAuth();
 
-    /** 处理网络请求响应 */
+    /**
+     * 处理网络请求响应
+     */
     public abstract String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException;
 
     /**
@@ -58,7 +60,7 @@ public abstract class AbstractClient implements Closeable {
     protected String doRequest(HttpUriRequest request, boolean retry) {
         freshAuth(false);
         if (this.authSession != null) {
-            request.addHeader("Cookie", this.authSession.getCookies());
+            request.addHeader("Authorization", this.authSession.getCookies());
         }
         try {
             return execute(request, false);
@@ -69,7 +71,7 @@ public abstract class AbstractClient implements Closeable {
         }
         // 再执行一次
         freshAuth(true);
-        request.addHeader("Cookie", this.authSession.getCookies());
+        request.addHeader("Authorization", this.authSession.getCookies());
         return execute(request, false);
     }
 
@@ -151,17 +153,10 @@ public abstract class AbstractClient implements Closeable {
         Header[] headers = httpResponse.getHeaders("set-cookie");
         for (int i = 0; i < headers.length; i++) {
             Cookie cookie = ClientCookieDecoder.STRICT.decode(headers[i].getValue());
-            sb.append(cookie.name().trim()).append("=").append(cookie.value().trim());
-            if (i != headers.length - 1) {
-                sb.append("; ");
-            }
-            if (ttl == null || ttl <= 0) {
-                ttl = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cookie.maxAge() - 20);
-            }
+            sb.append(cookie.value().trim());
         }
         HttpSession session = new HttpSession();
         session.setCookies(sb.toString());
-        session.setCookiesTtl(ttl);
         return session;
     }
 
@@ -182,9 +177,7 @@ public abstract class AbstractClient implements Closeable {
         }
 
         public boolean isValid() {
-            return StringUtils.isNotEmpty(cookies)
-                    && cookiesTtl != null && cookiesTtl > System.currentTimeMillis()
-                    && StringUtils.isNotEmpty(spaceKey);
+            return StringUtils.isNotEmpty(cookies);
         }
 
         //-------------------generated-----------------//

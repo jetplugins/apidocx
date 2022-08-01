@@ -6,13 +6,13 @@ import java.util.List;
 public class GroupListResponse extends Response {
 
     /** 分组列表 */
-    private List<EolinkerApiGroup> groupList;
+    private List<EolinkerApiGroup> apiGroupData;
 
-    public List<EolinkerApiGroup> getGroupList() {
-        return groupList;
+    public List<EolinkerApiGroup> getApiGroupData() {
+        return apiGroupData;
     }
 
-    public void setGroupList(List<EolinkerApiGroup> groupList) {
-        this.groupList = groupList;
+    public void setApiGroupData(List<EolinkerApiGroup> apiGroupData) {
+        this.apiGroupData = apiGroupData;
     }
 }
