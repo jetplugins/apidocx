@@ -1,26 +1,41 @@
 package io.yapix.base.sdk.eolinker.request;
 
+/**
+ * @author chengliang
+ * @date 2022/7/30 14:45
+ */
 public class LoginRequest {
 
-    private String loginCall;
-    private String loginPassword;
+    private Integer client;
+
+    private String password;
+
+    private String username;
+
     private String verifyCode;
-    private String client = "1";
 
-    public String getLoginCall() {
-        return loginCall;
+    public Integer getClient() {
+        return client;
     }
 
-    public void setLoginCall(String loginCall) {
-        this.loginCall = loginCall;
+    public void setClient(Integer client) {
+        this.client = client;
     }
 
-    public String getLoginPassword() {
-        return loginPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setLoginPassword(String loginPassword) {
-        this.loginPassword = loginPassword;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getVerifyCode() {
@@ -29,13 +44,5 @@ public class LoginRequest {
 
     public void setVerifyCode(String verifyCode) {
         this.verifyCode = verifyCode;
-    }
-
-    public String getClient() {
-        return client;
-    }
-
-    public void setClient(String client) {
-        this.client = client;
     }
 }

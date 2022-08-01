@@ -1,9 +1,6 @@
 package io.yapix.process.eolinker.config;
 
-import javax.swing.JFormattedTextField;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -15,10 +12,10 @@ public class EolinkerSettingsForm {
     private JFormattedTextField accountField;
     private JPasswordField passwordField;
     private JPanel panel;
-    private JTextField loginUrlField;
+    private JTextField webUrlField;
 
-    private static final String EOLINKER_URL = "https://apis.eolink.com/api";
-    private static final String EOLINKER_LOGIN_URL = "https://apis.eolink.com";
+    private static final String EOLINKER_URL = "https://apis.eolink.com";
+    private static final String EOLINKER_WEB_URL = "https://riag.w.eolink.com";
 
     public JPanel getPanel() {
         return panel;
@@ -26,9 +23,9 @@ public class EolinkerSettingsForm {
 
     public void set(EolinkerSettings data) {
         String url = StringUtils.isNotEmpty(data.getUrl()) ? data.getUrl() : EOLINKER_URL;
-        String loginUrl = StringUtils.isNotEmpty(data.getLoginUrl()) ? data.getLoginUrl() : EOLINKER_LOGIN_URL;
+        String webUrl = StringUtils.isNotEmpty(data.getWebUrl()) ? data.getWebUrl() : EOLINKER_WEB_URL;
         urlField.setText(url);
-        loginUrlField.setText(loginUrl);
+        webUrlField.setText(webUrl);
         accountField.setText(data.getAccount());
         passwordField.setText(data.getPassword());
     }
@@ -38,7 +35,7 @@ public class EolinkerSettingsForm {
         data.setUrl(urlField.getText().trim());
         data.setAccount(accountField.getText().trim());
         data.setPassword(new String(passwordField.getPassword()).trim());
-        data.setLoginUrl(loginUrlField.getText().trim());
+        data.setWebUrl(webUrlField.getText().trim());
         return data;
     }
 
@@ -48,8 +45,8 @@ public class EolinkerSettingsForm {
         return urlField;
     }
 
-    public JTextField getLoginUrlField() {
-        return loginUrlField;
+    public JTextField getWebUrlField() {
+        return webUrlField;
     }
 
     public JFormattedTextField getAccountField() {

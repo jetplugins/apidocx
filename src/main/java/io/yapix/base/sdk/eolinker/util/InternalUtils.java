@@ -21,6 +21,11 @@ public class InternalUtils {
     }
 
     public static CustomUrlEncodedFormEntity beanToFormEntity(Object data) {
+        List<NameValuePair> fields = getFields(data);
+        return new CustomUrlEncodedFormEntity(fields, StandardCharsets.UTF_8);
+    }
+
+    private static List<NameValuePair> getFields(Object data) {
         List<Field> fields = getAllField(data.getClass());
         List<NameValuePair> parameters = Lists.newArrayListWithExpectedSize(fields.size());
         for (Field field : fields) {
@@ -44,7 +49,7 @@ public class InternalUtils {
                 parameters.add(new BasicNameValuePair(name, value));
             }
         }
-        return new CustomUrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
+        return parameters;
     }
 
     private static List<Field> getAllField(Class clazz) {

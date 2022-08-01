@@ -20,8 +20,6 @@ public interface SpringConstants {
 
     String RequestBody = "org.springframework.web.bind.annotation.RequestBody";
 
-    String SimpleParam = "com.agt.technology.component.annotation.SimpleParam";
-
     String RequestParam = "org.springframework.web.bind.annotation.RequestParam";
 
     String RequestHeader = "org.springframework.web.bind.annotation.RequestHeader";

@@ -10,6 +10,7 @@ import io.yapix.base.sdk.eolinker.AbstractClient.HttpSession;
 import io.yapix.base.sdk.eolinker.EolinkerClient;
 import io.yapix.base.sdk.eolinker.model.EolinkerApiInfo;
 import io.yapix.base.sdk.eolinker.request.EolinkerTestResult;
+import io.yapix.base.sdk.eolinker.util.EolinkerWebUrlCalculator;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.process.eolinker.config.EolinkerSettings;
@@ -49,18 +50,19 @@ public class EolinkerUploadAction extends AbstractAction {
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         EolinkerSettings settings = EolinkerSettings.getInstance();
-        HttpSession session = new HttpSession(settings.getCookies(), settings.getCookiesTtl(),
-                settings.getSpaceKey());
-        EolinkerClient client = new EolinkerClient(settings.getLoginUrl(), settings.getUrl(),
-                settings.getAccount(), settings.getPassword(), session);
+        HttpSession session = new HttpSession(settings.getCookies(), settings.getCookiesTtl());
+        EolinkerClient client = new EolinkerClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                session);
         EolinkerUploader uploader = new EolinkerUploader(client);
+        EolinkerWebUrlCalculator urlCalculator = new EolinkerWebUrlCalculator(settings.getWebUrl());
 
         super.handleUploadAsync(project, apis,
                 api -> {
                     EolinkerApiInfo eapi = uploader.upload(projectId, api);
 
                     ApiUploadResult result = new ApiUploadResult();
-                    result.setCategoryUrl(client.calculateApiListUrl(projectId, eapi.getBaseInfo().getGroupID()));
+                    result.setCategoryUrl(urlCalculator.calculateApiListUrl(projectId,
+                            eapi.getBaseInfo().getGroupID()));
                     result.setApiUrl(result.getCategoryUrl());
                     return result;
                 }, () -> {

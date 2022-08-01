@@ -35,7 +35,7 @@
 - 获取项目id: http://rap2.taobao.org/repository/editor?id=290411 , 290411
 
 #### Eolinker
-目前支持eolinker5.0版本，仅测试了官方提供的sass版本: https://riag.w.eolink.com
+目前支持eolinker5.0版本，仅测试了官方提供的sass版本: https://www.eolink.com
 
 #### ShowDoc
 

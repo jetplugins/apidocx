@@ -5,7 +5,6 @@ import static io.yapix.parse.constant.SpringConstants.RequestAttribute;
 import static io.yapix.parse.constant.SpringConstants.RequestBody;
 import static io.yapix.parse.constant.SpringConstants.RequestHeader;
 import static io.yapix.parse.constant.SpringConstants.RequestParam;
-import static io.yapix.parse.constant.SpringConstants.SimpleParam;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -26,7 +25,6 @@ import io.yapix.parse.model.RequestParseInfo;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiTypeUtils;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -93,7 +90,7 @@ public class RequestParser {
         if (!method.isAllowBody()) {
             return null;
         }
-        boolean requestBody = parameters.stream().anyMatch(p -> p.getAnnotation(RequestBody) != null || p.getAnnotation(SimpleParam) != null);
+        boolean requestBody = parameters.stream().anyMatch(p -> p.getAnnotation(RequestBody) != null);
         if (requestBody) {
             return RequestBodyType.json;
         }
@@ -115,33 +112,17 @@ public class RequestParser {
         Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
 
         // Json请求: 找到@RequestBody注解参数
-        PsiParameter requestBodyParam = parameters.stream().filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
-        List<PsiParameter> simpleParamList = parameters.stream().filter(p -> p.getAnnotation(SimpleParam) != null).collect(Collectors.toList());
-        if (requestBodyParam != null || simpleParamList.size() > 0) {
-            Property result = new Property();
-            result.setType(DataTypes.OBJECT);
-            LinkedHashMap<String, Property> values = new LinkedHashMap<>();
+        PsiParameter bp = parameters.stream()
+                .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
+        if (bp != null) {
+            Property item = kernelParser.parseType(bp.getType(), bp.getType().getCanonicalText());
 
-
-            if (simpleParamList.size() > 0) {
-                for (PsiParameter simpleParam : simpleParamList) {
-                    Property property = this.doParseSimpleParameter(simpleParam);
-                    String simpleParamDescription = paramTagMap.get(property.getName());
-                    if (StringUtils.isNotEmpty(simpleParamDescription)) {
-                        property.setDescription(simpleParamDescription);
-                    }
-                    values.put(property.getName(),property);
-                }
-            }
-
-            if (requestBodyParam != null) {
-                Property item = kernelParser.parseType(requestBodyParam.getType(), requestBodyParam.getType().getCanonicalText());
-                values.putAll(item.getProperties());
-            }
-            result.setProperties(values);
             // 方法上的参数描述
-
-            return Lists.newArrayList(result);
+            String parameterDescription = paramTagMap.get(bp.getName());
+            if (StringUtils.isNotEmpty(parameterDescription)) {
+                item.setDescription(parameterDescription);
+            }
+            return Lists.newArrayList(item);
         }
 
         // 文件
@@ -180,7 +161,6 @@ public class RequestParser {
     public List<Property> getRequestParameters(PsiMethod method, List<PsiParameter> parameterList) {
         List<PsiParameter> parameters = parameterList.stream()
                 .filter(p -> p.getAnnotation(RequestBody) == null)
-                .filter(p -> p.getAnnotation(SimpleParam) == null)
                 .filter(p -> !PsiTypeUtils.isFileIncludeArray(p.getType()))
                 .collect(Collectors.toList());
 
@@ -190,7 +170,7 @@ public class RequestParser {
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
             Property item = doParseParameter(parameter);
-            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap, item.getValues()));
+            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap, item.getPropertyValues()));
             // 当参数是bean时，需要获取包括参数
             List<Property> parameterItems = resolveItemToParameters(item);
             items.addAll(parameterItems);
@@ -259,57 +239,6 @@ public class RequestParser {
         }
 
         item.setIn(in);
-        item.setName(name);
-        item.setRequired(required != null ? required : false);
-        item.setDefaultValue(defaultValue);
-        return item;
-    }
-
-    /**
-     * 解析单个参数
-     */
-    private Property doParseSimpleParameter(PsiParameter parameter) {
-        Property item = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
-        dateParser.handle(item, parameter);
-
-        // 处理参数注解: @RequestParam等
-        PsiAnnotation annotation = null;
-        ParameterIn in = ParameterIn.query;
-        Map<String, ParameterIn> targets = new LinkedHashMap<>();
-        targets.put(RequestParam, ParameterIn.query);
-        targets.put(RequestAttribute, ParameterIn.query);
-        targets.put(RequestHeader, ParameterIn.header);
-        targets.put(PathVariable, ParameterIn.path);
-        for (Entry<String, ParameterIn> target : targets.entrySet()) {
-            annotation = PsiAnnotationUtils.getAnnotation(parameter, target.getKey());
-            if (annotation != null) {
-                in = target.getValue();
-                break;
-            }
-        }
-        // 字段名称
-        Boolean required = null;
-        String name = null;
-        String defaultValue = null;
-        if (annotation != null) {
-            name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "name");
-            if (StringUtils.isEmpty(name)) {
-                name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "value");
-            }
-            required = AnnotationUtil.getBooleanAttributeValue(annotation, "required");
-            defaultValue = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation, "defaultValue");
-            if (SpringConstants.DEFAULT_NONE.equals(defaultValue)) {
-                defaultValue = null;
-            }
-        }
-        if (StringUtils.isEmpty(name)) {
-            name = parameter.getName();
-        }
-        if (required == null) {
-            required = parseHelper.getParameterRequired(parameter);
-        }
-
-        // item.setIn(in);
         item.setName(name);
         item.setRequired(required != null ? required : false);
         item.setDefaultValue(defaultValue);

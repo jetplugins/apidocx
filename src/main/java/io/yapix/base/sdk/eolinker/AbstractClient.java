@@ -1,10 +1,8 @@
 package io.yapix.base.sdk.eolinker;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.yapix.base.sdk.eolinker.request.LoginResponse;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -16,18 +14,15 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 
 @SuppressWarnings("ALL")
 public abstract class AbstractClient implements Closeable {
@@ -60,7 +55,7 @@ public abstract class AbstractClient implements Closeable {
     protected String doRequest(HttpUriRequest request, boolean retry) {
         freshAuth(false);
         if (this.authSession != null) {
-            request.addHeader("Authorization", this.authSession.getCookies());
+            request.addHeader("Cookie", this.authSession.getCookies());
         }
         try {
             return execute(request, false);
@@ -71,24 +66,8 @@ public abstract class AbstractClient implements Closeable {
         }
         // 再执行一次
         freshAuth(true);
-        request.addHeader("Authorization", this.authSession.getCookies());
+        request.addHeader("Cookie", this.authSession.getCookies());
         return execute(request, false);
-    }
-
-    private void setRequestSpaceKey(HttpUriRequest request) {
-        if (this.authSession == null || StringUtils.isEmpty(this.authSession.spaceKey)) {
-            return;
-        }
-
-        if (request instanceof HttpPost) {
-            HttpPost postRequest = (HttpPost) request;
-            HttpEntity entity = (postRequest).getEntity();
-            if (entity != null && entity instanceof CustomUrlEncodedFormEntity) {
-                CustomUrlEncodedFormEntity newEntity = ((CustomUrlEncodedFormEntity) entity)
-                        .getNewFormEntity(new BasicNameValuePair("spaceKey", this.authSession.spaceKey));
-                postRequest.setEntity(newEntity);
-            }
-        }
     }
 
     /**
@@ -110,13 +89,10 @@ public abstract class AbstractClient implements Closeable {
      * 执行网络请求
      */
     protected String execute(HttpUriRequest request, boolean isStoreAuth) {
-        setRequestSpaceKey(request);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             String data = doHandleResponse(request, response);
             if (isStoreAuth) {
                 this.authSession = getSession(response);
-                LoginResponse loginResponse = (new Gson()).fromJson(data, LoginResponse.class);
-                this.authSession.spaceKey = loginResponse.getSpaceKey();
             }
             return data;
         } catch (IOException e) {
@@ -153,10 +129,20 @@ public abstract class AbstractClient implements Closeable {
         Header[] headers = httpResponse.getHeaders("set-cookie");
         for (int i = 0; i < headers.length; i++) {
             Cookie cookie = ClientCookieDecoder.STRICT.decode(headers[i].getValue());
-            sb.append(cookie.value().trim());
+            sb.append(cookie.name().trim()).append("=").append(cookie.value().trim());
+            if (i != headers.length - 1) {
+                sb.append("; ");
+            }
+            if (ttl == null || ttl <= 0) {
+                ttl = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cookie.maxAge() - 20);
+            }
+        }
+        if (ttl == null || ttl <= System.currentTimeMillis()) {
+            ttl = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
         }
         HttpSession session = new HttpSession();
         session.setCookies(sb.toString());
+        session.setCookiesTtl(ttl);
         return session;
     }
 
@@ -165,19 +151,17 @@ public abstract class AbstractClient implements Closeable {
 
         private String cookies;
         private Long cookiesTtl;
-        private String spaceKey;
 
         public HttpSession() {
         }
 
-        public HttpSession(String cookies, Long cookiesTtl, String spaceKey) {
+        public HttpSession(String cookies, Long cookiesTtl) {
             this.cookies = cookies;
             this.cookiesTtl = cookiesTtl;
-            this.spaceKey = spaceKey;
         }
 
         public boolean isValid() {
-            return StringUtils.isNotEmpty(cookies);
+            return StringUtils.isNotEmpty(cookies) && cookiesTtl != null && cookiesTtl > System.currentTimeMillis();
         }
 
         //-------------------generated-----------------//
@@ -198,13 +182,6 @@ public abstract class AbstractClient implements Closeable {
             this.cookiesTtl = cookiesTtl;
         }
 
-        public String getSpaceKey() {
-            return spaceKey;
-        }
-
-        public void setSpaceKey(String spaceKey) {
-            this.spaceKey = spaceKey;
-        }
     }
 
     /**

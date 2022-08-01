@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.sdk.eolinker.request.EolinkerTestResult;
-import javax.swing.JComponent;
+import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +52,6 @@ public class EolinkerSettingsDialog extends DialogWrapper {
         EolinkerSettings settings = form.get();
         settings.setCookies(originSettings.getCookies());
         settings.setCookiesTtl(originSettings.getCookiesTtl());
-        settings.setSpaceKey(originSettings.getSpaceKey());
 
         // 测试账户
         EolinkerTestResult testResult = settings.testSettings();
@@ -60,7 +59,6 @@ public class EolinkerSettingsDialog extends DialogWrapper {
         if (code == EolinkerTestResult.Code.OK) {
             settings.setCookies(testResult.getAuthSession().getCookies());
             settings.setCookiesTtl(testResult.getAuthSession().getCookiesTtl());
-            settings.setSpaceKey(testResult.getAuthSession().getSpaceKey());
 
             // 存储配置
             EolinkerSettings.storeInstance(settings);
@@ -81,8 +79,8 @@ public class EolinkerSettingsDialog extends DialogWrapper {
         if (StringUtils.isEmpty(data.getUrl())) {
             return new ValidationInfo("url must not be empty", form.getUrlField());
         }
-        if (StringUtils.isEmpty(data.getLoginUrl())) {
-            return new ValidationInfo("loginUrl must not be empty", form.getLoginUrlField());
+        if (StringUtils.isEmpty(data.getWebUrl())) {
+            return new ValidationInfo("loginUrl must not be empty", form.getWebUrlField());
         }
         if (StringUtils.isEmpty(data.getAccount())) {
             return new ValidationInfo("account must not be empty", form.getAccountField());

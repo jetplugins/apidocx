@@ -35,7 +35,7 @@ public class EolinkerException extends RuntimeException {
     }
 
     public boolean isAccountPasswordError() {
-        return "300110".equals(statusCode) || "300106".equals(statusCode);
+        return "300110".equals(statusCode) || "300106".equals(statusCode) || "132000001".equals(statusCode);
     }
 
     //----------------------generated----------------------------//
