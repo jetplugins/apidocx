@@ -12,11 +12,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Yapix配置类, 对应文件.yapix
  */
+@Data
 public class YapixConfig {
 
     /**
@@ -80,6 +82,11 @@ public class YapixConfig {
     private List<MockRule> mockRules;
 
     /**
+     * 自定义注解值，简化@RequestBody注解
+     */
+    private RequestBodyParamType requestBodyParamType;
+
+    /**
      * 时间格式: 查询参数和表单
      */
     private String dateTimeFormatMvc;
@@ -101,6 +108,29 @@ public class YapixConfig {
 
     private static final Pattern BEANS_PATTERN = Pattern.compile("^beans\\[(.+)]$");
 
+    @Data
+    public static class RequestBodyParamType {
+        /**
+         * 注解类型
+         */
+        private String annotation;
+
+        /**
+         * 注解属性
+         */
+        private String property;
+
+        public RequestBodyParamType(String type) {
+            String[] splits = type.split("#");
+            this.annotation = splits[0];
+            if (splits.length > 1) {
+                this.property = splits[1];
+            } else {
+                this.property = "value";
+            }
+        }
+    }
+
     /**
      * 解析配置
      */
@@ -121,6 +151,7 @@ public class YapixConfig {
         String dateTimeFormatJson = properties.getProperty("dateTimeFormatJson", "");
         String dateFormat = properties.getProperty("dateFormat", "");
         String timeFormat = properties.getProperty("timeFormat", "");
+        String requestBodyParamType = properties.getProperty("requestBodyParamType", "");
 
         YapixConfig config = new YapixConfig();
         if (StringUtils.isNotEmpty(strict)) {
@@ -139,6 +170,9 @@ public class YapixConfig {
         config.dateTimeFormatJson = dateTimeFormatJson;
         config.dateFormat = dateFormat;
         config.timeFormat = timeFormat;
+        if (StringUtils.isNotEmpty(requestBodyParamType)) {
+            config.requestBodyParamType = new RequestBodyParamType(requestBodyParamType);
+        }
 
         // 解析自定义bean配置: beans[xxx].json=xxx
         Gson gson = new Gson();
@@ -187,6 +221,7 @@ public class YapixConfig {
         config.setDateTimeFormatJson(settings.getDateTimeFormatJson());
         config.setDateFormat(settings.getDateFormat());
         config.setTimeFormat(settings.getTimeFormat());
+        config.setRequestBodyParamType(settings.getRequestBodyParamType());
 
         // 时间格式
         if (StringUtils.isBlank(settings.getDateTimeFormatMvc())) {
@@ -241,134 +276,4 @@ public class YapixConfig {
         return config;
     }
 
-    //-----------------------generated------------------------------//
-
-
-    public boolean isStrict() {
-        return strict;
-    }
-
-    public void setStrict(boolean strict) {
-        this.strict = strict;
-    }
-
-    public String getYapiProjectId() {
-        return yapiProjectId;
-    }
-
-    public void setYapiProjectId(String yapiProjectId) {
-        this.yapiProjectId = yapiProjectId;
-    }
-
-    public String getYapiUrl() {
-        return yapiUrl;
-    }
-
-    public void setYapiUrl(String yapiUrl) {
-        this.yapiUrl = yapiUrl;
-    }
-
-    public String getYapiProjectToken() {
-        return yapiProjectToken;
-    }
-
-    public void setYapiProjectToken(String yapiProjectToken) {
-        this.yapiProjectToken = yapiProjectToken;
-    }
-
-    public String getRap2ProjectId() {
-        return rap2ProjectId;
-    }
-
-    public void setRap2ProjectId(String rap2ProjectId) {
-        this.rap2ProjectId = rap2ProjectId;
-    }
-
-    public String getReturnWrapType() {
-        return returnWrapType;
-    }
-
-    public void setReturnWrapType(String returnWrapType) {
-        this.returnWrapType = returnWrapType;
-    }
-
-    public List<String> getReturnUnwrapTypes() {
-        return returnUnwrapTypes;
-    }
-
-    public void setReturnUnwrapTypes(List<String> returnUnwrapTypes) {
-        this.returnUnwrapTypes = returnUnwrapTypes;
-    }
-
-    public List<String> getParameterIgnoreTypes() {
-        return parameterIgnoreTypes;
-    }
-
-    public void setParameterIgnoreTypes(List<String> parameterIgnoreTypes) {
-        this.parameterIgnoreTypes = parameterIgnoreTypes;
-    }
-
-    public String getEolinkerProjectId() {
-        return eolinkerProjectId;
-    }
-
-    public void setEolinkerProjectId(String eolinkerProjectId) {
-        this.eolinkerProjectId = eolinkerProjectId;
-    }
-
-    public Map<String, BeanCustom> getBeans() {
-        return beans;
-    }
-
-    public void setBeans(Map<String, BeanCustom> beans) {
-        this.beans = beans;
-    }
-
-    public List<MockRule> getMockRules() {
-        return mockRules;
-    }
-
-    public void setMockRules(List<MockRule> mockRules) {
-        this.mockRules = mockRules;
-    }
-
-    public String getDateTimeFormatMvc() {
-        return dateTimeFormatMvc;
-    }
-
-    public void setDateTimeFormatMvc(String dateTimeFormatMvc) {
-        this.dateTimeFormatMvc = dateTimeFormatMvc;
-    }
-
-    public String getDateTimeFormatJson() {
-        return dateTimeFormatJson;
-    }
-
-    public void setDateTimeFormatJson(String dateTimeFormatJson) {
-        this.dateTimeFormatJson = dateTimeFormatJson;
-    }
-
-    public String getDateFormat() {
-        return dateFormat;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-    }
-
-    public String getTimeFormat() {
-        return timeFormat;
-    }
-
-    public void setTimeFormat(String timeFormat) {
-        this.timeFormat = timeFormat;
-    }
-
-    public String getShowdocProjectId() {
-        return showdocProjectId;
-    }
-
-    public void setShowdocProjectId(String showdocProjectId) {
-        this.showdocProjectId = showdocProjectId;
-    }
 }

@@ -1,15 +1,18 @@
 package io.yapix.model;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * 参数
  */
+@Data
 public class Property {
 
     /** 名称 */
@@ -144,134 +147,11 @@ public class Property {
         return values;
     }
 
-    //---------------------------generated-------------------------------//
-
-
-    public String getName() {
-        return name;
+    public void addProperty(String key, Property value) {
+        if (this.properties == null) {
+            this.properties = new HashMap<>();
+        }
+        this.properties.put(key, value);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ParameterIn getIn() {
-        return in;
-    }
-
-    public void setIn(ParameterIn in) {
-        this.in = in;
-    }
-
-    public Boolean getRequired() {
-        return required;
-    }
-
-    public void setRequired(Boolean required) {
-        this.required = required;
-    }
-
-    public Boolean getDeprecated() {
-        return deprecated;
-    }
-
-    public void setDeprecated(Boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public Map<String, Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Property> properties) {
-        this.properties = properties;
-    }
-
-    public Property getItems() {
-        return items;
-    }
-
-    public void setItems(Property items) {
-        this.items = items;
-    }
-
-    public String getExample() {
-        return example;
-    }
-
-    public void setExample(String example) {
-        this.example = example;
-    }
-
-    public String getMock() {
-        return mock;
-    }
-
-    public void setMock(String mock) {
-        this.mock = mock;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public String getDateFormat() {
-        return dateFormat;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-    }
-
-    public List<Value> getValues() {
-        return values;
-    }
-
-    public void setValues(List<Value> values) {
-        this.values = values;
-    }
-
-    public Boolean getUniqueItems() {
-        return uniqueItems;
-    }
-
-    public void setUniqueItems(Boolean uniqueItems) {
-        this.uniqueItems = uniqueItems;
-    }
-
-    public Integer getMinItems() {
-        return minItems;
-    }
-
-    public void setMinItems(Integer minItems) {
-        this.minItems = minItems;
-    }
-
-    public Integer getMaxItems() {
-        return maxItems;
-    }
-
-    public void setMaxItems(Integer maxItems) {
-        this.maxItems = maxItems;
-    }
 }

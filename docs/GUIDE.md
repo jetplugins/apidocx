@@ -61,6 +61,7 @@
 | returnWrapType       | string | 方法返回值，统一包装类限定名            | 场景: spring统一配置了返回包装类                      |
 | returnUnwrapTypes    | string | 方法返回值，指定不需要包装的类           | 场景: 某些类不需要spring统一包装, 多个用英文逗号分割           |
 | parameterIgnoreTypes | list&lt;string> | 方法参数忽略的类全称                | 场景: 某些方法参数不是由浏览器客户端上传到                    |
+| requestBodyParamType | string | 简化请求参数json自定义注解（io.your.RequestBodyParam#value）                | 场景: 自定义注解，实现简单json请求参数避免使用@RequestBody需要包装一个实体                    |
 |                      | |                           |
 | dateTimeFormatMvc    | string | 默认返回时间格式(表单)              | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
 | dateTimeFormatJson   | string | 默认返回时间格式(json)            | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
