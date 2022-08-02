@@ -1,5 +1,8 @@
 package io.yapix.base.sdk.rap2.model;
 
+import lombok.Data;
+
+@Data
 public class Rap2ErrorResponse {
 
     private Boolean isOk;
@@ -14,11 +17,4 @@ public class Rap2ErrorResponse {
         isOk = ok;
     }
 
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public void setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
-    }
 }

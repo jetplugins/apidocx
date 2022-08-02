@@ -1,7 +1,11 @@
 package io.yapix.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+@Data
+@AllArgsConstructor
 public class Value {
 
     /** 值 */
@@ -20,26 +24,4 @@ public class Value {
         return value + ": " + description;
     }
 
-    //----------------- generated --------------------//
-
-    public Value(String value, String description) {
-        this.value = value;
-        this.description = description;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

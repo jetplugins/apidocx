@@ -1,16 +1,12 @@
 package io.yapix.base.sdk.eolinker.request;
 
+import lombok.Data;
+
+@Data
 public class Response {
 
-    public final static String SUCCESS_CODE = "000000";
+    public static final String SUCCESS_CODE = "000000";
 
     protected String statusCode;
 
-    public String getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(String statusCode) {
-        this.statusCode = statusCode;
-    }
 }

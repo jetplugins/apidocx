@@ -1,10 +1,12 @@
 package io.yapix.base.sdk.yapi.model;
 
 import java.util.List;
+import lombok.Data;
 
 /**
  * 获取接口列表响应参数
  */
+@Data
 public class YapiListInterfaceResponse {
 
     private Integer count;
@@ -13,27 +15,4 @@ public class YapiListInterfaceResponse {
 
     private List<InterfaceVo> list;
 
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
-
-    public Integer getTotal() {
-        return total;
-    }
-
-    public void setTotal(Integer total) {
-        this.total = total;
-    }
-
-    public List<InterfaceVo> getList() {
-        return list;
-    }
-
-    public void setList(List<InterfaceVo> list) {
-        this.list = list;
-    }
 }

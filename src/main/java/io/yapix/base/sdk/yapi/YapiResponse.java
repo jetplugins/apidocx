@@ -1,6 +1,6 @@
 package io.yapix.base.sdk.yapi;
 
-import java.io.Serializable;
+import lombok.Data;
 
 /**
  * yapi 返回结果
@@ -8,7 +8,8 @@ import java.io.Serializable;
  * @author chengsheng@qbb6.com
  * @date 2019/1/31 12:08 PM
  */
-public class YapiResponse implements Serializable {
+@Data
+public class YapiResponse {
 
     /**
      * 状态码
@@ -35,38 +36,6 @@ public class YapiResponse implements Serializable {
 
     public boolean isOk() {
         return errcode != null && errcode == 0;
-    }
-
-    public Integer getErrcode() {
-        return errcode;
-    }
-
-    public void setErrcode(Integer errcode) {
-        this.errcode = errcode;
-    }
-
-    public String getErrmsg() {
-        return errmsg;
-    }
-
-    public void setErrmsg(String errmsg) {
-        this.errmsg = errmsg;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
-
-    public String getCatId() {
-        return catId;
-    }
-
-    public void setCatId(String catId) {
-        this.catId = catId;
     }
 
     public YapiResponse() {

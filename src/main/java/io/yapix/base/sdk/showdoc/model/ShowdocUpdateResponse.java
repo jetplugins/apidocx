@@ -1,10 +1,12 @@
 package io.yapix.base.sdk.showdoc.model;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 
 /**
  * 开发api更新文档响应参数
  */
+@Data
 public class ShowdocUpdateResponse {
 
     @SerializedName("page_id")
@@ -36,83 +38,4 @@ public class ShowdocUpdateResponse {
 
     private String addtime;
 
-    public String getPageId() {
-        return pageId;
-    }
-
-    public void setPageId(String pageId) {
-        this.pageId = pageId;
-    }
-
-    public String getAuthorUid() {
-        return authorUid;
-    }
-
-    public void setAuthorUid(String authorUid) {
-        this.authorUid = authorUid;
-    }
-
-    public String getAuthorUsername() {
-        return authorUsername;
-    }
-
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
-    }
-
-    public String getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
-    }
-
-    public String getCatId() {
-        return catId;
-    }
-
-    public void setCatId(String catId) {
-        this.catId = catId;
-    }
-
-    public String getPageTitle() {
-        return pageTitle;
-    }
-
-    public void setPageTitle(String pageTitle) {
-        this.pageTitle = pageTitle;
-    }
-
-    public String getPageComments() {
-        return pageComments;
-    }
-
-    public void setPageComments(String pageComments) {
-        this.pageComments = pageComments;
-    }
-
-    public String getPageContent() {
-        return pageContent;
-    }
-
-    public void setPageContent(String pageContent) {
-        this.pageContent = pageContent;
-    }
-
-    public String getsNumber() {
-        return sNumber;
-    }
-
-    public void setsNumber(String sNumber) {
-        this.sNumber = sNumber;
-    }
-
-    public String getAddtime() {
-        return addtime;
-    }
-
-    public void setAddtime(String addtime) {
-        this.addtime = addtime;
-    }
 }

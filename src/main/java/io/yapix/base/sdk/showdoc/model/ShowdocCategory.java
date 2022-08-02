@@ -2,10 +2,12 @@ package io.yapix.base.sdk.showdoc.model;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 分类
  */
+@Data
 public class ShowdocCategory {
 
     @SerializedName("cat_id")
@@ -27,59 +29,4 @@ public class ShowdocCategory {
 
     private List<ShowdocCategory> sub;
 
-    public String getCatId() {
-        return catId;
-    }
-
-    public void setCatId(String catId) {
-        this.catId = catId;
-    }
-
-    public String getCatName() {
-        return catName;
-    }
-
-    public void setCatName(String catName) {
-        this.catName = catName;
-    }
-
-    public String getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
-    }
-
-    public String getsNumber() {
-        return sNumber;
-    }
-
-    public void setsNumber(String sNumber) {
-        this.sNumber = sNumber;
-    }
-
-    public String getParentCatId() {
-        return parentCatId;
-    }
-
-    public void setParentCatId(String parentCatId) {
-        this.parentCatId = parentCatId;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public List<ShowdocCategory> getSub() {
-        return sub;
-    }
-
-    public void setSub(List<ShowdocCategory> sub) {
-        this.sub = sub;
-    }
 }

@@ -3,11 +3,13 @@ package io.yapix.config;
 import io.yapix.model.Property;
 import java.util.Map;
 import java.util.Set;
+import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
  * 自定义bean信息
  */
+@Data
 public class BeanCustom {
 
     /**
@@ -38,29 +40,4 @@ public class BeanCustom {
         return !excludes.contains(fieldName);
     }
 
-    //---------------generated------------------//
-
-    public Set<String> getIncludes() {
-        return includes;
-    }
-
-    public void setIncludes(Set<String> includes) {
-        this.includes = includes;
-    }
-
-    public Set<String> getExcludes() {
-        return excludes;
-    }
-
-    public void setExcludes(Set<String> excludes) {
-        this.excludes = excludes;
-    }
-
-    public Map<String, Property> getFields() {
-        return fields;
-    }
-
-    public void setFields(Map<String, Property> fields) {
-        this.fields = fields;
-    }
 }

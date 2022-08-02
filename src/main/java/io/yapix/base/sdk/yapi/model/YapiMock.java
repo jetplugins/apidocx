@@ -1,5 +1,8 @@
 package io.yapix.base.sdk.yapi.model;
 
+import lombok.Data;
+
+@Data
 public class YapiMock {
 
     private String mock;
@@ -8,11 +11,4 @@ public class YapiMock {
         this.mock = mock;
     }
 
-    public String getMock() {
-        return mock;
-    }
-
-    public void setMock(String mock) {
-        this.mock = mock;
-    }
 }

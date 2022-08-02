@@ -1,18 +1,19 @@
 package io.yapix.base.sdk.yapi.model;
 
 import com.google.gson.annotations.SerializedName;
-import java.io.Serializable;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 接口详细信息
  */
-public class YapiInterface implements Serializable {
+@Data
+public class YapiInterface {
 
     private Integer id;
 
     /**
-     项目id
+     * 项目id
      */
     @SerializedName("project_id")
     private Integer projectId;
@@ -143,203 +144,4 @@ public class YapiInterface implements Serializable {
     private String desc;
 
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public List<YapiParameter> getReqParams() {
-        return reqParams;
-    }
-
-    public void setReqParams(List<YapiParameter> reqParams) {
-        this.reqParams = reqParams;
-    }
-
-    public String getMenu() {
-        return menu;
-    }
-
-    public void setMenu(String menu) {
-        this.menu = menu;
-    }
-
-    public List<String> getTag() {
-        return tag;
-    }
-
-    public void setTag(List<String> tag) {
-        this.tag = tag;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public List<YapiParameter> getReqQuery() {
-        return reqQuery;
-    }
-
-    public void setReqQuery(List<YapiParameter> reqQuery) {
-        this.reqQuery = reqQuery;
-    }
-
-    public List<YapiParameter> getReqHeaders() {
-        return reqHeaders;
-    }
-
-    public void setReqHeaders(List<YapiParameter> reqHeaders) {
-        this.reqHeaders = reqHeaders;
-    }
-
-    public List<YapiParameter> getReqBodyForm() {
-        return reqBodyForm;
-    }
-
-    public void setReqBodyForm(List<YapiParameter> reqBodyForm) {
-        this.reqBodyForm = reqBodyForm;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Integer getCatid() {
-        return catid;
-    }
-
-    public void setCatid(Integer catid) {
-        this.catid = catid;
-    }
-
-    public String getReqBodyType() {
-        return reqBodyType;
-    }
-
-    public void setReqBodyType(String reqBodyType) {
-        this.reqBodyType = reqBodyType;
-    }
-
-    public String getReqBodyOther() {
-        return reqBodyOther;
-    }
-
-    public void setReqBodyOther(String reqBodyOther) {
-        this.reqBodyOther = reqBodyOther;
-    }
-
-    public boolean isReqBodyIsJsonSchema() {
-        return reqBodyIsJsonSchema;
-    }
-
-    public void setReqBodyIsJsonSchema(boolean reqBodyIsJsonSchema) {
-        this.reqBodyIsJsonSchema = reqBodyIsJsonSchema;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getResBodyType() {
-        return resBodyType;
-    }
-
-    public void setResBodyType(String resBodyType) {
-        this.resBodyType = resBodyType;
-    }
-
-    public String getResBody() {
-        return resBody;
-    }
-
-    public void setResBody(String resBody) {
-        this.resBody = resBody;
-    }
-
-    public boolean isResBodyIsJsonSchema() {
-        return resBodyIsJsonSchema;
-    }
-
-    public void setResBodyIsJsonSchema(boolean resBodyIsJsonSchema) {
-        this.resBodyIsJsonSchema = resBodyIsJsonSchema;
-    }
-
-    public Integer getEditUid() {
-        return editUid;
-    }
-
-    public void setEditUid(Integer editUid) {
-        this.editUid = editUid;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public boolean isSwitchNotice() {
-        return switchNotice;
-    }
-
-    public void setSwitchNotice(boolean switchNotice) {
-        this.switchNotice = switchNotice;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
 }

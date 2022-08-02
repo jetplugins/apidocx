@@ -1,16 +1,14 @@
 package io.yapix.base.sdk.yapi.model;
 
 import com.google.gson.annotations.SerializedName;
-import java.io.Serializable;
 import java.util.Objects;
+import lombok.Data;
 
 /**
  * 新增菜单
- *
- * @author chengsheng@qbb6.com
- * @date 2019/2/1 10:44 AM
  */
-public class YapiCategoryAddRequest implements Serializable {
+@Data
+public class YapiCategoryAddRequest {
 
     /**
      * 项目id
@@ -51,54 +49,4 @@ public class YapiCategoryAddRequest implements Serializable {
         }
     }
 
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public Integer getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    @Override
-    public String toString() {
-        return "YapiCategoryAddRequest{" +
-                "projectId=" + projectId +
-                ", name='" + name + '\'' +
-                ", desc='" + desc + '\'' +
-                ", parentId=" + parentId +
-                ", token='" + token + '\'' +
-                '}';
-    }
 }

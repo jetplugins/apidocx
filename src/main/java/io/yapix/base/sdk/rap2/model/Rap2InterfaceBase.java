@@ -1,10 +1,12 @@
 package io.yapix.base.sdk.rap2.model;
 
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 接口信息
  */
+@Data
 public class Rap2InterfaceBase {
 
     /** 接口id */
@@ -55,139 +57,4 @@ public class Rap2InterfaceBase {
     /** 删除时间 */
     private Date deletedAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getModuleId() {
-        return moduleId;
-    }
-
-    public void setModuleId(Long moduleId) {
-        this.moduleId = moduleId;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public Long getRepositoryId() {
-        return repositoryId;
-    }
-
-    public void setRepositoryId(Long repositoryId) {
-        this.repositoryId = repositoryId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getBodyOption() {
-        return bodyOption;
-    }
-
-    public void setBodyOption(String bodyOption) {
-        this.bodyOption = bodyOption;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Long getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Long priority) {
-        this.priority = priority;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public Long getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(Long creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    public String getLockerId() {
-        return lockerId;
-    }
-
-    public void setLockerId(String lockerId) {
-        this.lockerId = lockerId;
-    }
-
-    public Rap2User getLocker() {
-        return locker;
-    }
-
-    public void setLocker(Rap2User locker) {
-        this.locker = locker;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Date getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = deletedAt;
-    }
 }

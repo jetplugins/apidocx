@@ -2,21 +2,29 @@ package io.yapix.config;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
 
 /**
  * 智能匹配mock规则
  */
+@Data
 public class MockRule {
 
     /** 数据类型 */
+    @Getter
     private String type;
 
     /** 匹配正则表达式 */
+    @Getter
     private String match;
 
     /** mock表达式 */
+    @Getter
     private String mock;
 
+    @Getter(AccessLevel.PRIVATE)
     private transient Pattern matchPattern;
 
     /**
@@ -33,42 +41,4 @@ public class MockRule {
         return matcher.matches();
     }
 
-    private Pattern getMatchPattern() {
-        if (matchPattern != null) {
-            return matchPattern;
-        }
-        synchronized (this) {
-            if (matchPattern != null) {
-                return matchPattern;
-            }
-            this.matchPattern = Pattern.compile(match, Pattern.CASE_INSENSITIVE);
-            return this.matchPattern;
-        }
-    }
-
-    //-----------generated---------------------//
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getMatch() {
-        return match;
-    }
-
-    public void setMatch(String match) {
-        this.match = match;
-    }
-
-    public String getMock() {
-        return mock;
-    }
-
-    public void setMock(String mock) {
-        this.mock = mock;
-    }
 }

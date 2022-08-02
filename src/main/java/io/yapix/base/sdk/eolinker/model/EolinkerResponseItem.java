@@ -1,11 +1,13 @@
 package io.yapix.base.sdk.eolinker.model;
 
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author chengliang
  * @date 2022/7/29 15:36
  */
+@Data
 public class EolinkerResponseItem {
 
     private Integer responseID;
@@ -30,43 +32,4 @@ public class EolinkerResponseItem {
         this.paramList = paramList;
     }
 
-    public Integer getResponseID() {
-        return responseID;
-    }
-
-    public String getResponseCode() {
-        return responseCode;
-    }
-
-    public String getResponseName() {
-        return responseName;
-    }
-
-    public Integer getResponseType() {
-        return responseType;
-    }
-
-    public Integer getParamJsonType() {
-        return paramJsonType;
-    }
-
-    public List<EolinkerProperty> getParamList() {
-        return paramList;
-    }
-
-    public void setParamList(List<EolinkerProperty> paramList) {
-        this.paramList = paramList;
-    }
-
-    public String getRaw() {
-        return raw;
-    }
-
-    public String getBinary() {
-        return binary;
-    }
-
-    public Integer getIsDefault() {
-        return isDefault;
-    }
 }

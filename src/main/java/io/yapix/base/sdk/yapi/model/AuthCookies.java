@@ -1,6 +1,9 @@
 package io.yapix.base.sdk.yapi.model;
 
 
+import lombok.Data;
+
+@Data
 public class AuthCookies {
 
     private String cookies;
@@ -11,11 +14,4 @@ public class AuthCookies {
         this.ttl = ttl;
     }
 
-    public String getCookies() {
-        return cookies;
-    }
-
-    public long getTtl() {
-        return ttl;
-    }
 }

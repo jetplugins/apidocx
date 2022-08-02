@@ -1,21 +1,14 @@
 package io.yapix.base.sdk.rap2.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class AuthCookies {
 
     private String cookies;
     private long ttl;
 
-    public AuthCookies(String cookies, long ttl) {
-        this.cookies = cookies;
-        this.ttl = ttl;
-    }
-
-    public String getCookies() {
-        return cookies;
-    }
-
-    public long getTtl() {
-        return ttl;
-    }
 }
