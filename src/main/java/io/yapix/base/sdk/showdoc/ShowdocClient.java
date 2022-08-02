@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import io.yapix.base.sdk.showdoc.model.AuthCookies;
 import io.yapix.base.sdk.showdoc.model.CaptchaResponse;
 import io.yapix.base.sdk.showdoc.model.LoginRequest;
@@ -147,7 +148,11 @@ public class ShowdocClient extends AbstractClient {
      */
     public ShowdocUpdateResponse updatePageByOpenApi(ShowdocUpdateRequest request) {
         String json = requestPost(ShowdocConstants.UpdatePageOpenApi, request);
-        return gson.fromJson(json, ShowdocUpdateResponse.class);
+        try {
+            return gson.fromJson(json, ShowdocUpdateResponse.class);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     /**

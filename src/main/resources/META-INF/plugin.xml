@@ -77,9 +77,10 @@
 
     <change-notes><![CDATA[
         0.9.6: <br>
+        - feat: 支持自定义@RequestBody注解<br>
         - fix: 修复无法上传Eolinker问题<br>
         - fix: 修复枚举类型列表文档无法解析<br>
-        - feat: 支持自定义@RequestBody注解<br>
+        - fix: 修复上传showdoc提示报错<br>
         <br>
         0.9.5: <br>
         - fix: 修复插件兼容性，支持IDEA 2022.2<br>

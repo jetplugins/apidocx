@@ -37,7 +37,12 @@ public class ShowdocUploader {
         page.setPageTitle(api.getSummary());
         page.setPageContent(markdown);
 
-        return client.updatePageByOpenApi(page);
+        ShowdocUpdateResponse response = client.updatePageByOpenApi(page);
+        if (response == null) {
+            response = new ShowdocUpdateResponse();
+            response.setItemId(projectId);
+        }
+        return response;
     }
 
     private ShowdocProjectToken getToken(String projectId) {
