@@ -13,15 +13,12 @@ import lombok.Getter;
 public class MockRule {
 
     /** 数据类型 */
-    @Getter
     private String type;
 
     /** 匹配正则表达式 */
-    @Getter
     private String match;
 
     /** mock表达式 */
-    @Getter
     private String mock;
 
     @Getter(AccessLevel.PRIVATE)
@@ -37,8 +34,21 @@ public class MockRule {
         if (!this.type.contains(type)) {
             return false;
         }
-        Matcher matcher = getMatchPattern().matcher(fieldName);
+        Matcher matcher = doGetMatchPattern().matcher(fieldName);
         return matcher.matches();
+    }
+
+    private Pattern doGetMatchPattern() {
+        if (matchPattern != null) {
+            return matchPattern;
+        }
+        synchronized (this) {
+            if (matchPattern != null) {
+                return matchPattern;
+            }
+            this.matchPattern = Pattern.compile(match, Pattern.CASE_INSENSITIVE);
+            return this.matchPattern;
+        }
     }
 
 }

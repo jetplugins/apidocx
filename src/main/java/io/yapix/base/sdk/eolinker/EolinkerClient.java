@@ -30,6 +30,7 @@ import io.yapix.base.sdk.eolinker.util.InternalUtils;
 import io.yapix.base.util.JsonUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -116,7 +117,7 @@ public class EolinkerClient extends AbstractClient {
         request.setSpaceKey(getSpaceKey());
         String json = requestPost(EolinkerConstants.GetGroupList, request);
         GroupListResponse response = gson.fromJson(json, GroupListResponse.class);
-        return response.getApiGroupData();
+        return response.getApiGroupData() != null ? response.getApiGroupData() : Collections.emptyList();
     }
 
     /**
@@ -232,7 +233,7 @@ public class EolinkerClient extends AbstractClient {
         if (statusCodeElement != null) {
             // 常规接口
             String resultCode = statusCodeElement.getAsString();
-            if (!Response.SUCCESS_CODE.equals(resultCode)) {
+            if (!Response.isOkCode(resultCode)) {
                 throw new EolinkerException(request.getURI().getPath(), resultCode);
             }
         } else {
