@@ -163,6 +163,7 @@ public class RequestParser {
                 PsiAnnotation annotation = pair.getAnnotation();
                 PsiParameter parameter = pair.getParameter();
                 Property property = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
+                property.setRequired(true);
                 String name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation,
                         settings.getRequestBodyParamType().getProperty());
                 if (StringUtils.isEmpty(name)) {
