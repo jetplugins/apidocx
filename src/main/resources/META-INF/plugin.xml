@@ -65,6 +65,7 @@
             <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"/>
             <action id="yapix.ShowdocUploadAction" class="io.yapix.process.showdoc.ShowdocUploadAction"/>
             <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>
+            <action id="yapix.ExportToOpenApiAction" class="io.yapix.process.openapi.ExportToOpenApiAction"/>
             <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
             <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
             <action id="yapix.OpenSettings" class="io.yapix.action.OpenSettingsAction" text="Open Settings"/>

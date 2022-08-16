@@ -11,8 +11,8 @@ import lombok.Getter;
 public enum RequestBodyType {
     form("application/x-www-form-urlencoded"),
     form_data("multipart/form-data"),
-    json("application/json;charset=utf-8"),
-    raw(""),
+    json("application/json"),
+    raw("raw"),
     ;
 
     private final String contentType;
