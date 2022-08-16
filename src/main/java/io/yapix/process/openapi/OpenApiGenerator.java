@@ -1,169 +1,101 @@
 package io.yapix.process.openapi;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.parameters.RequestBody;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.yapix.model.Api;
-import io.yapix.model.Property;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import io.yapix.base.util.NamedExclusionStrategy;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.BeanAccess;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 public class OpenApiGenerator {
 
+    public String generate(OpenApiFileType fileType, OpenAPI openApi) {
+        String content;
+        if (fileType == OpenApiFileType.JSON) {
+            Gson gson = new GsonBuilder()
+                    .setExclusionStrategies(new NamedExclusionStrategy(Sets.newHashSet("exampleSetFlag", "specVersion")))
+                    .setPrettyPrinting()
+                    .create();
+            content = gson.toJson(openApi);
+        } else {
+            Yaml yaml = buildYaml();
+            StringWriter stringWriter = new StringWriter();
+            yaml.dump(openApi, stringWriter);
+            content = stringWriter.toString();
+        }
+        return content;
+    }
 
-    public OpenAPI generate(List<Api> apis) {
-        OpenAPI openApi = new OpenAPI();
-        Info openApiInfo = new Info();
-        openApiInfo.setTitle("");
-        openApiInfo.setVersion("");
-        openApiInfo.setDescription("");
-        openApi.setInfo(openApiInfo);
-        openApi.setPaths(new Paths());
-        Paths paths = openApi.getPaths();
+    @NotNull
+    private static Yaml buildYaml() {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setCanonical(false);
+        dumperOptions.setDefaultScalarStyle(ScalarStyle.PLAIN);
+        dumperOptions.setDefaultFlowStyle(FlowStyle.BLOCK);
+        dumperOptions.setPrettyFlow(true);
 
-        Map<String, List<Api>> pathToApis = apis.stream().collect(Collectors.groupingBy(Api::getPath));
-        List<Entry<String, List<Api>>> entrySets = pathToApis.entrySet().stream().sorted(Entry.comparingByKey())
-                .collect(Collectors.toList());
-        for (Entry<String, List<Api>> entry : entrySets) {
-            String path = entry.getKey();
-            List<Api> pathApis = entry.getValue();
-            PathItem pathItem = new PathItem();
-            for (Api api : pathApis) {
-                setPathItemOperation(api, pathItem, buildOperation(api));
+        CustomRepresent represent = new CustomRepresent();
+        represent.setPropertyUtils(new CustomPropertyUtils());
+        represent.getPropertyUtils().setBeanAccess(BeanAccess.FIELD);
+        return new Yaml(represent, dumperOptions);
+    }
+
+    private static class CustomRepresent extends Representer {
+
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
+            // if value of property is null, ignore it.
+            if (propertyValue == null) {
+                return null;
             }
-            paths.addPathItem(path, pathItem);
-        }
 
-        return openApi;
-    }
-
-    private static void setPathItemOperation(Api api, PathItem pathItem, Operation operation) {
-        switch (api.getMethod()) {
-            case GET:
-                pathItem.setGet(operation);
-                break;
-            case POST:
-                pathItem.setPost(operation);
-                break;
-            case PUT:
-                pathItem.setPut(operation);
-                break;
-            case DELETE:
-                pathItem.setDelete(operation);
-                break;
-            case PATCH:
-                pathItem.setPatch(operation);
-                break;
-            case HEAD:
-                pathItem.setHead(operation);
-                break;
-            case OPTIONS:
-                pathItem.setOptions(operation);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private Operation buildOperation(Api api) {
-        Operation operation = new Operation();
-        operation.setSummary(api.getSummary());
-        operation.setTags(Lists.newArrayList(api.getCategory()));
-        operation.setParameters(buildParameters(api));
-        operation.setRequestBody(buildRequestBody(api));
-        operation.setResponses(buildResponses(api));
-        return operation;
-    }
-
-    private List<Parameter> buildParameters(Api api) {
-        return api.getParameters().stream().map(p -> {
-            Parameter parameter = new Parameter();
-            parameter.in(p.getIn().name());
-            parameter.name(p.getName());
-            parameter.description(p.getDescription());
-            parameter.required(p.getRequired());
-            parameter.deprecated(p.getDeprecated());
-
-
-            Schema<?> parameterSchema = new Schema<>();
-            parameterSchema.setType(p.getType());
-            parameter.schema(parameterSchema);
-            return parameter;
-        }).collect(Collectors.toList());
-    }
-
-    private RequestBody buildRequestBody(Api api) {
-        Property request = api.getRequestBody();
-        if (request == null) {
-            return null;
-        }
-
-        RequestBody requestBody = new RequestBody();
-        requestBody.setRequired(request.getRequired());
-        requestBody.setContent(new Content());
-
-        String contentType = api.getRequestBodyType().getContentType();
-        MediaType mediaType = new MediaType();
-        mediaType.setSchema(buildSchema(request));
-        requestBody.getContent().put(contentType, mediaType);
-        return requestBody;
-    }
-
-    private ApiResponses buildResponses(Api api) {
-        if (api.getResponses() == null) {
-            return null;
-        }
-
-        ApiResponse response = new ApiResponse();
-        response.setDescription("OK");
-        response.setContent(new Content());
-
-        MediaType mediaType = new MediaType();
-        mediaType.setSchema(buildSchema(api.getResponses()));
-        response.getContent().put("application/json", mediaType);
-
-        ApiResponses responses = new ApiResponses();
-        responses.addApiResponse("200", response);
-        return responses;
-    }
-
-    private Schema<?> buildSchema(Property property) {
-        Schema<?> schema = new Schema<>();
-        schema.setType(property.getType());
-        schema.setDescription(property.getDescription());
-        schema.setExample(property.getExample());
-        schema.setDefault(property.getDefaultValue());
-
-        if (property.getProperties() != null) {
-            List<String> required = property.getProperties().entrySet().stream()
-                    .filter(entry -> entry.getValue() != null && entry.getValue().getRequired() == Boolean.TRUE)
-                    .map(Entry::getKey)
-                    .collect(Collectors.toList());
-            schema.setRequired(required);
-
-            for (Entry<String, Property> entry : property.getProperties().entrySet()) {
-                Schema<?> propertySchema = buildSchema(entry.getValue());
-                schema.addProperty(entry.getKey(), propertySchema);
+            // ignore specified property
+            if (property.getName().equals("exampleSetFlag") || property.getName().equals("specVersion")) {
+                return null;
             }
+
+            return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
         }
 
-        if (property.getItems() != null) {
-            schema.setItems(buildSchema(property.getItems()));
-        }
+        @Override
+        protected MappingNode representJavaBean(Set<Property> properties, Object javaBean) {
+            if (!classTags.containsKey(javaBean.getClass())) {
+                addClassTag(javaBean.getClass(), Tag.MAP);
+            }
 
-        return schema;
+            return super.representJavaBean(properties, javaBean);
+        }
     }
 
+    private static class CustomPropertyUtils extends PropertyUtils {
+
+        @Override
+        protected Set<Property> createPropertySet(Class<? extends Object> type, BeanAccess bAccess) {
+            // Note: 保证属性是有序的
+            Set<Property> properties = new LinkedHashSet<>();
+            Collection<Property> props = getPropertiesMap(type, bAccess).values();
+            for (Property property : props) {
+                if (property.isReadable() && (isAllowReadOnlyProperties() || property.isWritable())) {
+                    properties.add(property);
+                }
+            }
+            return properties;
+        }
+
+    }
 }

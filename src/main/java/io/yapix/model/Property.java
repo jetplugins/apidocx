@@ -1,7 +1,7 @@
 package io.yapix.model;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -149,7 +149,7 @@ public class Property {
 
     public void addProperty(String key, Property value) {
         if (this.properties == null) {
-            this.properties = new HashMap<>();
+            this.properties = new LinkedHashMap<>();
         }
         this.properties.put(key, value);
     }
