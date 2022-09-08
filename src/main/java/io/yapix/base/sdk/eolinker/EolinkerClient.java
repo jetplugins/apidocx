@@ -208,8 +208,6 @@ public class EolinkerClient extends AbstractClient {
     @Override
     public void doFreshAuth() {
         LoginRequest user = new LoginRequest();
-        // Note: 只允许一个端在线，所以此处使用1为客户端，避免使用0网页端
-        user.setClient(1);
         user.setPassword(this.password);
         user.setUsername(this.account);
         String verifyCode = DateFormatUtils.format(new Date(), "EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
