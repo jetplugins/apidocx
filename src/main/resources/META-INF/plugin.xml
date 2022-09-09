@@ -77,6 +77,10 @@
     </actions>
 
     <change-notes><![CDATA[
+        0.9.7: <br>
+        - feat: 支持导出为OpenApi3.0<br>
+        - fix: 修复无法上传Eolinker问题<br>
+        <br>
         0.9.6: <br>
         - feat: 支持自定义@RequestBody注解<br>
         - fix: 修复无法上传Eolinker问题<br>

@@ -4,18 +4,15 @@
 **一键生成API接口文档, 上传到YApi, Rap2, Eolinker等平台的IDEA插件.**
 
 **亮点**
-- 零成本、零入侵： 编写标准Javadoc即可，无需依赖swagger注解, 生成文档准确性高达99%。
-- 开箱即用、智能mock规则: 几乎零配置直接可生成文档，也支持复杂配置满足你95%的场景。
-- 多平台支持：支持YApi, Rap2, Eolinker等，并支持账户密码登录。
+- 零成本: 支持主流框架、编写标准Javadoc就可以生成很好的API文档。
+- 智能规则: 内置mock规则，可以生成很好的Mock数据。
+- 交互友好: 支持账户密码登录，单方法、单类、多类、整个项目上传接口文档。
 
 **特性**
-- [x] 一键从源代码生成api文档
-- [x] 上传到YApi平台
-- [x] 上传到Rap2平台
-- [x] 上传到Eolinker平台
-- [x] 上传到ShowDoc平台
-- [x] 导出markdown文件
-- [x] 复制为cURL命令
+
+- [x] 上传文档YApi、Rap2、Eolinker、ShowDoc平台
+- [x] 导出文档OpenAPI、Markdown、cURL格式
+- [x] 支持主流框架Spring MVC、Spring Flux、Jackson、JSR303、Swagger注解
 
 <img src="docs/screenshots.gif" height="360">
 
