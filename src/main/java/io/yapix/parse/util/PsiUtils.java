@@ -69,6 +69,9 @@ public class PsiUtils {
         if (psiClass == null) {
             psiClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.allScope(project));
         }
+        if (psiClass != null && psiClass.canNavigate()) {
+            psiClass = (PsiClass) psiClass.getNavigationElement();
+        }
         return psiClass;
     }
 
