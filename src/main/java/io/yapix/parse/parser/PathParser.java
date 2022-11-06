@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 路径请求相关工具解析类
@@ -87,6 +88,7 @@ public class PathParser {
     public static PathParseInfo parseRequestMappingAnnotation(PsiAnnotation annotation) {
         List<String> paths = getPaths(annotation);
         List<HttpMethod> methods = PsiAnnotationUtils.getStringArrayAttribute(annotation, "method").stream()
+                .filter(StringUtils::isNotEmpty)
                 .map(HttpMethod::of).collect(Collectors.toList());
         if (methods.isEmpty()) {
             // 未指定方法，那么默认
