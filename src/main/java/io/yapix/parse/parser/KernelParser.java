@@ -21,6 +21,7 @@ import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
+import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiFieldUtils;
 import io.yapix.parse.util.PsiGenericUtils;
@@ -60,14 +61,19 @@ public class KernelParser {
         this.isResponse = isResponse;
     }
 
+    public Property parseType(PsiType psiType, String canonicalType) {
+        TypeParseContext context = new TypeParseContext();
+        return parseType(context, psiType, canonicalType);
+    }
+
     /**
      * 解析指定类型
      */
-    public Property parseType(PsiType psiType, String canonicalType) {
-        return doParseType(psiType, canonicalType, Sets.newHashSet());
+    public Property parseType(TypeParseContext context, PsiType psiType, String canonicalType) {
+        return doParseType(context, psiType, canonicalType, Sets.newHashSet());
     }
 
-    private Property doParseType(PsiType psiType, String canonicalType, Set<PsiClass> chains) {
+    private Property doParseType(TypeParseContext context, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
         Property item = new Property();
         item.setRequired(false);
         item.setType(DataTypes.OBJECT);
@@ -100,26 +106,26 @@ public class KernelParser {
         // Map类型
         if (PsiTypeUtils.isMap(psiType, this.project, this.module) || JavaConstants.Object.equals(type)) {
             item.setType(DataTypes.OBJECT);
-            doHandleMap(item, genericTypes, chains);
+            doHandleMap(context, item, genericTypes, chains);
             return item;
         }
         // 数组
         if (PsiTypeUtils.isArray(psiType)) {
             PsiArrayType arrayType = (PsiArrayType) psiType;
             PsiType componentType = arrayType.getComponentType();
-            Property items = doParseType(componentType, componentType.getCanonicalText(), chains);
+            Property items = doParseType(context, componentType, componentType.getCanonicalText(), chains);
             item.setItems(items);
         }
         // 集合
         if (PsiTypeUtils.isCollection(psiType, this.project, this.module)) {
-            Property items = doParseType(null, genericTypes, chains);
+            Property items = doParseType(context, null, genericTypes, chains);
             item.setItems(items);
         }
         // 对象
         boolean isNeedParseObject = psiClass != null && item.isObjectType()
                 && (chains == null || !chains.contains(psiClass));
         if (isNeedParseObject) {
-            Map<String, Property> properties = doParseBean(type, genericTypes, psiClass, chains);
+            Map<String, Property> properties = doParseBean(context, type, genericTypes, psiClass, chains);
             item.setProperties(properties);
         }
 
@@ -131,7 +137,7 @@ public class KernelParser {
     /**
      * 处理Map类型
      */
-    private void doHandleMap(Property item, String genericTypes, Set<PsiClass> chains) {
+    private void doHandleMap(TypeParseContext context, Property item, String genericTypes, Set<PsiClass> chains) {
         // 尝试解析map值得类型
         if (StringUtils.isEmpty(genericTypes)) {
             return;
@@ -139,7 +145,7 @@ public class KernelParser {
 
         String[] kvGenericTypes = PsiGenericUtils.splitGenericParameters(genericTypes);
         if (kvGenericTypes.length >= 2) {
-            Property mapValueProperty = doParseType(null, kvGenericTypes[1], chains);
+            Property mapValueProperty = doParseType(context, null, kvGenericTypes[1], chains);
             if (mapValueProperty != null) {
                 mapValueProperty.setName("KEY");
                 Map<String, Property> properties = Maps.newHashMap();
@@ -150,7 +156,7 @@ public class KernelParser {
     }
 
     @NotNull
-    private Map<String, Property> doParseBean(String type, String genericTypes, PsiClass psiClass,
+    private Map<String, Property> doParseBean(TypeParseContext context, String type, String genericTypes, PsiClass psiClass,
                                               Set<PsiClass> chains) {
         // 防止循环引用
         HashSet<PsiClass> newChains = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
@@ -175,7 +181,7 @@ public class KernelParser {
             }
 
             Optional.of(PsiTypesUtil.getClassType(refPsiClass))
-                    .map(it -> doParseType(it, it.getCanonicalText(), chains))
+                    .map(it -> doParseType(context, it, it.getCanonicalText(), chains))
                     .map(Property::getProperties)
                     .ifPresent(properties::putAll);
         }
@@ -192,7 +198,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
-                Property fieldProperty = doParseType(filedType, realType, newChains);
+                Property fieldProperty = doParseType(context, filedType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
@@ -219,7 +225,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
-                Property fieldProperty = doParseType(fieldType, realType, newChains);
+                Property fieldProperty = doParseType(context, fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
@@ -235,7 +241,7 @@ public class KernelParser {
                 fieldProperty.setName(parseHelper.getFieldName(field));
                 fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getPropertyValues()));
                 fieldProperty.setDeprecated(parseHelper.getFieldDeprecated(field));
-                fieldProperty.setRequired(parseHelper.getFieldRequired(field));
+                fieldProperty.setRequired(parseHelper.getFieldRequired(context, field));
                 fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));
 
                 if (beanCustom != null) {

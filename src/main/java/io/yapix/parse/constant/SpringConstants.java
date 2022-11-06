@@ -37,4 +37,6 @@ public interface SpringConstants {
     String JsonIgnore = "com.fasterxml.jackson.annotation.JsonIgnore";
 
     String DEFAULT_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
+
+    String Validated = "org.springframework.validation.annotation.Validated";
 }

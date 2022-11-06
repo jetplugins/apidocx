@@ -5,6 +5,7 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassObjectAccessExpression;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
@@ -12,6 +13,7 @@ import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifierListOwner;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator;
 import java.util.Collections;
 import java.util.List;
@@ -122,6 +124,12 @@ public class PsiAnnotationUtils {
                 // 引用其他字段
                 return PsiFieldUtils.getFieldDefaultValue((PsiField) resolve);
             }
+        }
+
+        if (memberValue instanceof PsiClassObjectAccessExpression) {
+            PsiClassObjectAccessExpression expression = (PsiClassObjectAccessExpression) memberValue;
+            PsiTypeElement typeElement = expression.getOperand();
+            return typeElement.getType().getCanonicalText();
         }
 
         if (memberValue instanceof PsiExpression) {

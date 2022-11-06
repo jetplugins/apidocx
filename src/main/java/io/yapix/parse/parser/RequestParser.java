@@ -23,6 +23,7 @@ import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.model.RequestParseInfo;
+import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiTypeUtils;
@@ -236,7 +237,7 @@ public class RequestParser {
 
         List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
         for (PsiParameter parameter : parameters) {
-            Property item = doParseParameter(parameter);
+            Property item = doParseParameter(method, parameter);
             item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap, item.getPropertyValues()));
             // 当参数是bean时，需要获取包括参数
             List<Property> parameterItems = resolveItemToParameters(item);
@@ -264,8 +265,20 @@ public class RequestParser {
     /**
      * 解析单个参数
      */
-    private Property doParseParameter(PsiParameter parameter) {
-        Property item = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
+    private Property doParseParameter(PsiMethod method, PsiParameter parameter) {
+        // 支持分组校验JSR303
+        PsiAnnotation validatedAnnotation = PsiAnnotationUtils.getAnnotation(parameter, SpringConstants.Validated);
+        if (validatedAnnotation == null) {
+            validatedAnnotation = PsiAnnotationUtils.getAnnotation(method, SpringConstants.Validated);
+        }
+        List<String> validatedClasses = Lists.newArrayList();
+        if (validatedAnnotation != null) {
+            validatedClasses = PsiAnnotationUtils.getStringArrayAttribute(validatedAnnotation, "value");
+        }
+        TypeParseContext context = new TypeParseContext();
+        context.setJsr303ValidateGroups(validatedClasses);
+
+        Property item = kernelParser.parseType(context, parameter.getType(), parameter.getType().getCanonicalText());
         dateParser.handle(item, parameter);
 
         // 处理参数注解: @RequestParam等

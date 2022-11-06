@@ -21,6 +21,7 @@ import io.yapix.model.Value;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
+import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiLinkUtils;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -244,11 +246,18 @@ public class ParseHelper {
     /**
      * 字段是否必填
      */
-    public boolean getFieldRequired(PsiField field) {
+    public boolean getFieldRequired(TypeParseContext context, PsiField field) {
+        List<String> validateGroups = context.getJsr303ValidateGroups();
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty};
         for (String annotation : annotations) {
             PsiAnnotation target = PsiAnnotationUtils.getAnnotation(field, annotation);
-            if (target != null) {
+            if (target == null) {
+                continue;
+            }
+
+            List<String> groups = PsiAnnotationUtils.getStringArrayAttribute(target, "groups");
+            boolean validateJsr303 = CollectionUtils.isEmpty(validateGroups) || CollectionUtils.intersection(groups, validateGroups).size() > 0;
+            if (validateJsr303) {
                 return true;
             }
         }
