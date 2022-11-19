@@ -30,6 +30,7 @@ import io.yapix.parse.util.PsiUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -213,14 +214,11 @@ public class KernelParser {
             }
         } else {
             // 实体类
-            PsiField[] fields = PsiUtils.getFields(psiClass);
+            List<PsiField> fields = parseHelper.getFields(psiClass);
             for (PsiField field : fields) {
                 String filedName = field.getName();
                 PsiType fieldType = field.getType();
-                if (parseHelper.isFieldIgnore(field)) {
-                    continue;
-                }
-                // 自定义配置决定是否处理该字段
+                // 自定义配置决定是否处理
                 if (beanCustom != null && !beanCustom.isNeedHandleField(filedName)) {
                     continue;
                 }

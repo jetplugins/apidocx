@@ -15,8 +15,6 @@ public interface JavaConstants {
 
     String Deprecate = "java.lang.Deprecated";
 
-    String Enum = "java.lang.Enum";
-
     String Map = "java.util.Map";
 
     String Collection = "java.util.Collection";

@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
@@ -27,11 +28,13 @@ import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiLinkUtils;
 import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
+import io.yapix.parse.util.PsiUtils;
 import io.yapix.parse.util.StringUtilsExt;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -327,5 +330,33 @@ public class ParseHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * 获取未忽略的字段
+     */
+    public List<PsiField> getFields(PsiClass psiClass) {
+        PsiField[] fields = PsiUtils.getFields(psiClass);
+        List<String> includeProperties = PsiAnnotationUtils.getStringArrayAttribute(psiClass, SpringConstants.JsonIncludeProperties, "value");
+        if (includeProperties != null) {
+            Set<String> includePropertiesSet = Sets.newHashSet(includeProperties);
+            return Arrays.stream(fields)
+                    .filter(filed -> includePropertiesSet.contains(filed.getName()))
+                    .filter(field -> !isFieldIgnore(field))
+                    .collect(Collectors.toList());
+        }
+
+        List<String> ignoreProperties = PsiAnnotationUtils.getStringArrayAttribute(psiClass, SpringConstants.JsonIgnoreProperties, "value");
+        if (ignoreProperties != null && !ignoreProperties.isEmpty()) {
+            Set<String> ignorePropertiesSet = Sets.newHashSet(ignoreProperties);
+            return Arrays.stream(fields)
+                    .filter(filed -> !ignorePropertiesSet.contains(filed.getName()))
+                    .filter(field -> !isFieldIgnore(field))
+                    .collect(Collectors.toList());
+        }
+
+        return Arrays.stream(fields)
+                .filter(field -> !isFieldIgnore(field))
+                .collect(Collectors.toList());
     }
 }
