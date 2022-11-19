@@ -4,20 +4,29 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
+import com.intellij.psi.PsiExpressionList;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.impl.source.javadoc.PsiDocMethodOrFieldRef;
+import com.intellij.psi.impl.source.tree.LazyParseablePsiElement;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
+import com.intellij.psi.javadoc.PsiInlineDocTag;
 import io.yapix.model.Value;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
@@ -25,7 +34,7 @@ import io.yapix.parse.constant.SpringConstants;
 import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
-import io.yapix.parse.util.PsiLinkUtils;
+import io.yapix.parse.util.PsiFieldUtils;
 import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
@@ -35,6 +44,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -239,8 +251,6 @@ public class ParseHelper {
             } else {
                 summary += " (" + valuesText + ")";
             }
-        } else {
-            summary = PsiLinkUtils.getLinkRemark(summary != null ? summary : "", field);
         }
 
         return trim(summary);
@@ -271,7 +281,143 @@ public class ParseHelper {
      * 获取字段可能的值
      */
     public List<Value> getFieldValues(PsiField field) {
-        return getTypeValues(field.getType());
+        // 枚举类
+        boolean isEnum = PsiTypeUtils.isEnum(field.getType());
+        if (isEnum) {
+            PsiClass enumPsiClass = PsiTypeUtils.getEnumClassIncludeArray(this.project, this.module, field.getType());
+            if (enumPsiClass != null) {
+                return getEnumValues(enumPsiClass);
+            }
+        }
+
+        List<Value> values = Lists.newArrayList();
+        // 解析: @link文档标记
+        if (field.getDocComment() != null) {
+            PsiDocTag[] linkTags = Arrays.stream(field.getDocComment().getDescriptionElements())
+                    .filter(e -> e instanceof PsiInlineDocTag)
+                    .filter(e -> ((PsiInlineDocTag) e).getName().equals(DocumentTags.Link))
+                    .toArray(PsiDocTag[]::new);
+            for (PsiDocTag tag : linkTags) {
+                List<Value> tagValues = doGetFieldValueByTag(tag);
+                if (tagValues.size() > 0) {
+                    values.addAll(tagValues);
+                }
+            }
+        }
+
+        // 解析: @see 文档标记
+        PsiDocTag[] tags = PsiDocCommentUtils.findTagsByName(field, DocumentTags.See);
+        for (PsiDocTag tag : tags) {
+            List<Value> tagValues = doGetFieldValueByTag(tag);
+            if (tagValues.size() > 0) {
+                values.addAll(tagValues);
+            }
+        }
+        return values.stream().filter(distinctByKey(Value::getValue)).collect(Collectors.toList());
+    }
+
+    private List<Value> doGetFieldValueByTag(PsiDocTag tag) {
+        PsiElement[] elements = tag.getDataElements();
+        if (elements.length == 0) {
+            return Collections.emptyList();
+        }
+        PsiElement targetElement = elements[0];
+        if (tag instanceof PsiInlineDocTag) {
+            PsiElement psiElement = Arrays.stream(elements)
+                    .filter(e -> e instanceof LazyParseablePsiElement || e instanceof PsiDocMethodOrFieldRef)
+                    .findFirst().orElse(null);
+            if (psiElement != null) {
+                targetElement = psiElement;
+            }
+        }
+
+        // 找到引用的类和字段
+        PsiClass psiClass = null;
+        PsiReference psiReference = targetElement.getReference();
+        PsiElement firstChild = targetElement.getFirstChild();
+        if (firstChild != null && !(firstChild instanceof PsiJavaCodeReferenceElement)) {
+            firstChild = firstChild.getFirstChild();
+        }
+        if ((firstChild instanceof PsiJavaCodeReferenceElement) && firstChild.getReference() != null) {
+            psiClass = PsiUtils.findPsiClass(project, module, firstChild.getReference().getCanonicalText());
+        }
+        if (psiClass == null) {
+            return Collections.emptyList();
+        }
+
+        // 枚举类
+        boolean isEnum = psiClass.isEnum();
+        if (isEnum) {
+            if (psiReference == null) {
+                return getEnumValues(psiClass);
+            } else {
+                String fieldName = psiReference.getCanonicalText();
+                PsiField field = Arrays.stream(psiClass.getFields())
+                        .filter(one -> one.getName().equals(fieldName))
+                        .findFirst().orElse(null);
+                if (field == null) {
+                    return Collections.emptyList();
+                }
+                if (field instanceof PsiEnumConstant) {
+                    return Lists.newArrayList(new Value(field.getName(), PsiDocCommentUtils.getDocCommentTitle(field)));
+                }
+
+                // 解析枚举表达式
+                int fieldIndex = -1;
+                for (PsiMethod constructor : psiClass.getConstructors()) {
+                    JvmParameter[] parameters = constructor.getParameters();
+                    for (int i = 0; i < parameters.length; i++) {
+                        if (parameters[i].getName().equals(fieldName)) {
+                            fieldIndex = i;
+                        }
+                    }
+                }
+                if (fieldIndex == -1) {
+                    return Collections.emptyList();
+                }
+
+                PsiField[] enumFields = PsiUtils.getEnumFields(psiClass);
+                List<Value> values = Lists.newArrayListWithExpectedSize(enumFields.length);
+                for (PsiField enumField : enumFields) {
+                    PsiElement expressionList = Arrays.stream(enumField.getChildren())
+                            .filter(e -> e instanceof PsiExpressionList)
+                            .findFirst().orElse(null);
+                    if (expressionList == null) {
+                        continue;
+                    }
+                    PsiLiteralExpression[] psiLiteralExpressions = Arrays.stream(expressionList.getChildren())
+                            .filter(e -> e instanceof PsiLiteralExpression)
+                            .toArray(PsiLiteralExpression[]::new);
+                    if (psiLiteralExpressions.length > fieldIndex) {
+                        String value = psiLiteralExpressions[fieldIndex].getText();
+                        String description = PsiDocCommentUtils.getDocCommentTitle(enumField);
+                        if (StringUtils.isEmpty(description)) {
+                            description = enumField.getName();
+                        }
+                        values.add(new Value(value, description));
+                    }
+                }
+                return values;
+            }
+        }
+
+        // 常量类
+        PsiField[] fields = PsiUtils.getStaticOrFinalFields(psiClass);
+        if (psiReference != null) {
+            fields = Arrays.stream(fields)
+                    .filter(f -> f.getName().equals(psiReference.getCanonicalText()))
+                    .toArray(PsiField[]::new);
+        }
+        List<Value> values = Lists.newArrayListWithExpectedSize(fields.length);
+        for (PsiField f : fields) {
+            String value = PsiFieldUtils.getFieldDeclaredValue(f);
+            if (value == null) {
+                continue;
+            }
+            String description = PsiDocCommentUtils.getDocCommentTitle(f);
+            values.add(new Value(value, description));
+        }
+        return values;
     }
 
     /**
@@ -358,5 +504,10 @@ public class ParseHelper {
         return Arrays.stream(fields)
                 .filter(field -> !isFieldIgnore(field))
                 .collect(Collectors.toList());
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

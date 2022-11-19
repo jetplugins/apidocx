@@ -21,5 +21,7 @@ public interface DocumentTags {
 
     String See = "see";
 
+    String Link = "link";
+
     String Tags = "tags";
 }

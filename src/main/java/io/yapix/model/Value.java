@@ -1,17 +1,23 @@
 package io.yapix.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
-@Data
+@Getter
+@ToString
 @AllArgsConstructor
 public class Value {
 
-    /** 值 */
+    /**
+     * 值
+     */
     private String value;
 
-    /** 描述 */
+    /**
+     * 描述
+     */
     private String description;
 
     /**

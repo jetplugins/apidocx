@@ -16,19 +16,11 @@ public class PsiFieldUtils {
     }
 
     /**
-     * 获取字段默认值
+     * 获取字段声明的默认值
      */
-    public static String getFieldDefaultValue(PsiField field) {
-        PsiType fieldType = field.getType();
+    public static String getFieldDeclaredValue(PsiField field) {
         PsiExpression initializer = field.getInitializer();
         if (initializer == null) {
-            // 可能解析不到从文本解析
-            String dv = getDefaultValueFromFieldText(field);
-            if (dv != null) {
-                return dv;
-            } else if (fieldType instanceof PsiPrimitiveType) {
-                return PsiTypesUtil.getDefaultValueOfType(fieldType);
-            }
             return null;
         }
         PsiReference reference = initializer.getReference();
@@ -42,9 +34,29 @@ public class PsiFieldUtils {
             return ((PsiEnumConstant) resolve).getName();
         } else if (resolve instanceof PsiField) {
             // 引用其他字段
-            return getFieldDefaultValue((PsiField) resolve);
+            return getFieldDeclaredValue((PsiField) resolve);
         }
         return null;
+    }
+
+    /**
+     * 获取字段默认值
+     */
+    public static String getFieldDefaultValue(PsiField field) {
+        PsiExpression initializer = field.getInitializer();
+        if (initializer != null) {
+            return getFieldDeclaredValue(field);
+        } else {
+            PsiType fieldType = field.getType();
+            // 可能解析不到从文本解析
+            String dv = getDefaultValueFromFieldText(field);
+            if (dv != null) {
+                return dv;
+            } else if (fieldType instanceof PsiPrimitiveType) {
+                return PsiTypesUtil.getDefaultValueOfType(fieldType);
+            }
+            return null;
+        }
     }
 
     private static String getDefaultValueFromFieldText(PsiField field) {
