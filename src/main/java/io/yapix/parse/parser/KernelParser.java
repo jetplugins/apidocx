@@ -20,7 +20,6 @@ import io.yapix.config.YapixConfig;
 import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.DocumentTags;
-import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiFieldUtils;
@@ -105,7 +104,7 @@ public class KernelParser {
             return item;
         }
         // Map类型
-        if (PsiTypeUtils.isMap(psiType, this.project, this.module) || JavaConstants.Object.equals(type)) {
+        if (PsiTypeUtils.isMap(psiType, this.project, this.module) || Object.class.getName().equals(type)) {
             item.setType(DataTypes.OBJECT);
             doHandleMap(context, item, genericTypes, chains);
             return item;

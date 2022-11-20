@@ -10,8 +10,9 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.model.DataTypes;
-import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.parser.DataTypeParser;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -54,7 +55,7 @@ public class PsiTypeUtils {
      * 是否是集合类型或其子类型
      */
     public static boolean isCollection(PsiType type, Project project, Module module) {
-        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, JavaConstants.Collection);
+        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, Collection.class.getName());
         PsiClassType mapPsiType = PsiTypesUtil.getClassType(mapPsiClass);
         return mapPsiType.isAssignableFrom(type);
     }
@@ -63,7 +64,7 @@ public class PsiTypeUtils {
      * 是否是Map，以及其子类型
      */
     public static boolean isMap(PsiType type, Project project, Module module) {
-        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, JavaConstants.Map);
+        PsiClass mapPsiClass = PsiUtils.findPsiClass(project, module, Map.class.getName());
         PsiClassType mapPsiType = PsiTypesUtil.getClassType(mapPsiClass);
         return mapPsiType.isAssignableFrom(type);
     }

@@ -132,7 +132,7 @@ public class ParseHelper {
      * 获取接口是否标记过期
      */
     public boolean getApiDeprecated(PsiMethod method) {
-        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(method, JavaConstants.Deprecate);
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(method, Deprecated.class.getName());
         if (annotation != null) {
             return true;
         }
@@ -424,7 +424,7 @@ public class ParseHelper {
      * 是否标记过期
      */
     public boolean getFieldDeprecated(PsiField field) {
-        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(field, JavaConstants.Deprecate);
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(field, Deprecated.class.getName());
         if (annotation != null) {
             return true;
         }
