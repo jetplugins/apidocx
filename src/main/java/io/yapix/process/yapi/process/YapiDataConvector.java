@@ -162,9 +162,13 @@ public class YapiDataConvector {
         // 数组
         if (property.getItems() != null) {
             yapiProperty.setUniqueItems(property.getUniqueItems());
-            yapiProperty.setMinItems(property.getMinItems());
-            yapiProperty.setMaxItems(property.getMaxItems());
+            yapiProperty.setMinItems(property.getMinLength());
+            yapiProperty.setMaxItems(property.getMaxLength());
             yapiProperty.setItems(copyProperty(property.getItems()));
+        }
+        if (property.isStringType()) {
+            yapiProperty.setMinLength(property.getMinLength());
+            yapiProperty.setMaxLength(property.getMaxLength());
         }
         // 对象
         if (property.getProperties() != null) {

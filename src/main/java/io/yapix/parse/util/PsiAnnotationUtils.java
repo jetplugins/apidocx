@@ -15,6 +15,7 @@ import com.intellij.psi.PsiModifierListOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -148,4 +149,29 @@ public class PsiAnnotationUtils {
         return "";
     }
 
+    public static Integer getIntegerAttributeValueByAnnotation(PsiAnnotation annotation, String attribute) {
+        String value = getStringAttributeValueByAnnotation(annotation, attribute);
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            // ignored
+        }
+        return null;
+    }
+
+    public static BigDecimal getBigDecimalAttributeValueByAnnotation(PsiAnnotation annotation, String attribute) {
+        String value = getStringAttributeValueByAnnotation(annotation, attribute);
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException e) {
+            // ignored
+        }
+        return null;
+    }
 }

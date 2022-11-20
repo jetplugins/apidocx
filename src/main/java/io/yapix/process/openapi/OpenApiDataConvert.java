@@ -103,9 +103,24 @@ public class OpenApiDataConvert {
             parameter.required(p.getRequired());
             parameter.deprecated(p.getDeprecated());
 
-            Schema<?> parameterSchema = new Schema<>();
-            parameterSchema.setType(p.getType());
-            parameter.schema(parameterSchema);
+            Schema<?> schema = new Schema<>();
+            schema.setType(p.getType());
+            if (p.isArrayType()) {
+                schema.setMinItems(p.getMinLength());
+                schema.setMaxItems(p.getMaxLength());
+                schema.setUniqueItems(p.getUniqueItems());
+            } else if (p.isObjectType()) {
+                schema.setMinProperties(p.getMinLength());
+                schema.setMaxProperties(p.getMaxLength());
+            } else if (p.isStringType()) {
+                schema.setMinLength(p.getMinLength());
+                schema.setMaxLength(p.getMaxLength());
+            } else if (p.isNumberOrIntegerType()) {
+                schema.setMinimum(p.getMinimum());
+                schema.setMaximum(p.getMaximum());
+            }
+
+            parameter.schema(schema);
             return parameter;
         }).collect(Collectors.toList());
     }
@@ -153,15 +168,29 @@ public class OpenApiDataConvert {
         return responses;
     }
 
-    private Schema<?> buildSchema(Property property) {
+    private Schema<?> buildSchema(Property p) {
         Schema<?> schema = new Schema<>();
-        schema.setType(property.getType());
-        schema.setDescription(property.getDescription());
-        schema.setExample(property.getExample());
-        schema.setDefault(property.getDefaultValue());
+        schema.setType(p.getType());
+        schema.setDescription(p.getDescription());
+        schema.setExample(p.getExample());
+        schema.setDefault(p.getDefaultValue());
+        if (p.isArrayType()) {
+            schema.setMinItems(p.getMinLength());
+            schema.setMaxItems(p.getMaxLength());
+            schema.setUniqueItems(p.getUniqueItems());
+        } else if (p.isObjectType()) {
+            schema.setMinProperties(p.getMinLength());
+            schema.setMaxProperties(p.getMaxLength());
+        } else if (p.isStringType()) {
+            schema.setMinLength(p.getMinLength());
+            schema.setMaxLength(p.getMaxLength());
+        } else if (p.isNumberOrIntegerType()) {
+            schema.setMinimum(p.getMinimum());
+            schema.setMaximum(p.getMaximum());
+        }
 
         // 特殊类型转换
-        switch (property.getType()) {
+        switch (p.getType()) {
             case "datetime":
                 schema.setType("string");
                 schema.setFormat("date-time");
@@ -172,21 +201,21 @@ public class OpenApiDataConvert {
                 break;
         }
 
-        if (property.getProperties() != null) {
-            List<String> required = property.getProperties().entrySet().stream()
+        if (p.getProperties() != null) {
+            List<String> required = p.getProperties().entrySet().stream()
                     .filter(entry -> entry.getValue() != null && entry.getValue().getRequired() == Boolean.TRUE)
                     .map(Entry::getKey)
                     .collect(Collectors.toList());
             schema.setRequired(required);
 
-            for (Entry<String, Property> entry : property.getProperties().entrySet()) {
+            for (Entry<String, Property> entry : p.getProperties().entrySet()) {
                 Schema<?> propertySchema = buildSchema(entry.getValue());
                 schema.addProperty(entry.getKey(), propertySchema);
             }
         }
 
-        if (property.getItems() != null) {
-            schema.setItems(buildSchema(property.getItems()));
+        if (p.getItems() != null) {
+            schema.setItems(buildSchema(p.getItems()));
         }
 
         return schema;

@@ -20,6 +20,7 @@ import io.yapix.config.YapixConfig;
 import io.yapix.model.DataTypes;
 import io.yapix.model.Property;
 import io.yapix.parse.constant.DocumentTags;
+import io.yapix.parse.model.Jsr303Info;
 import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiFieldUtils;
@@ -129,6 +130,7 @@ public class KernelParser {
             item.setProperties(properties);
         }
 
+        // 放最后解析会以来前面数据
         String mock = mockParser.parseMock(item, psiType, null, null);
         item.setMock(mock);
         return item;
@@ -234,6 +236,21 @@ public class KernelParser {
                         fieldProperty.setDefaultValue(defaultValue);
                     }
                 }
+                // JSR303注解
+                Jsr303Info jsr303Info = parseHelper.getJsr303Info(field);
+                if (jsr303Info.getMinLength() != null) {
+                    fieldProperty.setMinLength(jsr303Info.getMinLength());
+                }
+                if (jsr303Info.getMaxLength() != null) {
+                    fieldProperty.setMaxLength(jsr303Info.getMaxLength());
+                }
+                if (jsr303Info.getMinimum() != null) {
+                    fieldProperty.setMinimum(jsr303Info.getMinimum());
+                }
+                if (jsr303Info.getMaximum() != null) {
+                    fieldProperty.setMaximum(jsr303Info.getMaximum());
+                }
+
                 fieldProperty.setValues(parseHelper.getFieldValues(field));
                 fieldProperty.setName(parseHelper.getFieldName(field));
                 fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getPropertyValues()));

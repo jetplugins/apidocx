@@ -1,5 +1,10 @@
 package io.yapix.model;
 
+import static java.lang.String.format;
+
+import com.google.common.collect.Lists;
+import com.google.gson.annotations.SerializedName;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,20 +55,42 @@ public class Property {
      */
     private List<Value> values;
 
-    /** 当type为array */
+    /**
+     * 当type为array
+     */
     private Property items;
 
-    /** 当type为array, item元素是否唯一 */
+    /**
+     * 当type为array, item元素是否唯一
+     */
     private Boolean uniqueItems;
 
-    /** 当type为array, 最小元素个数 */
-    private Integer minItems;
+    /**
+     * 最小元素个数
+     */
+    @SerializedName(value = "minLength", alternate = "minItems")
+    private Integer minLength;
 
-    /** 当type为array, 最大元素个数 */
-    private Integer maxItems;
+    /**
+     * 最大元素个数
+     */
+    @SerializedName(value = "maxLength", alternate = "maxItems")
+    private Integer maxLength;
 
-    /** 当type为object */
+    /**
+     * 当type为object
+     */
     private Map<String, Property> properties;
+
+    /**
+     * 最小值
+     */
+    private BigDecimal minimum = null;
+
+    /**
+     * 最大值
+     */
+    private BigDecimal maximum = null;
 
     public boolean isArrayType() {
         return DataTypes.ARRAY.equals(type);
@@ -71,6 +98,22 @@ public class Property {
 
     public boolean isObjectType() {
         return DataTypes.OBJECT.equals(type);
+    }
+
+    public boolean isStringType() {
+        return DataTypes.STRING.equals(type);
+    }
+
+    public boolean isNumberOrIntegerType() {
+        return DataTypes.NUMBER.equals(type) || DataTypes.INTEGER.equals(type);
+    }
+
+    public boolean isNumberType() {
+        return DataTypes.NUMBER.equals(type);
+    }
+
+    public boolean isIntegerType() {
+        return DataTypes.INTEGER.equals(type);
     }
 
     /**
@@ -114,13 +157,13 @@ public class Property {
         if (StringUtils.isNotEmpty(custom.getMock())) {
             this.mock = custom.getMock();
         }
-        if (custom.getMaxItems() != null){
-            this.maxItems = custom.getMaxItems();
+        if (custom.getMaxLength() != null) {
+            this.maxLength = custom.getMaxLength();
         }
-        if (custom.getMinItems() != null){
-            this.minItems = custom.getMinItems();
+        if (custom.getMinLength() != null) {
+            this.minLength = custom.getMinLength();
         }
-        if (custom.getUniqueItems() != null){
+        if (custom.getUniqueItems() != null) {
             this.uniqueItems = custom.getUniqueItems();
         }
     }
@@ -154,4 +197,25 @@ public class Property {
         this.properties.put(key, value);
     }
 
+    public String getDescriptionMore() {
+        Property property = this;
+        String description = property.getDescription() != null ? property.getDescription() : "";
+        List<String> attaches = Lists.newArrayList();
+        // 长度范围
+        if (property.getMinLength() != null || property.getMaxLength() != null) {
+            int min = property.getMinLength() != null ? property.getMinLength() : 0;
+            int max = property.getMaxLength() != null ? property.getMaxLength() : Integer.MAX_VALUE;
+            attaches.add(format("长度: %d~%d", min, max));
+        }
+        // 数值范围
+        if (property.getMinimum() != null || property.getMaximum() != null) {
+            String min = property.getMinimum() != null ? property.getMinimum().toPlainString() : "";
+            String max = property.getMaximum() != null ? property.getMaximum().toPlainString() : "";
+            attaches.add(format("大小: %s~%s", min, max));
+        }
+        if (!attaches.isEmpty()) {
+            description += " [" + String.join(", ", attaches) + "]";
+        }
+        return description;
+    }
 }

@@ -29,16 +29,34 @@ public class YapiProperty {
     /** 当type为array */
     private YapiProperty items;
 
-    /** 当type为array, item元素是否唯一 */
+    /**
+     * 当type为array, item元素是否唯一
+     */
     private Boolean uniqueItems;
 
-    /** 当type为array, 最小元素个数 */
+    /**
+     * 当type为array, 最小元素个数
+     */
     private Integer minItems;
 
-    /** 当type为array, 最大元素个数 */
+    /**
+     * 当type为array, 最大元素个数
+     */
     private Integer maxItems;
 
-    /** 响应mock */
+    /**
+     * 字符串长度
+     */
+    private Integer minLength;
+
+    /**
+     * 字符串长度
+     */
+    private Integer maxLength;
+
+    /**
+     * 响应mock
+     */
     private YapiMock mock;
 
 }

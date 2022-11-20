@@ -99,6 +99,7 @@ beans[com.source3g.common.Pager]= { \
 		} \
 	}
 beans[com.wangxiaobao.infra.pierre.common.model.Result]= { \
+        "includes": ["code", "msg", "data", "timestamp"], \
 		"fields": { \
 			"code": { "mock": "0", "description": "状态码: 0(成功)", "required": true }, \
 			"msg": { "mock": "ok", "description": "消息", "required": true }, \

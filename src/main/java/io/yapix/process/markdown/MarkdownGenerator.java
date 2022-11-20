@@ -80,14 +80,16 @@ public class MarkdownGenerator {
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
         markdown.append("| --- | --- | --- | --- | --- |").append("\n");
         properties.forEach(h -> {
+            String description = getPropertyDescription(h);
             String hr = formatTable("| %s | %s | %s | %s | %s |",
                     h.getName(), requiredText(h.getRequired()), h.getTypeWithArray(),
-                    h.getDefaultValue(), h.getDescription());
+                    h.getDefaultValue(), description);
             markdown.append(hr).append("\n");
         });
         markdown.append("\n");
         return markdown.toString();
     }
+
 
     /**
      * 获取请求体或响应体的markdown拼接
@@ -124,7 +126,7 @@ public class MarkdownGenerator {
         }
         String row = formatTable("| %s | %s | %s | %s | %s |\n",
                 nameDepth, requiredText(property.getRequired()), property.getTypeWithArray(),
-                property.getDefaultValue(), property.getDescription());
+                property.getDefaultValue(), getPropertyDescription(property));
         StringBuilder markdown = new StringBuilder(row);
 
         // 对象或对象数组
@@ -153,6 +155,10 @@ public class MarkdownGenerator {
     }
 
     //----------------------- 辅助方法 ---------------------------//
+
+    private String getPropertyDescription(Property property) {
+        return property.getDescriptionMore();
+    }
 
     private String format(String format, Object... values) {
         Object[] objects = Arrays.stream(values).map(v -> v == null ? "" : v).toArray();

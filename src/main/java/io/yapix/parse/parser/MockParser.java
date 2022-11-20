@@ -1,11 +1,10 @@
 package io.yapix.parse.parser;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiType;
-import com.intellij.psi.util.PsiTypesUtil;
 import io.yapix.base.util.JsonUtils;
 import io.yapix.config.MockRule;
 import io.yapix.config.YapixConfig;
@@ -15,8 +14,12 @@ import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.util.PropertiesLoader;
 import io.yapix.parse.util.PsiDocCommentUtils;
 import io.yapix.parse.util.PsiTypeUtils;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -60,14 +63,43 @@ public class MockParser {
         }
 
         // 枚举类型
-        PsiClass psiClass = PsiTypesUtil.getPsiClass(type);
-        if (psiClass != null && psiClass.isEnum()) {
-            List<String> values = property.getValueList();
-            return "@pick(" + JsonUtils.toJson(values) + ")";
+        List<String> values = property.getValueList();
+        if (!values.isEmpty()) {
+            String paramExpression;
+            if (property.isNumberOrIntegerType()) {
+                List<BigDecimal> decimalValues = values.stream().map(val -> {
+                    try {
+                        return new BigDecimal(val);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+                paramExpression = JsonUtils.toJson(decimalValues);
+            } else {
+                paramExpression = JsonUtils.toJson(values);
+            }
+            return "@pick(" + paramExpression + ")";
         }
         // 数组类型处理
         if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type, this.project, this.module)) {
             return null;
+        }
+
+        // 数字类型从最大、最小值
+        if (property.isNumberOrIntegerType() && ObjectUtils.anyNotNull(property.getMinimum(), property.getMaximum())) {
+            List<String> params = Lists.newArrayList();
+            if (property.getMinimum() != null) {
+                params.add(property.getMinimum().toPlainString());
+            }
+            if (property.getMaximum() != null) {
+                params.add(property.getMaximum().toPlainString());
+            }
+            String paramExpression = StringUtils.join(params, ",");
+            if (property.isIntegerType()) {
+                return "@integer(" + paramExpression + ")";
+            } else {
+                return "@float(" + paramExpression + ")";
+            }
         }
 
         // 自定义规则
@@ -76,6 +108,19 @@ public class MockParser {
             if (StringUtils.isNotEmpty(mock)) {
                 return mock;
             }
+        }
+
+        // 长度
+        if (property.isStringType() && ObjectUtils.anyNotNull(property.getMinLength(), property.getMaxLength())) {
+            List<String> params = Lists.newArrayList();
+            if (property.getMinLength() != null) {
+                params.add(property.getMinLength().toString());
+            }
+            if (property.getMaxLength() != null) {
+                params.add(property.getMaxLength().toString());
+            }
+            String paramsExpression = StringUtils.join(params, ",");
+            return "@string(" + paramsExpression + ")";
         }
 
         // 规定规则

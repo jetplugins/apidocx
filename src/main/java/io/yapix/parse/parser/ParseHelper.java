@@ -18,6 +18,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifierListOwner;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiType;
@@ -31,6 +32,7 @@ import io.yapix.model.Value;
 import io.yapix.parse.constant.DocumentTags;
 import io.yapix.parse.constant.JavaConstants;
 import io.yapix.parse.constant.SpringConstants;
+import io.yapix.parse.model.Jsr303Info;
 import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiAnnotationUtils;
 import io.yapix.parse.util.PsiDocCommentUtils;
@@ -39,15 +41,18 @@ import io.yapix.parse.util.PsiSwaggerUtils;
 import io.yapix.parse.util.PsiTypeUtils;
 import io.yapix.parse.util.PsiUtils;
 import io.yapix.parse.util.StringUtilsExt;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -510,4 +515,67 @@ public class ParseHelper {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
     }
+
+    public Jsr303Info getJsr303Info(PsiModifierListOwner element) {
+        Jsr303Info data = new Jsr303Info();
+        // @Size
+        PsiAnnotation sizeAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.Size);
+        if (sizeAnnotation != null) {
+            Integer minSize = PsiAnnotationUtils.getIntegerAttributeValueByAnnotation(sizeAnnotation, "min");
+            Integer maxSize = PsiAnnotationUtils.getIntegerAttributeValueByAnnotation(sizeAnnotation, "max");
+            data.setMinLength(minSize);
+            data.setMaxLength(maxSize);
+        }
+
+        // @Min, @DecimalMin, @Positive, @PositiveOrZero
+        BigDecimal minValue = null, decimalMinValue = null, positiveValue = null, positiveOrZeroValue = null;
+        PsiAnnotation minAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.Min);
+        if (minAnnotation != null) {
+            minValue = PsiAnnotationUtils.getBigDecimalAttributeValueByAnnotation(minAnnotation, "value");
+        }
+        PsiAnnotation decimalMinAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.DecimalMin);
+        if (decimalMinAnnotation != null) {
+            decimalMinValue = PsiAnnotationUtils.getBigDecimalAttributeValueByAnnotation(decimalMinAnnotation, "value");
+        }
+        PsiAnnotation positiveAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.Positive);
+        if (positiveAnnotation != null) {
+            positiveValue = BigDecimal.ZERO;
+        }
+        PsiAnnotation positiveOrZeroAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.PositiveOrZero);
+        if (positiveOrZeroAnnotation != null) {
+            positiveOrZeroValue = BigDecimal.ZERO;
+        }
+        BigDecimal min = Stream.of(minValue, decimalMinValue, positiveValue, positiveOrZeroValue)
+                .filter(Objects::nonNull)
+                .max(BigDecimal::compareTo)
+                .orElse(null);
+        data.setMinimum(min);
+
+        // @Max, @DecimalMax, @Negative, @NegativeOrZero
+        BigDecimal maxValue = null, decimalMaxValue = null, negativeValue = null, negativeOrZeroValue = null;
+        PsiAnnotation maxAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.Max);
+        if (maxAnnotation != null) {
+            maxValue = PsiAnnotationUtils.getBigDecimalAttributeValueByAnnotation(maxAnnotation, "value");
+        }
+        PsiAnnotation decimalMaxAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.DecimalMax);
+        if (decimalMaxAnnotation != null) {
+            decimalMaxValue = PsiAnnotationUtils.getBigDecimalAttributeValueByAnnotation(decimalMaxAnnotation, "value");
+        }
+        PsiAnnotation negativeAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.Negative);
+        if (negativeAnnotation != null) {
+            negativeValue = BigDecimal.ZERO;
+        }
+        PsiAnnotation negativeOrZeroAnnotation = PsiAnnotationUtils.getAnnotation(element, JavaConstants.NegativeOrZero);
+        if (negativeOrZeroAnnotation != null) {
+            negativeOrZeroValue = BigDecimal.ZERO;
+        }
+        BigDecimal max = Stream.of(maxValue, decimalMaxValue, negativeValue, negativeOrZeroValue)
+                .filter(Objects::nonNull)
+                .min(BigDecimal::compareTo)
+                .orElse(null);
+        data.setMaximum(max);
+
+        return data;
+    }
+
 }

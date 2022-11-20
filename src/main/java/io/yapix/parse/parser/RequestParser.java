@@ -22,6 +22,7 @@ import io.yapix.model.ParameterIn;
 import io.yapix.model.Property;
 import io.yapix.model.RequestBodyType;
 import io.yapix.parse.constant.SpringConstants;
+import io.yapix.parse.model.Jsr303Info;
 import io.yapix.parse.model.RequestParseInfo;
 import io.yapix.parse.model.TypeParseContext;
 import io.yapix.parse.util.PsiAnnotationUtils;
@@ -318,6 +319,20 @@ public class RequestParser {
             required = parseHelper.getParameterRequired(parameter);
         }
 
+        // JSR303注解
+        Jsr303Info jsr303Info = parseHelper.getJsr303Info(parameter);
+        if (jsr303Info.getMinLength() != null) {
+            item.setMinLength(jsr303Info.getMinLength());
+        }
+        if (jsr303Info.getMaxLength() != null) {
+            item.setMaxLength(jsr303Info.getMaxLength());
+        }
+        if (jsr303Info.getMinimum() != null) {
+            item.setMinimum(jsr303Info.getMinimum());
+        }
+        if (jsr303Info.getMaximum() != null) {
+            item.setMaximum(jsr303Info.getMaximum());
+        }
         item.setIn(in);
         item.setName(name);
         item.setRequired(required != null ? required : false);
