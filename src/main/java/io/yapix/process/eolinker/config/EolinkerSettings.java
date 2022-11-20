@@ -24,6 +24,11 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     private static final String PASSWORD_KEY = "eolinker";
 
     /**
+     * 登录地址
+     */
+    private String loginUrl;
+
+    /**
      * 服务页面地址
      */
     private String webUrl;
@@ -78,7 +83,9 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
      * 配置是否有效
      */
     public boolean isValidate() {
-        return StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(webUrl)
+        return StringUtils.isNotEmpty(url)
+                && StringUtils.isNotEmpty(webUrl)
+                && StringUtils.isNotEmpty(loginUrl)
                 && StringUtils.isNotEmpty(account) && StringUtils.isNotEmpty(password);
     }
 
@@ -86,7 +93,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
         EolinkerSettings settings = this;
         HttpSession session = new HttpSession(settings.getCookies(), settings.getCookiesTtl());
         // 测试账户
-        try (EolinkerClient client = new EolinkerClient(settings.getUrl(), settings.getAccount(),
+        try (EolinkerClient client = new EolinkerClient(settings.getUrl(), settings.loginUrl, settings.getAccount(),
                 settings.getPassword(), session)) {
             EolinkerTestResult testResult = client.test();
             Code code = testResult.getCode();
@@ -149,6 +156,14 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
         this.webUrl = webUrl;
     }
 
+    public String getLoginUrl() {
+        return loginUrl;
+    }
+
+    public void setLoginUrl(String loginUrl) {
+        this.loginUrl = loginUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -166,6 +181,9 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
         if (webUrl != null ? !webUrl.equals(that.webUrl) : that.webUrl != null) {
             return false;
         }
+        if (loginUrl != null ? !loginUrl.equals(that.loginUrl) : that.loginUrl != null) {
+            return false;
+        }
         if (account != null ? !account.equals(that.account) : that.account != null) {
             return false;
         }
@@ -175,6 +193,7 @@ public class EolinkerSettings implements PersistentStateComponent<EolinkerSettin
     @Override
     public int hashCode() {
         int result = url != null ? url.hashCode() : 0;
+        result = 31 * result + (loginUrl != null ? loginUrl.hashCode() : 0);
         result = 31 * result + (webUrl != null ? webUrl.hashCode() : 0);
         result = 31 * result + (account != null ? account.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);

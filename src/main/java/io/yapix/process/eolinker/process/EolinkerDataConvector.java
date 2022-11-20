@@ -218,6 +218,7 @@ public class EolinkerDataConvector {
         property.setParamName(item.getDescription());
         property.setParamNotNull(item.getRequired() ? EolinkerRequired.YES : EolinkerRequired.NO);
         property.setDefaultValue(item.getDefaultValue());
+        property.setParamMock(item.getMock());
         return property;
     }
 

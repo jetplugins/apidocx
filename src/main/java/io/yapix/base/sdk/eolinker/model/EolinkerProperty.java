@@ -11,9 +11,13 @@ public class EolinkerProperty {
     private String paramKey;
     /** 参数类型 */
     private String paramType;
-    /** 是否允许为空 */
+    /**
+     * 是否允许为空
+     */
     private String paramNotNull;
-    /** 参数描述 */
+    /**
+     * 参数描述
+     */
     private String paramName;
 
     private String paramValue;
@@ -22,11 +26,17 @@ public class EolinkerProperty {
 
     private String paramNote;
 
-    /** 默认值 */
+    private String paramMock;
+
+    /**
+     * 默认值
+     */
     @SerializedName("default")
     private String defaultValue;
 
-    /** 子节点 */
+    /**
+     * 子节点
+     */
     private List<EolinkerProperty> childList;
 
 }

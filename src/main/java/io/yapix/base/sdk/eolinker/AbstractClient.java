@@ -1,11 +1,17 @@
 package io.yapix.base.sdk.eolinker;
 
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.yapix.base.sdk.eolinker.request.LoginResponseData;
+import io.yapix.base.sdk.eolinker.request.SsoResponse;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +35,7 @@ public abstract class AbstractClient implements Closeable {
 
     protected volatile HttpSession authSession;
     protected CloseableHttpClient httpClient;
+    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public AbstractClient() {
         RequestConfig requestConfig = RequestConfig.custom()
@@ -92,7 +99,16 @@ public abstract class AbstractClient implements Closeable {
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             String data = doHandleResponse(request, response);
             if (isStoreAuth) {
-                this.authSession = getSession(response);
+                Type type = new TypeToken<SsoResponse<LoginResponseData>>() {{
+                }}.getType();
+                SsoResponse<LoginResponseData> ssoResponse = gson.fromJson(data, type);
+                if (ssoResponse.isOk()) {
+                    LoginResponseData responseData = ssoResponse.getData();
+                    HttpSession session = new HttpSession();
+                    session.setCookies("Authorization=" + responseData.getJwt());
+                    session.setCookiesTtl(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
+                    this.authSession = session;
+                }
             }
             return data;
         } catch (IOException e) {

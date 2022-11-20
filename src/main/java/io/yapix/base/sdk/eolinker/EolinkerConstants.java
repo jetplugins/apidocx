@@ -3,6 +3,7 @@ package io.yapix.base.sdk.eolinker;
 public interface EolinkerConstants {
 
     String GetUserInfo = "/api/common/User/getUserInfo";
+    String SsoGetUserInfo = "/saasApi/common/User/getLoginInfo";
     String Login = "/userCenter/common/sso/login";
     String AddGroup = "/api/generalFunction/Group/addGroup";
     String GetGroupList = "/api/apiManagementPro/ApiGroup/getApiGroupData";

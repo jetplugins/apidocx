@@ -80,7 +80,10 @@ public class EolinkerSettingsDialog extends DialogWrapper {
             return new ValidationInfo("url must not be empty", form.getUrlField());
         }
         if (StringUtils.isEmpty(data.getWebUrl())) {
-            return new ValidationInfo("loginUrl must not be empty", form.getWebUrlField());
+            return new ValidationInfo("webUrl must not be empty", form.getWebUrlField());
+        }
+        if (StringUtils.isEmpty(data.getLoginUrl())) {
+            return new ValidationInfo("loginUrl must not be empty", form.getLoginUrlField());
         }
         if (StringUtils.isEmpty(data.getAccount())) {
             return new ValidationInfo("account must not be empty", form.getAccountField());

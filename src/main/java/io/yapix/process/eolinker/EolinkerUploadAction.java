@@ -51,7 +51,7 @@ public class EolinkerUploadAction extends AbstractAction {
 
         EolinkerSettings settings = EolinkerSettings.getInstance();
         HttpSession session = new HttpSession(settings.getCookies(), settings.getCookiesTtl());
-        EolinkerClient client = new EolinkerClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+        EolinkerClient client = new EolinkerClient(settings.getUrl(), settings.getLoginUrl(), settings.getAccount(), settings.getPassword(),
                 session);
         EolinkerUploader uploader = new EolinkerUploader(client);
         EolinkerWebUrlCalculator urlCalculator = new EolinkerWebUrlCalculator(settings.getWebUrl());

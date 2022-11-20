@@ -49,6 +49,8 @@ import org.apache.http.util.EntityUtils;
  */
 public class EolinkerClient extends AbstractClient {
 
+    private final String loginUrl;
+
     /**
      * 服务地址
      */
@@ -68,10 +70,11 @@ public class EolinkerClient extends AbstractClient {
 
     private EolinkerUserInfo userInfo;
 
-    public EolinkerClient(String url, String account, String password, HttpSession authSession) {
+    public EolinkerClient(String url, String loginUrl, String account, String password, HttpSession authSession) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         checkArgument(StringUtils.isNotEmpty(account), "account can't be null");
         checkArgument(StringUtils.isNotEmpty(password), "password can't be null");
+        this.loginUrl = loginUrl;
         this.url = url;
         this.account = account;
         this.password = password;
@@ -213,7 +216,7 @@ public class EolinkerClient extends AbstractClient {
         String verifyCode = DateFormatUtils.format(new Date(), "EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
         user.setVerifyCode(InternalUtils.md5(verifyCode));
 
-        HttpPost request = new HttpPost(url + EolinkerConstants.Login);
+        HttpPost request = new HttpPost(this.loginUrl + EolinkerConstants.Login);
         request.setEntity(new StringEntity(JsonUtils.toJson(user), ContentType.APPLICATION_JSON));
         execute(request, true);
     }
