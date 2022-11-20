@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -86,7 +85,7 @@ public class MockParser {
         }
 
         // 数字类型从最大、最小值
-        if (property.isNumberOrIntegerType() && ObjectUtils.anyNotNull(property.getMinimum(), property.getMaximum())) {
+        if (property.isNumberOrIntegerType() && (property.getMinimum() != null || property.getMaximum() == null)) {
             List<String> params = Lists.newArrayList();
             if (property.getMinimum() != null) {
                 params.add(property.getMinimum().toPlainString());
@@ -111,7 +110,7 @@ public class MockParser {
         }
 
         // 长度
-        if (property.isStringType() && ObjectUtils.anyNotNull(property.getMinLength(), property.getMaxLength())) {
+        if (property.isStringType() && (property.getMinLength() != null || property.getMaxLength() != null)) {
             List<String> params = Lists.newArrayList();
             if (property.getMinLength() != null) {
                 params.add(property.getMinLength().toString());

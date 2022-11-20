@@ -73,6 +73,12 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.0.0: <br>
+        - feat: 支持更多常量枚举解析<br>
+        - feat: 支持更多JSR303校验注解、分组校验<br>
+        - feat: 支持更多Jackson注解<br>
+        - fix: 修复无法上传Eolinker问题<br>
+        <br>
         0.9.7: <br>
         - feat: 支持导出为OpenApi3.0<br>
         - fix: 修复无法上传Eolinker问题<br>
@@ -86,14 +92,6 @@
         0.9.5: <br>
         - fix: 修复插件兼容性，支持IDEA 2022.2<br>
         - feat: 支持配置LocalDate, LocalTime时间类型格式<br>
-        <br>
-        0.9.4: <br>
-        - fix: 修复Controller注解无法识别问题<br>
-        <br>
-        0.9.3: <br>
-        - feat: 支持@JsonIgnore注解<br>
-        - feat: 支持组合自定义@Controller注解<br>
-        - fix: 修复@RequestMapping无法解析method参数<br>
       ]]></change-notes>
 
 </idea-plugin>
