@@ -29,6 +29,14 @@ public class CopyAsCurlAction extends AbstractAction {
         super(false);
     }
 
+    /**
+     * 检查前操作
+     */
+    public boolean before(AnActionEvent event, YapixConfig config) {
+        config.setStrict(false);
+        return true;
+    }
+
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
         if (apis.size() != 1) {

@@ -1,6 +1,7 @@
 package io.yapix.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
+import io.yapix.process.apifox.ApifoxUploadAction;
 import io.yapix.process.eolinker.EolinkerUploadAction;
 import io.yapix.process.rap2.Rap2UploadAction;
 import io.yapix.process.showdoc.ShowdocUploadAction;
@@ -32,6 +33,12 @@ public enum ActionType {
         @Override
         public AnAction getAction() {
             return new ShowdocUploadAction();
+        }
+    },
+    Apifox(ApifoxUploadAction.ACTION_TEXT) {
+        @Override
+        public AnAction getAction() {
+            return new ApifoxUploadAction();
         }
     },
 

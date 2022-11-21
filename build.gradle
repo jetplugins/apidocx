@@ -16,6 +16,11 @@ repositories {
 
 dependencies {
     implementation 'io.swagger.core.v3:swagger-models:2.2.2'
+    implementation 'io.github.openfeign:feign-core:12.1'
+    implementation 'io.github.openfeign:feign-jackson:12.1'
+    implementation 'io.github.openfeign.form:feign-form:3.8.0'
+    implementation 'org.slf4j:slf4j-api:2.0.4'
+
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'

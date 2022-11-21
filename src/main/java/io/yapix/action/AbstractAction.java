@@ -253,7 +253,11 @@ public abstract class AbstractAction extends AnAction {
                     if (urls != null && !urls.isEmpty()) {
                         ApiUploadResult uploadResult = urls.get(0);
                         String url = urls.size() == 1 ? uploadResult.getApiUrl() : uploadResult.getCategoryUrl();
-                        notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                        if (url != null && url.length() > 0) {
+                            notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                        } else {
+                            notifyInfo("Upload successful");
+                        }
                     }
                     threadPool.shutdown();
                     afterAction.get();

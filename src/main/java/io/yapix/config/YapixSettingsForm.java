@@ -1,8 +1,7 @@
 package io.yapix.config;
 
 import io.yapix.action.ActionType;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 
 /**
  * Yapix配置菜单界面
@@ -14,6 +13,7 @@ public class YapixSettingsForm {
     private JRadioButton rap2RadioButton;
     private JRadioButton eolinkerRadioButton;
     private JRadioButton showdocRadioButton;
+    private JRadioButton apifoxRadioButton;
 
     public JPanel getPanel() {
         return panel;
@@ -31,6 +31,9 @@ public class YapixSettingsForm {
             case ShowDoc:
                 showdocRadioButton.doClick();
                 break;
+            case Apifox:
+                apifoxRadioButton.doClick();
+                break;
             default:
                 yapiRadioButton.doClick();
         }
@@ -46,6 +49,8 @@ public class YapixSettingsForm {
             defaultAction = ActionType.Eolinker;
         } else if (showdocRadioButton.isSelected()) {
             defaultAction = ActionType.ShowDoc;
+        } else if (apifoxRadioButton.isSelected()) {
+            defaultAction = ActionType.Apifox;
         }
 
         YapixSettings data = new YapixSettings();

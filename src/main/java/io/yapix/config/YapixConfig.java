@@ -47,6 +47,11 @@ public class YapixConfig {
     private String showdocProjectId;
 
     /**
+     * apifox项目id
+     */
+    private String apifoxProjectId;
+
+    /**
      * YApi服务地址: 用于统一登录场景
      */
     private String yapiUrl;
@@ -143,6 +148,7 @@ public class YapixConfig {
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
         String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
         String showdocProjectId = properties.getProperty("showdocProjectId", "");
+        String apifoxProjectId = properties.getProperty("apifoxProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");
         String returnUnwrapTypes = properties.getProperty("returnUnwrapTypes", "");
         String parameterIgnoreTypes = properties.getProperty("parameterIgnoreTypes", "");
@@ -163,6 +169,7 @@ public class YapixConfig {
         config.rap2ProjectId = rap2ProjectId.trim();
         config.eolinkerProjectId = eolinkerProjectId.trim();
         config.showdocProjectId = showdocProjectId.trim();
+        config.apifoxProjectId = apifoxProjectId.trim();
         config.returnWrapType = returnWrapType.trim();
         config.returnUnwrapTypes = splitter.splitToList(returnUnwrapTypes);
         config.parameterIgnoreTypes = splitter.splitToList(parameterIgnoreTypes);
@@ -216,6 +223,7 @@ public class YapixConfig {
         config.setRap2ProjectId(settings.getRap2ProjectId());
         config.setEolinkerProjectId(settings.getEolinkerProjectId());
         config.setShowdocProjectId(settings.getShowdocProjectId());
+        config.setApifoxProjectId(settings.getApifoxProjectId());
         config.setReturnWrapType(settings.getReturnWrapType());
         config.setDateTimeFormatMvc(settings.getDateTimeFormatMvc());
         config.setDateTimeFormatJson(settings.getDateTimeFormatJson());
