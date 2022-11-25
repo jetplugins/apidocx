@@ -3,9 +3,9 @@ package io.yapix.process.yapi.config;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import io.yapix.base.sdk.yapi.response.YapiTestResult;
-import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
-import javax.swing.JComponent;
+import io.yapix.base.sdk.yapi.model.TestResult;
+import io.yapix.base.sdk.yapi.model.TestResult.Code;
+import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
@@ -53,14 +53,12 @@ public class YapiSettingsDialog extends DialogWrapper {
         YapiSettings originSettings = YapiSettings.getInstance();
         YapiSettings settings = form.get();
         settings.setCookies(originSettings.getCookies());
-        settings.setCookiesTtl(originSettings.getCookiesTtl());
 
         // 测试账户
-        YapiTestResult testResult = settings.testSettings();
+        TestResult testResult = settings.testSettings();
         Code code = testResult.getCode();
         if (code == Code.OK) {
-            settings.setCookies(testResult.getAuthCookies().getCookies());
-            settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
+            settings.setCookies(testResult.getCookies());
             // 存储配置
             YapiSettings.storeInstance(settings);
             super.doOKAction();

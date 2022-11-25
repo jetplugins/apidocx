@@ -1,11 +1,7 @@
 package io.yapix.process.yapi.config;
 
-import io.yapix.base.sdk.yapi.LoginWay;
-import javax.swing.JFormattedTextField;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import io.yapix.base.sdk.yapi.model.LoginWay;
+import javax.swing.*;
 
 /**
  * Yapi配置菜单界面

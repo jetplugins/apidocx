@@ -1,18 +1,14 @@
 package io.yapix.process.showdoc.config;
 
-import io.yapix.base.sdk.showdoc.AbstractClient.HttpSession;
 import io.yapix.base.sdk.showdoc.model.CaptchaResponse;
-import javax.swing.ImageIcon;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Showdoc配置菜单界面
  */
+@Getter
 public class ShowdocSettingsForm {
 
     private JTextField urlField;
@@ -23,7 +19,7 @@ public class ShowdocSettingsForm {
     private JLabel captchaImageLabel;
     private JTextField captchaField;
     private JLabel captchaLabel;
-    private HttpSession captchaSession;
+    private String captchaSession;
 
     public JPanel getPanel() {
         return panel;
@@ -54,25 +50,4 @@ public class ShowdocSettingsForm {
         this.captchaImageLabel.setIcon(new ImageIcon(captcha.getBytes()));
     }
 
-    //------------------generated-------------------//
-
-    public JTextField getUrlField() {
-        return urlField;
-    }
-
-    public JFormattedTextField getAccountField() {
-        return accountField;
-    }
-
-    public JPasswordField getPasswordField() {
-        return passwordField;
-    }
-
-    public JTextField getCaptchaField() {
-        return captchaField;
-    }
-
-    public HttpSession getCaptchaSession() {
-        return captchaSession;
-    }
 }

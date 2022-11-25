@@ -37,7 +37,7 @@
         <applicationService serviceImplementation="io.yapix.config.YapixSettings"/>
         <applicationService serviceImplementation="io.yapix.process.yapi.config.YapiSettings"/>
         <applicationService serviceImplementation="io.yapix.process.rap2.config.Rap2Settings"/>
-        <applicationService serviceImplementation="io.yapix.process.eolinker.config.EolinkerSettings"/>
+        <applicationService serviceImplementation="io.yapix.process.eolink.config.EolinkSettings"/>
         <applicationService serviceImplementation="io.yapix.process.apifox.config.ApifoxSettings"/>
         <applicationService serviceImplementation="io.yapix.process.showdoc.config.ShowdocSettings"/>
 
@@ -45,7 +45,7 @@
             <configurable displayName="YApi" instance="io.yapix.process.yapi.config.YapiSettingsConfiguration"/>
             <configurable displayName="Rap2" instance="io.yapix.process.rap2.config.Rap2SettingsConfiguration"/>
             <configurable displayName="Eolinker"
-                          instance="io.yapix.process.eolinker.config.EolinkerSettingsConfiguration"/>
+                          instance="io.yapix.process.eolink.config.EolinkSettingsConfiguration"/>
             <configurable displayName="Apifox"
                           instance="io.yapix.process.apifox.config.ApifoxSettingsConfiguration"/>
             <configurable displayName="ShowDoc"
@@ -65,7 +65,7 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction"/>
             <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction"/>
-            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolinker.EolinkerUploadAction"/>
+            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolink.EolinkUploadAction"/>
             <action id="yapix.ApifoxUploadAction" class="io.yapix.process.apifox.ApifoxUploadAction"/>
             <action id="yapix.ShowdocUploadAction" class="io.yapix.process.showdoc.ShowdocUploadAction"/>
             <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>

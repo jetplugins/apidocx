@@ -1,7 +1,7 @@
 package io.yapix.config;
 
 import com.intellij.openapi.options.Configurable;
-import javax.swing.JComponent;
+import javax.swing.*;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +24,7 @@ public class YapixSettingsConfiguration implements Configurable {
     public JComponent createComponent() {
         if (form == null) {
             form = new YapixSettingsForm();
+            form.set(YapixSettings.getInstance());
         }
         return form.getPanel();
     }

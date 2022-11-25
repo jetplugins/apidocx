@@ -49,14 +49,14 @@
               <text value="Rap2"/>
             </properties>
           </component>
-          <component id="37f48" class="javax.swing.JRadioButton" binding="eolinkerRadioButton" default-binding="true">
+          <component id="37f48" class="javax.swing.JRadioButton" binding="eolinkRadioButton" default-binding="true">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="84" height="44"/>
               </grid>
             </constraints>
             <properties>
-              <text value="Eolinker"/>
+              <text value="Eolinke"/>
             </properties>
           </component>
           <component id="15577" class="javax.swing.JRadioButton" binding="showdocRadioButton">

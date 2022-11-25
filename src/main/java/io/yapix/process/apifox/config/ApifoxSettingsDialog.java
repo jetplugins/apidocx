@@ -3,8 +3,8 @@ package io.yapix.process.apifox.config;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult.Code;
+import io.yapix.base.sdk.apifox.model.TestResult;
+import io.yapix.base.sdk.apifox.model.TestResult.Code;
 import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +55,7 @@ public class ApifoxSettingsDialog extends DialogWrapper {
         }
 
         // 登录校验
-        ApifoxTestResult testResult = settings.testSettings();
+        TestResult testResult = settings.testSettings();
         Code code = testResult.getCode();
         if (code == Code.OK) {
             settings.setAccessToken(testResult.getAccessToken());

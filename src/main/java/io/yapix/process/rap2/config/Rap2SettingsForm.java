@@ -1,18 +1,14 @@
 package io.yapix.process.rap2.config;
 
-import io.yapix.base.sdk.rap2.AbstractClient.HttpSession;
-import io.yapix.base.sdk.rap2.request.CaptchaResponse;
-import javax.swing.ImageIcon;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import io.yapix.base.sdk.rap2.dto.CaptchaResponse;
+import javax.swing.*;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Rap2配置菜单界面
  */
+@Getter
 public class Rap2SettingsForm {
 
     private JTextField urlField;
@@ -24,7 +20,7 @@ public class Rap2SettingsForm {
     private JTextField captchaField;
     private JLabel captchaLabel;
     private JTextField webUrlField;
-    private HttpSession captchaSession;
+    private String captchaSession;
 
     private static final String RAP2_URL = "http://rap2api.taobao.org";
     private static final String RAP2_WEB_URL = "http://rap2.taobao.org";
@@ -60,29 +56,4 @@ public class Rap2SettingsForm {
         this.captchaImageLabel.setIcon(new ImageIcon(captcha.getBytes()));
     }
 
-    //------------------generated-------------------//
-
-    public JTextField getUrlField() {
-        return urlField;
-    }
-
-    public JTextField getWebUrlField() {
-        return webUrlField;
-    }
-
-    public JFormattedTextField getAccountField() {
-        return accountField;
-    }
-
-    public JPasswordField getPasswordField() {
-        return passwordField;
-    }
-
-    public JTextField getCaptchaField() {
-        return captchaField;
-    }
-
-    public HttpSession getCaptchaSession() {
-        return captchaSession;
-    }
 }

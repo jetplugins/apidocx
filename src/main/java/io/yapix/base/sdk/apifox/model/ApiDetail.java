@@ -1,6 +1,6 @@
 package io.yapix.base.sdk.apifox.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -79,7 +79,7 @@ public class ApiDetail {
 
     @Data
     public static class Schema {
-        @JsonProperty("x-apifox-orders")
+        @SerializedName("x-apifox-orders")
         private List<String> xApifoxOrders;
 
         private String name;

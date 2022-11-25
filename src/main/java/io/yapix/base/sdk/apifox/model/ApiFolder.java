@@ -1,6 +1,5 @@
 package io.yapix.base.sdk.apifox.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import lombok.Data;
 
@@ -19,7 +18,6 @@ public class ApiFolder {
 
     private String type;
 
-    @JsonIgnore
     public boolean isRoot() {
         return "root".equals(type);
     }

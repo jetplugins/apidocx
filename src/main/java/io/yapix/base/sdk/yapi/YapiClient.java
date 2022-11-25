@@ -2,33 +2,25 @@ package io.yapix.base.sdk.yapi;
 
 import static java.lang.String.format;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-import io.yapix.base.sdk.yapi.model.AuthCookies;
-import io.yapix.base.sdk.yapi.model.YapiCategory;
-import io.yapix.base.sdk.yapi.model.YapiCategoryAddRequest;
-import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.model.YapiListInterfaceResponse;
-import io.yapix.base.sdk.yapi.response.YapiTestResult;
-import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import io.yapix.base.sdk.yapi.model.ApiCategory;
+import io.yapix.base.sdk.yapi.model.ApiInterface;
+import io.yapix.base.sdk.yapi.model.CategoryCreateRequest;
+import io.yapix.base.sdk.yapi.model.CreateInterfaceResponseItem;
+import io.yapix.base.sdk.yapi.model.ListInterfaceResponse;
+import io.yapix.base.sdk.yapi.model.LoginRequest;
+import io.yapix.base.sdk.yapi.model.LoginWay;
+import io.yapix.base.sdk.yapi.model.TestResult;
+import io.yapix.base.sdk.yapi.model.TestResult.Code;
+import java.util.Collection;
 import java.util.List;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
 /**
  * Yapi客户端
  */
-public class YapiClient extends AbstractClient {
+@Getter
+public class YapiClient {
 
     /**
      * 服务地址
@@ -42,56 +34,76 @@ public class YapiClient extends AbstractClient {
      * 密码
      */
     private final String password;
-    /** 登录方式 */
+    /**
+     * 登录方式
+     */
     private final LoginWay loginWay;
 
-    /** 项目token */
-    private final String token;
+    private final YapiApi yapiApi;
 
-    private final Gson gson = new Gson();
+    /**
+     * 项目token
+     */
+    private String token;
 
-    public YapiClient(String url, String account, String password, LoginWay loginWay,
-            String cookies, Long cookiesTtl) {
+    private String cookies;
+
+
+    public YapiClient(String url, String account, String password, LoginWay loginWay, String cookies) {
         this.url = url;
         this.account = account;
         this.password = password;
         this.loginWay = loginWay == null ? LoginWay.DEFAULT : loginWay;
-        this.authSession = new AbstractClient.HttpSession(cookies, cookiesTtl);
-        this.token = null;
+        this.cookies = cookies;
+        this.yapiApi = createYapiApi(url);
     }
 
     public YapiClient(String url, String token) {
         this.url = url;
         this.token = token;
+        this.yapiApi = createYapiApi(url);
         this.account = null;
         this.password = null;
         this.loginWay = null;
     }
 
-    public AuthCookies getAuthCookies() {
-        if (this.authSession == null) {
-            return null;
-        }
-        return new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
-    }
-
     /**
      * 测试是否正常
      */
-    public YapiTestResult test() {
-        String path = StringUtils.isNoneEmpty(token) ? YapiConstants.yapiProjectGet : YapiConstants.yapiUserStatus;
-        YapiTestResult result = new YapiTestResult();
+    public TestResult test() {
+        TestResult result = new TestResult();
+        YapiException exception = null;
+        boolean usingToken = StringUtils.isNoneEmpty(token);
         try {
-            requestGet(path);
-            result.setCode(Code.OK);
-            result.setAuthCookies(getAuthCookies());
+            if (usingToken) {
+                yapiApi.getProjects();
+            } else {
+                yapiApi.getUserStatus();
+            }
         } catch (YapiException e) {
-            if (e.isNeedAuth() || e.isAuthFailed()) {
+            exception = e;
+        }
+
+        // 强制刷新
+        if (!usingToken && exception != null && exception.isNeedAuth()) {
+            exception = null;
+            try {
+                getOrRefreshAccessToken(true);
+            } catch (YapiException e) {
+                exception = e;
+            }
+        }
+
+        if (exception == null) {
+            result.setCode(Code.OK);
+            result.setCookies(this.cookies);
+        } else {
+            if (exception.isNeedAuth() || exception.isAuthFailed()) {
                 result.setCode(Code.AUTH_ERROR);
-                result.setMessage(e.getMessage());
+                result.setMessage(exception.getMessage());
             } else {
                 result.setCode(Code.NETWORK_ERROR);
-                result.setMessage(e.getMessage());
+                result.setMessage(exception.getMessage());
             }
         }
         return result;
@@ -100,29 +112,23 @@ public class YapiClient extends AbstractClient {
     /**
      * 获取所有分类
      */
-    public List<YapiCategory> getCategories(int projectId) {
-        String path = format("%s?project_id=%d", YapiConstants.yapiCatMenu, projectId);
-        String data = requestGet(path);
-        return gson.fromJson(data, new TypeToken<List<YapiCategory>>() {
-        }.getType());
+    public List<ApiCategory> getCategories(Integer projectId) {
+        return yapiApi.getCategories(projectId).getData();
     }
 
     /**
      * 新增分类
      */
-    public YapiCategory addCategory(YapiCategoryAddRequest request) {
-        String data = requestPost(YapiConstants.yapiAddCat, request);
-        return gson.fromJson(data, YapiCategory.class);
+    public ApiCategory addCategory(CategoryCreateRequest request) {
+        return yapiApi.createCategory(request).getData();
     }
 
     /**
      * 获取单个接口信息
      */
-    public YapiInterface getInterface(int id) {
-        String path = format("%s?id=%d", YapiConstants.yapiGet, id);
-        String data = requestGet(path);
-        YapiInterface api = gson.fromJson(data, YapiInterface.class);
-        if (api != null) {
+    public ApiInterface getInterface(Integer id) {
+        ApiInterface api = yapiApi.getInterface(id).getData();
+        if (api != null && api.getId() == null) {
             api.setId(id);
         }
         return api;
@@ -131,26 +137,24 @@ public class YapiClient extends AbstractClient {
     /**
      * 新增分类
      */
-    public void saveInterface(YapiInterface api) {
-        boolean add = api.getId() == null;
-        String data = requestPost(add ? YapiConstants.yapiSave : YapiConstants.yapiUp, api);
-        if (add) {
-            JsonArray dataArray = gson.fromJson(data, JsonArray.class);
-            if (dataArray != null && dataArray.size() > 0) {
-                int apiId = dataArray.get(0).getAsJsonObject().get("_id").getAsInt();
-                api.setId(apiId);
+    public void saveInterface(ApiInterface api) {
+        Integer apiId = api.getId();
+        if (apiId == null) {
+            Response<List<CreateInterfaceResponseItem>> response = yapiApi.createInterface(api);
+            List<CreateInterfaceResponseItem> items = response.getData();
+            if (items != null && !items.isEmpty()) {
+                api.setId(items.get(0).getId());
             }
+        } else {
+            yapiApi.updateInterface(api);
         }
     }
 
     /**
      * 获取接口列表
      */
-    public YapiListInterfaceResponse listInterfaceByCat(Integer catId, int page, int limit) {
-        String path = format("%s?catid=%s&page=%d&limit=%d", YapiConstants.yapiListByCatId, encodeUri(String.valueOf(catId)), page,
-                limit);
-        String data = requestGet(path);
-        return gson.fromJson(data, YapiListInterfaceResponse.class);
+    public ListInterfaceResponse listInterfaceByCat(Integer catId, int page, int limit) {
+        return yapiApi.listInterfaceByCategory(catId, page, limit).getData();
     }
 
     /**
@@ -167,69 +171,54 @@ public class YapiClient extends AbstractClient {
         return format("%s/project/%d/interface/api/%d", url, projectId, id);
     }
 
-    /**
-     * 执行Get请求
-     */
-    public String requestGet(String path) {
-        HttpGet request = new HttpGet(this.url + pathWithToken(path));
-        return doRequest(request);
+    private YapiApi createYapiApi(String url) {
+        return YapiApi.feignBuilder()
+                .requestInterceptor(template -> {
+                    // 请求设置鉴权信息
+                    boolean isLogin = YapiConstants.isLoginPath(template.path());
+                    if (!isLogin) {
+                        if (this.token != null && !this.token.isEmpty()) {
+                            // TODO
+                        } else {
+                            template.header("cookie", getOrRefreshAccessToken(false));
+                        }
+                    }
+                })
+                .responseInterceptor(ctx -> {
+                    // 登录存储cookie
+                    String path = InternalUtils.getUrlPath(ctx.response().request().url());
+                    if (YapiConstants.isLoginPath(path)) {
+                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        this.cookies = InternalUtils.parseCookie(setCookies);
+                    }
+                    // 响应异常转换
+                    Object value = ctx.proceed();
+                    if (value instanceof Response) {
+                        Response<?> responseValue = (Response<?>) value;
+                        if (!responseValue.isSuccess()) {
+                            throw new YapiException(path, responseValue.getErrorCode(), responseValue.getErrorMessage());
+                        }
+                    }
+                    return value;
+                })
+                .errorDecoder((methodKey, response) -> {
+                    String path = InternalUtils.getUrlPath(response.request().url());
+                    return new YapiException(path, response.status(), response.reason());
+                })
+                .target(YapiApi.class, url);
     }
 
-    /**
-     * 执行Post请求
-     */
-    public String requestPost(String path, Object data) {
-        String json = gson.toJson(data);
-        HttpPost request = new HttpPost(url + pathWithToken(path));
-        request.setHeader("Content-type", "application/json;charset=utf-8");
-        request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
-        return doRequest(request);
-    }
-
-    private String pathWithToken(String path) {
-        if (StringUtils.isEmpty(token)) {
-            return path;
+    private String getOrRefreshAccessToken(boolean force) {
+        if (!force && this.cookies != null && !this.cookies.isEmpty()) {
+            return this.cookies;
         }
-        if (path.indexOf('?') == -1) {
-            return path + "?token=" + token;
+        LoginRequest loginRequest = LoginRequest.builder().email(this.account).password(this.password).build();
+        if (loginWay == LoginWay.LDAP) {
+            yapiApi.loginLdap(loginRequest);
+        } else {
+            yapiApi.login(loginRequest);
         }
-        return path + "&token=" + token;
-    }
-
-
-    @Override
-    void doFreshAuth() {
-        if (StringUtils.isNotEmpty(token)) {
-            return;
-        }
-        String path = this.loginWay.getPath();
-        JsonObject params = new JsonObject();
-        params.addProperty("email", this.account);
-        params.addProperty("password", this.password);
-        String json = gson.toJson(params);
-        HttpPost request = new HttpPost(url + path);
-        request.setHeader("Content-type", "application/json;charset=utf-8");
-        request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
-        execute(request, true);
-    }
-
-    @Override
-    String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
-        HttpEntity resEntity = response.getEntity();
-        String content = EntityUtils.toString(resEntity, StandardCharsets.UTF_8);
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode < 200 || statusCode > 299) {
-            throw new YapiException(request.getURI().getPath(), content, null);
-        }
-        YapiResponse yapiResponse = gson.fromJson(content, YapiResponse.class);
-        if (!yapiResponse.isOk()) {
-            throw new YapiException(request.getURI().getPath(), yapiResponse.getErrcode(),
-                    yapiResponse.getErrmsg());
-        }
-        if (yapiResponse.getData() == null) {
-            return null;
-        }
-        return gson.toJson(yapiResponse.getData());
+        return this.cookies;
     }
 
 }

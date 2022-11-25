@@ -5,10 +5,9 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.sdk.showdoc.ShowdocClient;
 import io.yapix.base.sdk.showdoc.model.CaptchaResponse;
-import io.yapix.base.sdk.showdoc.model.ShowdocTestResult;
-import io.yapix.base.sdk.showdoc.model.ShowdocTestResult.Code;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
+import io.yapix.base.sdk.showdoc.model.TestResult;
+import io.yapix.base.sdk.showdoc.model.TestResult.Code;
+import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,11 +58,10 @@ public class ShowdocSettingsDialog extends DialogWrapper {
 
         // 登录校验
         JTextField captchaField = form.getCaptchaField();
-        ShowdocTestResult testResult = settings.testSettings(captchaField.getText().trim(), form.getCaptchaSession());
-        ShowdocTestResult.Code code = testResult.getCode();
-        if (code == ShowdocTestResult.Code.OK) {
-            settings.setCookies(testResult.getAuthCookies().getCookies());
-            settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
+        TestResult testResult = settings.testSettings(captchaField.getText().trim(), form.getCaptchaSession());
+        TestResult.Code code = testResult.getCode();
+        if (code == TestResult.Code.OK) {
+            settings.setCookies(testResult.getCookies());
             // 存储配置
             ShowdocSettings.storeInstance(settings);
             super.doOKAction();
@@ -75,15 +73,12 @@ public class ShowdocSettingsDialog extends DialogWrapper {
             setErrorText("Auth failed: " + testResult.getMessage(), form.getPasswordField());
         }
         if (code == Code.AUTH_CAPTCHA_ERROR) {
-            try (ShowdocClient client = new ShowdocClient(settings.getUrl(), settings.getAccount(),
-                    settings.getPassword(),
-                    settings.getCookies(), settings.getCookiesTtl())) {
-                CaptchaResponse captcha = client.getCaptcha();
-                form.setCaptchaIcon(captcha);
-            }
-            form.getCaptchaField().setText("");
-            setErrorText("Captcha incorrect", form.getCaptchaField());
+            ShowdocClient client = new ShowdocClient(settings.getUrl(), settings.getAccount(), settings.getPassword(), settings.getCookies());
+            CaptchaResponse captcha = client.getCaptcha();
+            form.setCaptchaIcon(captcha);
         }
+        form.getCaptchaField().setText("");
+        setErrorText("Captcha incorrect", form.getCaptchaField());
     }
 
     @Nullable

@@ -4,13 +4,11 @@ import feign.RetryableException;
 import io.yapix.base.sdk.apifox.model.ApiDetail;
 import io.yapix.base.sdk.apifox.model.ApiFolder;
 import io.yapix.base.sdk.apifox.model.ApiTreeItem;
-import io.yapix.base.sdk.apifox.model.ApifoxResponse;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult.Code;
 import io.yapix.base.sdk.apifox.model.CreateFolderRequest;
 import io.yapix.base.sdk.apifox.model.LoginRequest;
 import io.yapix.base.sdk.apifox.model.LoginResponse;
-import java.io.Closeable;
+import io.yapix.base.sdk.apifox.model.TestResult;
+import io.yapix.base.sdk.apifox.model.TestResult.Code;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,7 @@ import java.util.Map;
 /**
  * Apifox客户端
  */
-public class ApifoxClient implements Closeable {
+public class ApifoxClient {
     private final String url;
     private final String account;
     private final String password;
@@ -36,11 +34,11 @@ public class ApifoxClient implements Closeable {
         this.password = password;
         this.accessToken = accessToken;
         this.projectId = projectId;
-        this.apifoxApi = createInstance(url);
+        this.apifoxApi = createApiClient(this.url);
     }
 
-    public ApifoxTestResult test() {
-        ApifoxTestResult result = new ApifoxTestResult();
+    public TestResult test() {
+        TestResult result = new TestResult();
         try {
             apifoxApi.getCurrentUser();
             result.setCode(Code.OK);
@@ -67,7 +65,7 @@ public class ApifoxClient implements Closeable {
      * 创建接口目录
      */
     public ApiFolder createApiFolder(CreateFolderRequest request) {
-        ApifoxResponse<ApiFolder> response = apifoxApi.createApiFolders(request);
+        Response<ApiFolder> response = apifoxApi.createApiFolders(request);
         return response.getData();
     }
 
@@ -84,7 +82,7 @@ public class ApifoxClient implements Closeable {
     public Long saveApiDetail(ApiDetail request) {
         Map<String, String> map = InternalUtils.beanToMap(request);
         if (request.getId() == null) {
-            ApifoxResponse<ApiDetail> response = apifoxApi.createApiDetail(map);
+            Response<ApiDetail> response = apifoxApi.createApiDetail(map);
             return response.getData().getId();
         } else {
             apifoxApi.updateApiDetail(request.getId(), map);
@@ -99,7 +97,7 @@ public class ApifoxClient implements Closeable {
         return apifoxApi.getApiTreeList(projectId).getData();
     }
 
-    private ApifoxApi createInstance(String url) {
+    private ApifoxApi createApiClient(String url) {
         return ApifoxApi.feignBuilder()
                 .requestInterceptor(template -> {
                     Map<String, Collection<String>> headers = template.headers();
@@ -112,11 +110,11 @@ public class ApifoxClient implements Closeable {
                 })
                 .responseInterceptor(ctx -> {
                     Object value = ctx.proceed();
-                    if (value instanceof ApifoxResponse) {
-                        ApifoxResponse<?> apifoxResponse = (ApifoxResponse<?>) value;
-                        if (!apifoxResponse.isSuccess()) {
+                    if (value instanceof Response) {
+                        Response<?> response = (Response<?>) value;
+                        if (!response.isSuccess()) {
                             String path = InternalUtils.getUrlPath(ctx.response().request().url());
-                            throw new ApifoxException(path, apifoxResponse.getErrorCode(), apifoxResponse.getErrorMessage());
+                            throw new ApifoxException(path, response.getErrorCode(), response.getErrorMessage());
                         }
                     }
                     return value;
@@ -139,18 +137,14 @@ public class ApifoxClient implements Closeable {
                     .account(this.account)
                     .password(this.password)
                     .build();
-            ApifoxResponse<LoginResponse> apifoxResponse = apifoxApi.login(loginRequest);
-            LoginResponse loginResponse = apifoxResponse.getData();
-            if (!apifoxResponse.isSuccess()) {
-                throw new ApifoxException(LOGIN_PATH, apifoxResponse.getErrorCode(), apifoxResponse.getErrorMessage());
+            Response<LoginResponse> response = apifoxApi.login(loginRequest);
+            LoginResponse loginResponse = response.getData();
+            if (!response.isSuccess()) {
+                throw new ApifoxException(LOGIN_PATH, response.getErrorCode(), response.getErrorMessage());
             }
             this.accessToken = loginResponse.getAccessToken();
         }
         return this.accessToken;
     }
 
-
-    @Override
-    public void close() {
-    }
 }

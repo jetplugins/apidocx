@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project;
 import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.apifox.ApifoxClient;
 import io.yapix.base.sdk.apifox.ApifoxWebUrlCalculator;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult;
+import io.yapix.base.sdk.apifox.model.TestResult;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.process.apifox.config.ApifoxSettings;
@@ -35,7 +35,7 @@ public class ApifoxUploadAction extends AbstractAction {
 
         Project project = event.getData(CommonDataKeys.PROJECT);
         ApifoxSettings settings = ApifoxSettings.getInstance();
-        if (!settings.isValidate() || ApifoxTestResult.Code.OK != settings.testSettings().getCode()) {
+        if (!settings.isValidate() || TestResult.Code.OK != settings.testSettings().getCode()) {
             ApifoxSettingsDialog dialog = ApifoxSettingsDialog.show(project, event.getPresentation().getText());
             return !dialog.isCanceled();
         }
@@ -44,25 +44,21 @@ public class ApifoxUploadAction extends AbstractAction {
 
     @Override
     public void handle(AnActionEvent event, YapixConfig config, List<Api> apis) {
-        Long projectId = Long.valueOf(config.getApifoxProjectId());
         Project project = event.getData(CommonDataKeys.PROJECT);
-
+        Long projectId = Long.valueOf(config.getApifoxProjectId());
         ApifoxSettings settings = ApifoxSettings.getInstance();
-        ApifoxClient client = new ApifoxClient(settings.getUrl(), settings.getAccount(), settings.getPassword(), settings.getAccessToken(), projectId);
-        ApifoxWebUrlCalculator urlCalculator = new ApifoxWebUrlCalculator(settings.getWebUrl());
-        ApifoxUploader uploader = new ApifoxUploader(client);
+        String webUrl = settings.getWebUrl();
 
+        ApifoxClient client = new ApifoxClient(settings.getUrl(), settings.getAccount(), settings.getPassword(), settings.getAccessToken(), projectId);
+        ApifoxUploader uploader = new ApifoxUploader(client);
         super.handleUploadAsync(project, apis,
                 api -> {
                     Long apiId = uploader.upload(projectId, api);
                     ApiUploadResult result = new ApiUploadResult();
-                    result.setCategoryUrl(urlCalculator.projectUrl(projectId));
-                    result.setApiUrl(urlCalculator.apiUrl(projectId, apiId));
+                    result.setCategoryUrl(ApifoxWebUrlCalculator.projectUrl(webUrl, projectId));
+                    result.setApiUrl(ApifoxWebUrlCalculator.apiUrl(webUrl, projectId, apiId));
                     return result;
-                }, () -> {
-                    client.close();
-                    return null;
-                });
+                }, null);
     }
 
     @Override

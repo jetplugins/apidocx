@@ -2,44 +2,32 @@ package io.yapix.base.sdk.rap2;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import io.yapix.base.sdk.rap2.model.AuthCookies;
+import io.yapix.base.sdk.rap2.dto.CaptchaResponse;
+import io.yapix.base.sdk.rap2.dto.InterfacePropertiesUpdateRequest;
+import io.yapix.base.sdk.rap2.dto.InterfaceUpdateRequest;
+import io.yapix.base.sdk.rap2.dto.LoginRequest;
+import io.yapix.base.sdk.rap2.dto.LoginResponse;
+import io.yapix.base.sdk.rap2.dto.ModuleCreateRequest;
+import io.yapix.base.sdk.rap2.dto.TestResult;
+import io.yapix.base.sdk.rap2.dto.TestResult.Code;
 import io.yapix.base.sdk.rap2.model.Rap2Interface;
 import io.yapix.base.sdk.rap2.model.Rap2InterfaceBase;
 import io.yapix.base.sdk.rap2.model.Rap2Module;
 import io.yapix.base.sdk.rap2.model.Rap2Repository;
 import io.yapix.base.sdk.rap2.model.Rap2User;
-import io.yapix.base.sdk.rap2.request.CaptchaResponse;
-import io.yapix.base.sdk.rap2.request.InterfaceCreateResponse;
-import io.yapix.base.sdk.rap2.request.InterfacePropertiesUpdateRequest;
-import io.yapix.base.sdk.rap2.request.InterfaceUpdateRequest;
-import io.yapix.base.sdk.rap2.request.LoginRequest;
-import io.yapix.base.sdk.rap2.request.ModuleCreateRequest;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.util.SvgUtils;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
 /**
  * Rap2客户端
  */
-public class Rap2Client extends AbstractClient {
+public class Rap2Client {
 
     /**
      * 服务地址
@@ -54,16 +42,25 @@ public class Rap2Client extends AbstractClient {
      */
     private final String password;
 
-    /** 当前用户信息 */
+    /**
+     * 当前用户信息
+     */
     private volatile Rap2User currentUser;
 
-    /** 验证码 */
+    /**
+     * 验证码
+     */
     private String captcha;
 
-    /** 验证码会话 */
-    private HttpSession captchaSession;
+    @Getter
+    private String cookies;
 
-    private final Gson gson = new GsonBuilder().serializeNulls().create();
+    /**
+     * 验证码会话
+     */
+    private String captchaCookies;
+
+    private final Rap2Api rap2Api;
 
 
     public Rap2Client(String url, String account, String password) {
@@ -73,38 +70,54 @@ public class Rap2Client extends AbstractClient {
         this.url = url;
         this.account = account;
         this.password = password;
+        this.rap2Api = createApiClient(url);
     }
 
-    public Rap2Client(String url, String account, String password, String cookies, Long cookiesTtl, Long userId) {
+    public Rap2Client(String url, String account, String password, String cookies, Long userId) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         this.url = url;
         this.account = account;
         this.password = password;
-        this.authSession = new HttpSession(cookies, cookiesTtl);
+        this.cookies = cookies;
         if (userId != null) {
             this.currentUser = new Rap2User(userId);
         }
+        this.rap2Api = createApiClient(url);
     }
 
     /**
      * 测试登录信息
      */
-    public Rap2TestResult test(String captcha, HttpSession captchaSession) {
+    public TestResult test(String captcha, String captchaCookies) {
         this.captcha = captcha;
-        this.captchaSession = captchaSession;
-        Rap2TestResult result = new Rap2TestResult();
-        try {
-            HttpGet request = new HttpGet(this.url + Rap2Constants.AccountInfoPath);
-            doRequest(request, false);
+        this.captchaCookies = captchaCookies;
 
-            result.setCode(Code.OK);
-            AuthCookies auth = new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
-            result.setAuthCookies(auth);
+        TestResult result = new TestResult();
+        Rap2Exception exception = null;
+        try {
+            rap2Api.getAccountInfo();
         } catch (Rap2Exception e) {
-            result.setMessage(e.getMessage());
-            if (e.isNeedAuth() || e.isAccountPasswordError()) {
+            exception = e;
+        }
+
+        // 强制刷新，重试一次
+        if (exception != null && exception.isNeedAuth()) {
+            exception = null;
+            try {
+                getOrRefreshAccessToken(true);
+            } catch (Rap2Exception e) {
+                exception = e;
+            }
+        }
+
+        if (exception == null) {
+            result.setCode(Code.OK);
+            result.setCookies(this.cookies);
+        } else {
+            result.setMessage(exception.getMessage());
+            if (exception.isNeedAuth() || exception.isAccountPasswordError()) {
                 result.setCode(Code.AUTH_ERROR);
-            } else if (e.isCaptchaError()) {
+            } else if (exception.isCaptchaError()) {
                 result.setCode(Code.AUTH_CAPTCHA_ERROR);
             } else {
                 result.setCode(Code.NETWORK_ERROR);
@@ -117,39 +130,24 @@ public class Rap2Client extends AbstractClient {
      * 获取验证码
      */
     public CaptchaResponse getCaptcha() {
-        String url = this.url + Rap2Constants.GetCaptcha;
-        HttpGet request = new HttpGet(url);
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-            HttpEntity resEntity = response.getEntity();
-            byte[] bytes = IOUtils.readFully(resEntity.getContent(), (int) resEntity.getContentLength());
+        try (feign.Response response = rap2Api.getCaptcha();) {
+            byte[] bytes = IOUtils.readFully(response.body().asInputStream(), response.body().length());
             bytes = SvgUtils.convertToJpegBytes(bytes);
-
-            this.captchaSession = getSession(response);
             CaptchaResponse captchaResponse = new CaptchaResponse();
             captchaResponse.setBytes(bytes);
-            captchaResponse.setSession(this.captchaSession);
+            String cookies = InternalUtils.parseCookie(response.headers().get("set-cookie"));
+            captchaResponse.setSession(cookies);
             return captchaResponse;
         } catch (IOException e) {
-            throw new Rap2Exception(request.getURI().getPath(), e.getMessage(), e);
+            throw new Rap2Exception(Rap2Constants.GetCaptcha, e.getMessage(), e);
         }
-    }
-
-    /**
-     * 登录
-     */
-    public void login(String captcha, HttpSession session) {
-        this.captcha = captcha;
-        this.captchaSession = session;
-        freshAuth(true);
     }
 
     /**
      * 获取仓库信息，包括模块信息
      */
     public Rap2Repository getRepository(long id) {
-        String path = Rap2Constants.GetRepositoryPath + String.format("?id=%d&excludeProperty=true", id);
-        String data = requestGet(path);
-        return gson.fromJson(data, Rap2Repository.class);
+        return rap2Api.getRepository(id).getData();
     }
 
     /**
@@ -177,17 +175,14 @@ public class Rap2Client extends AbstractClient {
         module.setCreatorId(this.currentUser.getId());
         module.setId(0L);
         module.setPriority(0L);
-        String data = requestPost(Rap2Constants.CreateModulePath, module);
-        return gson.fromJson(data, Rap2Module.class);
+        return rap2Api.createModule(module).getData();
     }
 
     /**
      * 获取接口信息
      */
-    public Rap2Interface getInterface(long id) {
-        String path = Rap2Constants.GetInterfacePath + String.format("?id=%d", id);
-        String data = requestGet(path);
-        return gson.fromJson(data, Rap2Interface.class);
+    public Rap2Interface getInterface(Long id) {
+        return rap2Api.getInterface(id).getData();
     }
 
     /**
@@ -196,10 +191,7 @@ public class Rap2Client extends AbstractClient {
     public Rap2InterfaceBase createInterface(Rap2InterfaceBase request) {
         checkArgument(request.getRepositoryId() != null, "repositoryId can't be null");
         checkArgument(request.getModuleId() != null, "moduleId can't be null");
-
-        String data = requestPost(Rap2Constants.CreateInterfacePath, request);
-        InterfaceCreateResponse response = gson.fromJson(data, InterfaceCreateResponse.class);
-        return response.getItf();
+        return rap2Api.createInterface(request).getData();
     }
 
     /**
@@ -207,38 +199,15 @@ public class Rap2Client extends AbstractClient {
      */
     public Rap2InterfaceBase updateInterface(InterfaceUpdateRequest request) {
         checkArgument(request.getId() != null, "id can't be null");
-
-        String data = requestPost(Rap2Constants.UpdateInterfacePath, request);
-        return gson.fromJson(data, Rap2Interface.class);
+        return rap2Api.updateInterface(request).getData();
     }
 
     /**
-     * 更新接口
+     * 更新接口属性项
      */
     public Rap2InterfaceBase updateInterfaceProperties(InterfacePropertiesUpdateRequest request) {
         checkArgument(request.getInterfaceId() != null, "interfaceId can't be null");
-        String path = Rap2Constants.UpdateInterfacePropertiesPath + "?itf=" + request.getInterfaceId();
-        String data = requestPost(path, request);
-        return gson.fromJson(data, Rap2Interface.class);
-    }
-
-    /**
-     * 执行Get请求
-     */
-    public String requestGet(String path) {
-        HttpGet request = new HttpGet(this.url + path);
-        return doRequest(request, true);
-    }
-
-    /**
-     * 执行Post请求
-     */
-    public String requestPost(String path, Object data) {
-        String json = gson.toJson(data);
-        HttpPost request = new HttpPost(url + path);
-        request.setHeader("Content-type", "application/json;charset=utf-8");
-        request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
-        return doRequest(request, true);
+        return rap2Api.updateInterfaceProperties(request.getInterfaceId(), request).getData();
     }
 
     /**
@@ -248,43 +217,67 @@ public class Rap2Client extends AbstractClient {
         return currentUser;
     }
 
-    @Override
-    public void doFreshAuth() {
-        LoginRequest authInfo = new LoginRequest();
-        authInfo.setEmail(this.account);
-        authInfo.setPassword(this.password);
-        authInfo.setCaptcha(this.captcha);
-        String json = gson.toJson(authInfo);
-        HttpPost request = new HttpPost(url + Rap2Constants.LoginPath);
-        request.setHeader("Content-type", "application/json;charset=utf-8");
-        if (this.captchaSession != null) {
-            request.setHeader("Cookie", this.captchaSession.getCookies());
-        }
+    private Rap2Api createApiClient(String url) {
+        return Rap2Api.feignBuilder()
+                .requestInterceptor(template -> {
+                    // 请求设置鉴权信息
+                    boolean needCookie = !Rap2Constants.isLoginPath(template.path()) && !Rap2Constants.isCaptchaPath(template.path());
+                    if (needCookie) {
+                        template.header("cookie", getOrRefreshAccessToken(false));
+                    }
+                })
+                .responseInterceptor(ctx -> {
+                    String path = InternalUtils.getUrlPath(ctx.response().request().url());
+                    // 响应异常转换
+                    Object value = ctx.proceed();
+                    if (value instanceof Response) {
+                        Response<?> responseValue = (Response<?>) value;
+                        if (!responseValue.isSuccess()) {
+                            throw new Rap2Exception(path, responseValue.getErrMsg());
+                        }
+                    }
 
-        request.setEntity(new StringEntity(json == null ? "" : json, StandardCharsets.UTF_8));
-        String userInfo = execute(request, true);
-        this.currentUser = gson.fromJson(userInfo, Rap2User.class);
+                    // 登录存储cookie
+                    if (Rap2Constants.isLoginPath(path)) {
+                        Response<LoginResponse> response = (Response<LoginResponse>) value;
+                        LoginResponse loginResult = response.getData();
+                        if (!loginResult.isSuccess()) {
+                            throw new Rap2Exception(path, loginResult.getErrMsg());
+                        }
+                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        this.cookies = InternalUtils.parseCookie(setCookies);
+                    }
+                    return value;
+                })
+                .errorDecoder((methodKey, response) -> {
+                    String path = InternalUtils.getUrlPath(response.request().url());
+                    return new Rap2Exception(path, response.status() + response.reason());
+                })
+                .target(Rap2Api.class, url);
     }
 
-    @Override
-    public String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
-        HttpEntity resEntity = response.getEntity();
-        String content = EntityUtils.toString(resEntity, StandardCharsets.UTF_8);
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode < 200 || statusCode > 299) {
-            throw new Rap2Exception(request.getURI().getPath(), content);
+    private String getOrRefreshAccessToken(boolean force) {
+        if (!force && this.cookies != null && !this.cookies.isEmpty()) {
+            return this.cookies;
         }
-        JsonObject rap2Response = gson.fromJson(content, JsonObject.class);
-        JsonObject data = rap2Response.getAsJsonObject("data");
-        if (data == null) {
-            JsonElement errMsg = rap2Response.get("errMsg");
-            throw new Rap2Exception(request.getURI().getPath(), errMsg.getAsString());
-        }
-        JsonElement errMsg = data.get("errMsg");
-        if (errMsg != null) {
-            throw new Rap2Exception(request.getURI().getPath(), errMsg.getAsString());
-        }
-
-        return gson.toJson(data);
+        this.currentUser = doLogin();
+        return this.cookies;
     }
+
+    private Rap2User doLogin() {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .email(this.account)
+                .password(this.password)
+                .captcha(this.captcha)
+                .build();
+        Response<LoginResponse> response = rap2Api.login(loginRequest, this.captchaCookies);
+        LoginResponse loginResponse = response.getData();
+
+        Rap2User user = new Rap2User();
+        user.setId(loginResponse.getId());
+        user.setEmail(loginResponse.getEmail());
+        user.setFullname(loginResponse.getFullname());
+        return user;
+    }
+
 }

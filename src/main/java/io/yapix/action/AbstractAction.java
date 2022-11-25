@@ -25,7 +25,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.yapix.base.StepResult;
 import io.yapix.base.util.ConcurrentUtils;
 import io.yapix.base.util.NotificationUtils;
 import io.yapix.base.util.PsiFileUtils;
@@ -200,13 +199,13 @@ public abstract class AbstractAction extends AnAction {
     /**
      * 异步上传模板方法
      *
-     * @param project     项目
-     * @param apis        待处理接口列表
-     * @param apiConsumer 单个接口数据消费者
-     * @param afterAction 所有接口列表处理完毕后的回调执行，用于关闭资源
+     * @param project       项目
+     * @param apis          待处理接口列表
+     * @param apiHandle     单个接口数据消费者
+     * @param afterCallback 所有接口列表处理完毕后的回调执行，用于关闭资源
      */
-    protected void handleUploadAsync(Project project, List<Api> apis, Function<Api, ApiUploadResult> apiConsumer,
-            Supplier<?> afterAction) {
+    protected void handleUploadAsync(Project project, List<Api> apis, Function<Api, ApiUploadResult> apiHandle,
+                                     Supplier<?> afterCallback) {
         // 异步处理
         ProgressManager.getInstance().run(new Task.Backgroundable(project, DefaultConstants.NAME) {
             @Override
@@ -232,7 +231,7 @@ public abstract class AbstractAction extends AnAction {
                                 String text = format("[%d/%d] %s %s", count.incrementAndGet(), apis.size(),
                                         api.getMethod(), api.getPath());
                                 indicator.setText(text);
-                                return apiConsumer.apply(api);
+                                return apiHandle.apply(api);
                             } catch (Exception e) {
                                 notifyError(
                                         String.format("Upload failed: [%s %s]", api.getMethod(), api.getPath()),
@@ -260,7 +259,9 @@ public abstract class AbstractAction extends AnAction {
                         }
                     }
                     threadPool.shutdown();
-                    afterAction.get();
+                    if (afterCallback != null) {
+                        afterCallback.get();
+                    }
                 }
             }
         });
@@ -353,6 +354,40 @@ public abstract class AbstractAction extends AnAction {
                 data.selectedClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
                 data.selectedMethod = PsiTreeUtil.getContextOfType(referenceAt, PsiMethod.class);
             }
+            return data;
+        }
+    }
+
+    /**
+     * 某个步骤的执行结果
+     */
+    public static class StepResult<T> {
+
+        private StepType type;
+        private T data;
+
+        public enum StepType {
+            CONTINUE, STOP
+        }
+
+        public boolean isContinue() {
+            return type == StepType.CONTINUE;
+        }
+
+        public StepResult(StepType type, T data) {
+            this.type = type;
+            this.data = data;
+        }
+
+        public static <T> StepResult<T> ok(T data) {
+            return new StepResult<>(StepResult.StepType.CONTINUE, data);
+        }
+
+        public static <T> StepResult<T> stop() {
+            return new StepResult<>(StepResult.StepType.STOP, null);
+        }
+
+        public T getData() {
             return data;
         }
     }

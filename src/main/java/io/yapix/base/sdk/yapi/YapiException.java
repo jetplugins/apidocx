@@ -1,10 +1,11 @@
 package io.yapix.base.sdk.yapi;
 
-import java.util.Arrays;
+import lombok.Getter;
 
 /**
  * Yapi客户端基异常
  */
+@Getter
 public class YapiException extends RuntimeException {
 
     private String path;
@@ -34,23 +35,11 @@ public class YapiException extends RuntimeException {
      * 认证失败，账户或密码错误
      */
     public boolean isAuthFailed() {
-        boolean isLoginPath = Arrays.stream(LoginWay.values())
-                .map(LoginWay::getPath).anyMatch(p -> path.equals(p));
+        boolean isLoginPath = YapiConstants.isLoginPath(path);
         return isLoginPath && (Integer.valueOf(400).equals(code)
                 || Integer.valueOf(404).equals(code)
                 || Integer.valueOf(401).equals(code)
         );
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
 }

@@ -7,8 +7,8 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import io.yapix.base.sdk.apifox.ApifoxClient;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult;
-import io.yapix.base.sdk.apifox.model.ApifoxTestResult.Code;
+import io.yapix.base.sdk.apifox.model.TestResult;
+import io.yapix.base.sdk.apifox.model.TestResult.Code;
 import io.yapix.base.util.PasswordSafeUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -83,15 +83,14 @@ public class ApifoxSettings implements PersistentStateComponent<ApifoxSettings> 
                 && StringUtils.isNotEmpty(password);
     }
 
-    public ApifoxTestResult testSettings() {
+    public TestResult testSettings() {
         // 测试账户
-        try (ApifoxClient client = new ApifoxClient(this.getUrl(), this.getAccount(), this.getPassword(), this.getAccessToken(), null)) {
-            ApifoxTestResult testResult = client.test();
-            if (testResult.getCode() == Code.OK) {
-                this.accessToken = testResult.getAccessToken();
-            }
-            return testResult;
+        ApifoxClient client = new ApifoxClient(this.getUrl(), this.getAccount(), this.getPassword(), this.getAccessToken(), null);
+        TestResult testResult = client.test();
+        if (testResult.getCode() == Code.OK) {
+            this.accessToken = testResult.getAccessToken();
         }
+        return testResult;
     }
 
 

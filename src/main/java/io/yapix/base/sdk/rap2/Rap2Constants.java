@@ -4,11 +4,12 @@ public interface Rap2Constants {
 
     String GetCaptcha = "/captcha";
     String LoginPath = "/account/login";
-    String AccountInfoPath = "/account/info";
-    String GetRepositoryPath = "/repository/get";
-    String CreateModulePath = "/module/create";
-    String GetInterfacePath = "/interface/get";
-    String CreateInterfacePath = "/interface/create";
-    String UpdateInterfacePath = "/interface/update";
-    String UpdateInterfacePropertiesPath = "/properties/update";
+
+    static boolean isLoginPath(String path) {
+        return LoginPath.equals(path);
+    }
+
+    static boolean isCaptchaPath(String path) {
+        return GetCaptcha.equals(path);
+    }
 }

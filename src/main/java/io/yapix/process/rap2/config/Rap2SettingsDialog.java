@@ -4,11 +4,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import io.yapix.base.sdk.rap2.Rap2Client;
-import io.yapix.base.sdk.rap2.request.CaptchaResponse;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
+import io.yapix.base.sdk.rap2.dto.CaptchaResponse;
+import io.yapix.base.sdk.rap2.dto.TestResult;
+import io.yapix.base.sdk.rap2.dto.TestResult.Code;
+import javax.swing.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,11 +58,10 @@ public class Rap2SettingsDialog extends DialogWrapper {
 
         // 登录校验
         JTextField captchaField = form.getCaptchaField();
-        Rap2TestResult testResult = settings.testSettings(captchaField.getText().trim(), form.getCaptchaSession());
+        TestResult testResult = settings.testSettings(captchaField.getText().trim(), form.getCaptchaSession());
         Code code = testResult.getCode();
         if (code == Code.OK) {
-            settings.setCookies(testResult.getAuthCookies().getCookies());
-            settings.setCookiesTtl(testResult.getAuthCookies().getTtl());
+            settings.setCookies(testResult.getCookies());
             settings.setCookiesUserId(testResult.getAuthUser().getId());
             // 存储配置
             Rap2Settings.storeInstance(settings);
@@ -76,11 +74,10 @@ public class Rap2SettingsDialog extends DialogWrapper {
             setErrorText("Auth failed: " + testResult.getMessage(), form.getPasswordField());
         }
         if (code == Code.AUTH_CAPTCHA_ERROR) {
-            try (Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                    settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId())) {
-                CaptchaResponse captcha = client.getCaptcha();
-                form.setCaptchaIcon(captcha);
-            }
+            Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
+                    settings.getCookies(), settings.getCookiesUserId());
+            CaptchaResponse captcha = client.getCaptcha();
+            form.setCaptchaIcon(captcha);
             form.getCaptchaField().setText("");
             setErrorText("Captcha incorrect", form.getCaptchaField());
         }

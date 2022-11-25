@@ -1,6 +1,5 @@
 package io.yapix.base.sdk.apifox.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import lombok.Data;
 
@@ -13,12 +12,10 @@ public class ApiTreeItem {
     private FolderInfo folder;
     private List<ApiTreeItem> children;
 
-    @JsonIgnore
     public boolean isApiType() {
         return "apiDetail".equals(type);
     }
 
-    @JsonIgnore
     public boolean isFolderType() {
         return "apiDetailFolder".equals(type);
     }

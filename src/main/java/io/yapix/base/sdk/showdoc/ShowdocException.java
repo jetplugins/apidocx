@@ -1,8 +1,11 @@
 package io.yapix.base.sdk.showdoc;
 
+import lombok.Getter;
+
 /**
  * Yapi客户端基异常
  */
+@Getter
 public class ShowdocException extends RuntimeException {
 
     private String path;
@@ -15,7 +18,7 @@ public class ShowdocException extends RuntimeException {
         this.errorMessage = errorMessage;
     }
 
-    public ShowdocException(String path, ShowdocResponse response) {
+    public ShowdocException(String path, Response response) {
         super(response.getErrorMessage());
         this.path = path;
         this.errorMessage = response.getErrorMessage();
@@ -39,11 +42,4 @@ public class ShowdocException extends RuntimeException {
         return errorCode != null && errorCode.equals(10210);
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
 }

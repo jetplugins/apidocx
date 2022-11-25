@@ -1,11 +1,11 @@
 package io.yapix.process.yapi.process;
 
 import com.google.common.collect.Sets;
-import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.model.YapiInterfaceStatus;
-import io.yapix.base.sdk.yapi.model.YapiMock;
-import io.yapix.base.sdk.yapi.model.YapiParameter;
-import io.yapix.base.sdk.yapi.model.YapiProperty;
+import io.yapix.base.sdk.yapi.model.ApiInterface;
+import io.yapix.base.sdk.yapi.model.ApiInterfaceStatus;
+import io.yapix.base.sdk.yapi.model.ApiParameter;
+import io.yapix.base.sdk.yapi.model.ApiProperty;
+import io.yapix.base.sdk.yapi.model.ApiProperty.Mock;
 import io.yapix.base.util.JsonUtils;
 import io.yapix.model.Api;
 import io.yapix.model.ParameterIn;
@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class YapiDataConvector {
 
-    public static YapiInterface convert(Integer projectId, Api api) {
-        YapiInterface yapi = new YapiInterface();
+    public static ApiInterface convert(Integer projectId, Api api) {
+        ApiInterface yapi = new ApiInterface();
         yapi.setProjectId(projectId);
         yapi.setTitle(StringUtils.isNotEmpty(api.getSummary()) ? api.getSummary() : api.getPath());
         yapi.setPath(api.getPath());
@@ -34,7 +34,7 @@ public class YapiDataConvector {
         yapi.setTag(api.getTags());
         yapi.setDesc(api.getDescription());
         yapi.setMenu(api.getCategory());
-        yapi.setStatus(YapiInterfaceStatus.undone.name());
+        yapi.setStatus(ApiInterfaceStatus.undone.name());
         yapi.setReqHeaders(resolveParameter(api, ParameterIn.header));
         yapi.setReqQuery(resolveParameter(api, ParameterIn.query));
         yapi.setReqBodyType(resolveReqBodyType(api));
@@ -60,14 +60,14 @@ public class YapiDataConvector {
     /**
      * 解析请求参数
      */
-    private static List<YapiParameter> resolveParameter(Api api, ParameterIn in) {
+    private static List<ApiParameter> resolveParameter(Api api, ParameterIn in) {
         if (api.getParameters() == null) {
             return Collections.emptyList();
         }
 
         List<Property> parameters = api.getParametersByIn(in);
-        List<YapiParameter> data = parameters.stream().map(p -> {
-            YapiParameter parameter = new YapiParameter();
+        List<ApiParameter> data = parameters.stream().map(p -> {
+            ApiParameter parameter = new ApiParameter();
             parameter.setName(p.getName());
             parameter.setDesc(p.getDescription());
             parameter.setExample(p.getExample());
@@ -81,7 +81,7 @@ public class YapiDataConvector {
 
         // 请求头
         if (in == ParameterIn.header && api.getRequestBodyType() != null) {
-            YapiParameter contentType = new YapiParameter();
+            ApiParameter contentType = new ApiParameter();
             contentType.setName("Content-Type");
             contentType.setValue(api.getRequestBodyType().getContentType());
             data.add(contentType);
@@ -93,13 +93,13 @@ public class YapiDataConvector {
     /**
      * 解析请求体表单
      */
-    private static List<YapiParameter> resolveReqBodyForm(Api api) {
+    private static List<ApiParameter> resolveReqBodyForm(Api api) {
         List<Property> items = api.getRequestBodyForm();
         if (items == null) {
             return Collections.emptyList();
         }
         return items.stream().map(p -> {
-            YapiParameter parameter = new YapiParameter();
+            ApiParameter parameter = new ApiParameter();
             parameter.setName(p.getName());
             parameter.setType("file".equals(p.getType()) ? "file" : "text");
             parameter.setDesc(p.getDescription());
@@ -121,7 +121,7 @@ public class YapiDataConvector {
         if (request == null) {
             return "";
         }
-        YapiProperty item = copyProperty(request);
+        ApiProperty item = copyProperty(request);
         return JsonUtils.toJson(item);
     }
 
@@ -133,21 +133,21 @@ public class YapiDataConvector {
         if (responses == null) {
             return "";
         }
-        YapiProperty property = copyProperty(responses);
+        ApiProperty property = copyProperty(responses);
         return JsonUtils.toJson(property);
     }
 
     /**
      * 复制Property为YapiProperty结构，包括子树
      */
-    private static YapiProperty copyProperty(Property property) {
-        YapiProperty yapiProperty = new YapiProperty();
-        yapiProperty.setType(property.getType());
-        yapiProperty.setDescription(property.getDescription());
-        yapiProperty.setDefaultValue(property.getDefaultValue());
+    private static ApiProperty copyProperty(Property property) {
+        ApiProperty apiProperty = new ApiProperty();
+        apiProperty.setType(property.getType());
+        apiProperty.setDescription(property.getDescription());
+        apiProperty.setDefaultValue(property.getDefaultValue());
 
         if (StringUtils.isNotEmpty(property.getMock())) {
-            yapiProperty.setMock(new YapiMock(property.getMock()));
+            apiProperty.setMock(new Mock(property.getMock()));
         }
         // 必填
         Set<String> required = Sets.newLinkedHashSet();
@@ -158,21 +158,21 @@ public class YapiDataConvector {
                 }
             }
         }
-        yapiProperty.setRequired(required);
+        apiProperty.setRequired(required);
         // 数组
         if (property.getItems() != null) {
-            yapiProperty.setUniqueItems(property.getUniqueItems());
-            yapiProperty.setMinItems(property.getMinLength());
-            yapiProperty.setMaxItems(property.getMaxLength());
-            yapiProperty.setItems(copyProperty(property.getItems()));
+            apiProperty.setUniqueItems(property.getUniqueItems());
+            apiProperty.setMinItems(property.getMinLength());
+            apiProperty.setMaxItems(property.getMaxLength());
+            apiProperty.setItems(copyProperty(property.getItems()));
         }
         if (property.isStringType()) {
-            yapiProperty.setMinLength(property.getMinLength());
-            yapiProperty.setMaxLength(property.getMaxLength());
+            apiProperty.setMinLength(property.getMinLength());
+            apiProperty.setMaxLength(property.getMaxLength());
         }
         // 对象
         if (property.getProperties() != null) {
-            Map<String, YapiProperty> yapiProperties = new LinkedHashMap<>();
+            Map<String, ApiProperty> yapiProperties = new LinkedHashMap<>();
             for (Entry<String, Property> entry : property.getProperties().entrySet()) {
                 String key = entry.getKey();
                 Property value = entry.getValue();
@@ -181,10 +181,10 @@ public class YapiDataConvector {
                 }
                 yapiProperties.put(key, copyProperty(value));
             }
-            yapiProperty.setProperties(yapiProperties);
+            apiProperty.setProperties(yapiProperties);
         }
 
-        return yapiProperty;
+        return apiProperty;
     }
 
 

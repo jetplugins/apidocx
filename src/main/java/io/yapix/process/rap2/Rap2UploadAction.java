@@ -7,8 +7,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.rap2.Rap2Client;
+import io.yapix.base.sdk.rap2.dto.TestResult.Code;
 import io.yapix.base.sdk.rap2.model.Rap2Interface;
-import io.yapix.base.sdk.rap2.request.Rap2TestResult.Code;
 import io.yapix.base.sdk.rap2.util.Rap2WebUrlCalculator;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
@@ -50,7 +50,7 @@ public class Rap2UploadAction extends AbstractAction {
 
         Rap2Settings settings = Rap2Settings.getInstance();
         Rap2Client client = new Rap2Client(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getCookies(), settings.getCookiesTtl(), settings.getCookiesUserId());
+                settings.getCookies(), settings.getCookiesUserId());
         Rap2Uploader uploader = new Rap2Uploader(client);
         Rap2WebUrlCalculator urlCalculator = new Rap2WebUrlCalculator(settings.getWebUrl());
 
@@ -66,10 +66,7 @@ public class Rap2UploadAction extends AbstractAction {
                             urlCalculator.calculateEditorUrl(rapi.getRepositoryId(), rapi.getModuleId(), null)
                     );
                     return result;
-                }, () -> {
-                    client.close();
-                    return null;
-                });
+                }, null);
     }
 
 

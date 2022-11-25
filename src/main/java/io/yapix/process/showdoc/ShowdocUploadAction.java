@@ -7,8 +7,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.showdoc.ShowdocClient;
-import io.yapix.base.sdk.showdoc.model.ShowdocTestResult.Code;
 import io.yapix.base.sdk.showdoc.model.ShowdocUpdateResponse;
+import io.yapix.base.sdk.showdoc.model.TestResult.Code;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.process.showdoc.config.ShowdocSettings;
@@ -48,8 +48,7 @@ public class ShowdocUploadAction extends AbstractAction {
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         ShowdocSettings settings = ShowdocSettings.getInstance();
-        ShowdocClient client = new ShowdocClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getCookies(), settings.getCookiesTtl());
+        ShowdocClient client = new ShowdocClient(settings.getUrl(), settings.getAccount(), settings.getPassword(), settings.getCookies());
         ShowdocUploader uploader = new ShowdocUploader(client);
 
         super.handleUploadAsync(project, apis,
@@ -60,10 +59,7 @@ public class ShowdocUploadAction extends AbstractAction {
                     result.setApiUrl(client.calculateWebUrl(sapi.getItemId(), sapi.getPageId()));
                     result.setCategoryUrl(client.calculateWebUrl(sapi.getItemId(), null));
                     return result;
-                }, () -> {
-                    client.close();
-                    return null;
-                });
+                }, null);
     }
 
     @Override

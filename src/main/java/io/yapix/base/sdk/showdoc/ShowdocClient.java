@@ -2,35 +2,25 @@ package io.yapix.base.sdk.showdoc;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import io.yapix.base.sdk.showdoc.model.AuthCookies;
 import io.yapix.base.sdk.showdoc.model.CaptchaResponse;
 import io.yapix.base.sdk.showdoc.model.LoginRequest;
-import io.yapix.base.sdk.showdoc.model.ProjectTokenGetRequest;
 import io.yapix.base.sdk.showdoc.model.ShowdocProjectToken;
-import io.yapix.base.sdk.showdoc.model.ShowdocTestResult;
-import io.yapix.base.sdk.showdoc.model.ShowdocTestResult.Code;
 import io.yapix.base.sdk.showdoc.model.ShowdocUpdateRequest;
 import io.yapix.base.sdk.showdoc.model.ShowdocUpdateResponse;
-import io.yapix.base.sdk.showdoc.util.InternalUtils;
+import io.yapix.base.sdk.showdoc.model.TestResult;
+import io.yapix.base.sdk.showdoc.model.TestResult.Code;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Map;
+import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.util.EntityUtils;
 
 /**
  * Showdoc客户端
  */
-public class ShowdocClient extends AbstractClient {
+public class ShowdocClient {
 
     /**
      * 服务地址
@@ -45,13 +35,21 @@ public class ShowdocClient extends AbstractClient {
      */
     private final String password;
 
-    /** 验证码 */
+    @Getter
+    private String cookies;
+
+    /**
+     * 验证码
+     */
     private String captcha;
 
-    /** 验证码会话 */
-    private HttpSession captchaSession;
+    /**
+     * 验证码会话
+     */
+    private String captchaCookies;
 
-    private final Gson gson = new GsonBuilder().serializeNulls().create();
+    private final ShowdocApi showdocApi;
+
 
     public ShowdocClient(String url, String account, String password) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
@@ -60,35 +58,51 @@ public class ShowdocClient extends AbstractClient {
         this.url = url;
         this.account = account;
         this.password = password;
+        this.showdocApi = createApiClient(url);
     }
 
-    public ShowdocClient(String url, String account, String password, String cookies, Long cookiesTtl) {
+    public ShowdocClient(String url, String account, String password, String cookies) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         this.url = url;
         this.account = account;
         this.password = password;
-        this.authSession = new HttpSession(cookies, cookiesTtl);
+        this.cookies = cookies;
+        this.showdocApi = createApiClient(url);
     }
 
     /**
      * 测试登录信息
      */
-    public ShowdocTestResult test(String captcha, HttpSession captchaSession) {
+    public TestResult test(String captcha, String captchaCookies) {
         this.captcha = captcha;
-        this.captchaSession = captchaSession;
-        ShowdocTestResult result = new ShowdocTestResult();
-        try {
-            HttpGet request = new HttpGet(url(ShowdocConstants.AccountInfoPath));
-            doRequest(request, false);
+        this.captchaCookies = captchaCookies;
 
-            result.setCode(Code.OK);
-            AuthCookies auth = new AuthCookies(this.authSession.getCookies(), this.authSession.getCookiesTtl());
-            result.setAuthCookies(auth);
+        TestResult result = new TestResult();
+        ShowdocException exception = null;
+        try {
+            showdocApi.getCurrentUserInfo(uri(ShowdocConstants.AccountInfoPath));
         } catch (ShowdocException e) {
-            result.setMessage(e.getMessage());
-            if (e.isNeedAuth() || e.isAccountPasswordError()) {
+            exception = e;
+        }
+
+        // 强制刷新，重试一次
+        if (exception != null && exception.isNeedAuth()) {
+            exception = null;
+            try {
+                getOrRefreshAccessToken(true);
+            } catch (ShowdocException e) {
+                exception = e;
+            }
+        }
+
+        if (exception == null) {
+            result.setCode(Code.OK);
+            result.setCookies(this.cookies);
+        } else {
+            result.setMessage(exception.getMessage());
+            if (exception.isNeedAuth() || exception.isAccountPasswordError()) {
                 result.setCode(Code.AUTH_ERROR);
-            } else if (e.isCaptchaError()) {
+            } else if (exception.isCaptchaError()) {
                 result.setCode(Code.AUTH_CAPTCHA_ERROR);
             } else {
                 result.setCode(Code.NETWORK_ERROR);
@@ -97,62 +111,47 @@ public class ShowdocClient extends AbstractClient {
         return result;
     }
 
-    private String url(String path) {
+    private URI uri(String path) {
+        String theUrl = this.url + "/server/index.php?s=" + path;
         boolean sassConcat = path.equals(ShowdocConstants.UpdatePageOpenApi)
                 && (this.url.contains("showdoc.cc") || this.url.contains("showdoc.com.cn"));
         if (sassConcat) {
-            return this.url + "/server" + path;
+            theUrl = this.url + "/server" + path;
         }
-        return this.url + "/server/index.php?s=" + path;
+        return URI.create(theUrl);
     }
 
     /**
      * 获取验证码
      */
     public CaptchaResponse getCaptcha() {
-        HttpGet request = new HttpGet(url(ShowdocConstants.GetCaptcha));
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-            HttpEntity resEntity = response.getEntity();
-            byte[] bytes = IOUtils.toByteArray(resEntity.getContent());
-            this.captchaSession = getSession(response);
+        try (feign.Response response = showdocApi.getCaptcha(uri(ShowdocConstants.GetCaptcha));) {
+            byte[] bytes = IOUtils.toByteArray(response.body().asInputStream());
+            this.captchaCookies = InternalUtils.parseCookie(response.headers().get("set-cookie"));
             CaptchaResponse captchaResponse = new CaptchaResponse();
             captchaResponse.setBytes(bytes);
-            captchaResponse.setSession(this.captchaSession);
+            captchaResponse.setSession(this.captchaCookies);
             return captchaResponse;
         } catch (IOException e) {
-            throw new ShowdocException(request.getURI().getPath(), e.getMessage(), e);
+            throw new ShowdocException(ShowdocConstants.GetCaptcha, e.getMessage(), e);
         }
-    }
-
-    /**
-     * 登录
-     */
-    public void login(String captcha, HttpSession session) {
-        this.captcha = captcha;
-        this.captchaSession = session;
-        freshAuth(true);
     }
 
     /**
      * 获取项目授权token
      */
     public ShowdocProjectToken getProjectToken(String projectId) {
-        ProjectTokenGetRequest request = new ProjectTokenGetRequest();
-        request.setItemId(projectId);
-        String json = requestPost(ShowdocConstants.GetItemKey, request);
-        return gson.fromJson(json, ShowdocProjectToken.class);
+        Response<ShowdocProjectToken> response = showdocApi.getProjectToken(uri(ShowdocConstants.GetItemKey), projectId);
+        return response.getData();
     }
 
     /**
      * 添加或保存文档，通过OpenApi提供接口
      */
     public ShowdocUpdateResponse updatePageByOpenApi(ShowdocUpdateRequest request) {
-        String json = requestPost(ShowdocConstants.UpdatePageOpenApi, request);
-        try {
-            return gson.fromJson(json, ShowdocUpdateResponse.class);
-        } catch (JsonSyntaxException e) {
-            return null;
-        }
+        Map<String, String> params = InternalUtils.beanToMap(request);
+        Response<ShowdocUpdateResponse> response = showdocApi.savePage(uri(ShowdocConstants.UpdatePageOpenApi), params);
+        return response.getData();
     }
 
     /**
@@ -165,44 +164,56 @@ public class ShowdocClient extends AbstractClient {
         return this.url + "/" + projectId + "/" + pageId;
     }
 
-    /**
-     * 执行Post请求
-     */
-    public String requestPost(String path, Object data) {
-        HttpPost request = new HttpPost(url(path));
-        if (data != null) {
-            request.setEntity(InternalUtils.beanToFormEntity(data));
-        }
-        return doRequest(request, true);
+
+    private ShowdocApi createApiClient(String url) {
+        return ShowdocApi.feignBuilder()
+                .requestInterceptor(template -> {
+                    // 请求设置鉴权信息
+                    boolean needCookie = !ShowdocConstants.isLoginPath(template.url()) && !ShowdocConstants.isCaptchaPath(template.url());
+                    if (needCookie) {
+                        template.header("cookie", getOrRefreshAccessToken(false));
+                    }
+                })
+                .responseInterceptor(ctx -> {
+                    String requestUrl = ctx.response().request().url();
+                    String path = InternalUtils.getUrlPath(requestUrl);
+                    // 响应异常转换
+                    Object value = ctx.proceed();
+                    if (value instanceof Response) {
+                        Response<?> responseValue = (Response<?>) value;
+                        if (!responseValue.isSuccess()) {
+                            throw new ShowdocException(path, responseValue);
+                        }
+                    }
+                    // 登录存储cookie
+                    if (ShowdocConstants.isLoginPath(requestUrl)) {
+                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        this.cookies = InternalUtils.parseCookie(setCookies);
+                    }
+                    return value;
+                })
+                .errorDecoder((methodKey, response) -> {
+                    String path = InternalUtils.getUrlPath(response.request().url());
+                    return new ShowdocException(path, response.status() + response.reason());
+                })
+                .target(ShowdocApi.class, url);
     }
 
-    @Override
-    public void doFreshAuth() {
-        LoginRequest data = new LoginRequest();
-        data.setUsername(this.account);
-        data.setPassword(this.password);
-        data.setV_code(this.captcha);
-
-        HttpPost request = new HttpPost(url(ShowdocConstants.LoginPath));
-        request.setEntity(InternalUtils.beanToFormEntity(data));
-        if (this.captchaSession != null) {
-            request.setHeader("Cookie", this.captchaSession.getCookies());
+    private String getOrRefreshAccessToken(boolean force) {
+        if (!force && this.cookies != null && !this.cookies.isEmpty()) {
+            return this.cookies;
         }
-        execute(request, true);
+        doLogin();
+        return this.cookies;
     }
 
-    @Override
-    public String doHandleResponse(HttpUriRequest request, HttpResponse response) throws IOException {
-        HttpEntity resEntity = response.getEntity();
-        String content = EntityUtils.toString(resEntity, StandardCharsets.UTF_8);
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode < 200 || statusCode > 299) {
-            throw new ShowdocException(request.getURI().getPath(), content);
-        }
-        ShowdocResponse r = gson.fromJson(content, ShowdocResponse.class);
-        if (!r.isOk()) {
-            throw new ShowdocException(request.getURI().getPath(), r);
-        }
-        return gson.toJson(r.getData());
+    private void doLogin() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername(this.account);
+        request.setPassword(this.password);
+        request.setV_code(this.captcha);
+
+        Map<String, String> params = InternalUtils.beanToMap(request);
+        showdocApi.login(uri(ShowdocConstants.LoginPath), params, this.captchaCookies);
     }
 }

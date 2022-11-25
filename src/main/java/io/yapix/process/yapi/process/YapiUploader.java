@@ -3,11 +3,11 @@ package io.yapix.process.yapi.process;
 import com.google.common.base.Strings;
 import io.yapix.base.sdk.yapi.YapiClient;
 import io.yapix.base.sdk.yapi.YapiException;
-import io.yapix.base.sdk.yapi.model.InterfaceVo;
-import io.yapix.base.sdk.yapi.model.YapiCategory;
-import io.yapix.base.sdk.yapi.model.YapiCategoryAddRequest;
-import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.model.YapiListInterfaceResponse;
+import io.yapix.base.sdk.yapi.model.ApiCategory;
+import io.yapix.base.sdk.yapi.model.ApiInterface;
+import io.yapix.base.sdk.yapi.model.ApiInterfaceVo;
+import io.yapix.base.sdk.yapi.model.CategoryCreateRequest;
+import io.yapix.base.sdk.yapi.model.ListInterfaceResponse;
 import io.yapix.model.Api;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +26,8 @@ public class YapiUploader {
         this.client = client;
     }
 
-    public YapiInterface upload(Integer projectId, Api api) {
-        YapiInterface data = YapiDataConvector.convert(projectId, api);
+    public ApiInterface upload(Integer projectId, Api api) {
+        ApiInterface data = YapiDataConvector.convert(projectId, api);
         Integer categoryId = getCatIdOrCreate(data.getProjectId(), data.getMenu());
         data.setCatid(categoryId);
         addOrUpdate(data);
@@ -45,7 +45,7 @@ public class YapiUploader {
                 return catId;
             }
             try {
-                List<YapiCategory> list = client.getCategories(projectId);
+                List<ApiCategory> list = client.getCategories(projectId);
                 String[] menus = menu.split("/");
                 // 循环多级菜单，判断是否存在，如果不存在就创建
                 //  解决多级菜单创建问题
@@ -57,10 +57,10 @@ public class YapiUploader {
                     }
                     boolean needAdd = true;
                     now_id = null;
-                    for (YapiCategory yapiCategory : list) {
-                        if (yapiCategory.getName().equals(menus[i])) {
+                    for (ApiCategory apiCategory : list) {
+                        if (apiCategory.getName().equals(menus[i])) {
                             needAdd = false;
-                            now_id = yapiCategory.getId();
+                            now_id = apiCategory.getId();
                             break;
                         }
                     }
@@ -86,8 +86,8 @@ public class YapiUploader {
     /**
      * 创建或更新接口
      */
-    private void addOrUpdate(YapiInterface api) {
-        YapiInterface originApi = findInterface(api);
+    private void addOrUpdate(ApiInterface api) {
+        ApiInterface originApi = findInterface(api);
         if (originApi != null) {
             api.setId(originApi.getId());
             if (!YapiInterfaceModifyJudge.isModify(originApi, api)) {
@@ -97,25 +97,25 @@ public class YapiUploader {
         client.saveInterface(api);
     }
 
-    private YapiInterface findInterface(YapiInterface yapiInterface) {
+    private ApiInterface findInterface(ApiInterface apiInterface) {
         // 比较: title + path + method
-        YapiListInterfaceResponse interfacesList = client.listInterfaceByCat(yapiInterface.getCatid(), 1, 1000);
-        InterfaceVo originInterface = interfacesList.getList().stream()
-                .filter(o -> Objects.equals(o.getTitle(), yapiInterface.getTitle())
-                        && Objects.equals(o.getPath(), yapiInterface.getPath())
-                        && Objects.equals(o.getMethod(), yapiInterface.getMethod()))
+        ListInterfaceResponse interfacesList = client.listInterfaceByCat(apiInterface.getCatid(), 1, 1000);
+        ApiInterfaceVo originInterface = interfacesList.getList().stream()
+                .filter(o -> Objects.equals(o.getTitle(), apiInterface.getTitle())
+                        && Objects.equals(o.getPath(), apiInterface.getPath())
+                        && Objects.equals(o.getMethod(), apiInterface.getMethod()))
                 .findFirst().orElse(null);
         // 比较: path + method
         if (originInterface == null) {
             originInterface = interfacesList.getList().stream()
-                    .filter(o -> Objects.equals(o.getPath(), yapiInterface.getPath())
-                            && Objects.equals(o.getMethod(), yapiInterface.getMethod()))
+                    .filter(o -> Objects.equals(o.getPath(), apiInterface.getPath())
+                            && Objects.equals(o.getMethod(), apiInterface.getMethod()))
                     .findFirst().orElse(null);
         }
         // 比较: title
         if (originInterface == null) {
             originInterface = interfacesList.getList().stream()
-                    .filter(o -> Objects.equals(o.getTitle(), yapiInterface.getTitle()))
+                    .filter(o -> Objects.equals(o.getTitle(), apiInterface.getTitle()))
                     .findFirst().orElse(null);
         }
         if (originInterface != null) {
@@ -129,8 +129,8 @@ public class YapiUploader {
      * 创建分类
      */
     private Integer addCategory(Integer projectId, Integer parent_id, String menu) {
-        YapiCategoryAddRequest req = new YapiCategoryAddRequest(menu, projectId, parent_id);
-        YapiCategory category = client.addCategory(req);
+        CategoryCreateRequest req = new CategoryCreateRequest(menu, projectId, parent_id);
+        ApiCategory category = client.addCategory(req);
         return category.getId();
     }
 

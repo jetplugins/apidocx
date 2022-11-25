@@ -7,8 +7,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import io.yapix.action.AbstractAction;
 import io.yapix.base.sdk.yapi.YapiClient;
-import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.response.YapiTestResult.Code;
+import io.yapix.base.sdk.yapi.model.ApiInterface;
+import io.yapix.base.sdk.yapi.model.TestResult.Code;
 import io.yapix.config.YapixConfig;
 import io.yapix.model.Api;
 import io.yapix.process.yapi.config.YapiSettings;
@@ -60,7 +60,7 @@ public class YapiUploadAction extends AbstractAction {
 
         super.handleUploadAsync(project, apis,
                 api -> {
-                    YapiInterface yapi = uploader.upload(projectId, api);
+                    ApiInterface yapi = uploader.upload(projectId, api);
 
                     ApiUploadResult result = new ApiUploadResult();
                     result.setCategoryUrl(client.calculateCatUrl(projectId, yapi.getCatid()));
@@ -70,10 +70,7 @@ public class YapiUploadAction extends AbstractAction {
                         result.setApiUrl(result.getCategoryUrl());
                     }
                     return result;
-                }, () -> {
-                    client.close();
-                    return null;
-                });
+                }, null);
     }
 
     private YapiClient createClient(YapixConfig config, YapiSettings settings) {
@@ -81,7 +78,7 @@ public class YapiUploadAction extends AbstractAction {
             return new YapiClient(config.getYapiUrl(), config.getYapiProjectToken());
         }
         return new YapiClient(settings.getUrl(), settings.getAccount(), settings.getPassword(),
-                settings.getLoginWay(), settings.getCookies(), settings.getCookiesTtl());
+                settings.getLoginWay(), settings.getCookies());
     }
 
 

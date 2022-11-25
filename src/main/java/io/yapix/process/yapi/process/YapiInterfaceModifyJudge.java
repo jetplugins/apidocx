@@ -1,8 +1,8 @@
 package io.yapix.process.yapi.process;
 
 import com.google.common.collect.Sets;
-import io.yapix.base.sdk.yapi.model.YapiInterface;
-import io.yapix.base.sdk.yapi.model.YapiParameter;
+import io.yapix.base.sdk.yapi.model.ApiInterface;
+import io.yapix.base.sdk.yapi.model.ApiParameter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ public class YapiInterfaceModifyJudge {
     /**
      * 判断接口是否变更
      */
-    public static boolean isModify(YapiInterface api1, YapiInterface api2) {
+    public static boolean isModify(ApiInterface api1, ApiInterface api2) {
         // 简单参数比较
         boolean simpleEqual = Objects.equals(api1.getCatid(), api2.getCatid())
                 && Objects.equals(api1.getTitle(), api2.getTitle())
@@ -51,7 +51,7 @@ public class YapiInterfaceModifyJudge {
         return set1.size() == set2.size() && set1.containsAll(set2);
     }
 
-    public static boolean compareParameters(List<YapiParameter> parameters1, List<YapiParameter> parameters2) {
+    public static boolean compareParameters(List<ApiParameter> parameters1, List<ApiParameter> parameters2) {
         int size1 = parameters1 != null ? parameters1.size() : 0;
         int size2 = parameters2 != null ? parameters2.size() : 0;
         if (size1 != size2) {
@@ -62,8 +62,8 @@ public class YapiInterfaceModifyJudge {
         }
         // 参数值比较
         for (int i = 0; i < parameters1.size(); i++) {
-            YapiParameter p1 = parameters1.get(i);
-            YapiParameter p2 = parameters2.get(i);
+            ApiParameter p1 = parameters1.get(i);
+            ApiParameter p2 = parameters2.get(i);
             if (!p1.equals(p2)) {
                 return false;
             }

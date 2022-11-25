@@ -7,4 +7,12 @@ public interface ShowdocConstants {
     String AccountInfoPath = "/api/user/info";
     String GetItemKey = "/api/item/getKey";
     String UpdatePageOpenApi = "/api/item/updateByApi";
+
+    static boolean isLoginPath(String path) {
+        return path != null && path.contains(LoginPath);
+    }
+
+    static boolean isCaptchaPath(String path) {
+        return path != null && path.contains(GetCaptcha);
+    }
 }

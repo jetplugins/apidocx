@@ -1,18 +1,18 @@
 package io.yapix.base.sdk.apifox;
 
+import lombok.experimental.UtilityClass;
+
+/**
+ * 页面路径计算工具
+ */
+@UtilityClass
 public class ApifoxWebUrlCalculator {
 
-    private final String url;
-
-    public ApifoxWebUrlCalculator(String url) {
-        this.url = url;
+    public String projectUrl(String url, Long projectId) {
+        return url + "/web/project/" + projectId;
     }
 
-    public String projectUrl(Long projectId) {
-        return this.url + "/web/project/" + projectId;
-    }
-
-    public String apiUrl(Long projectId, Long apiId) {
-        return projectUrl(projectId) + "/apis/api-" + apiId;
+    public String apiUrl(String url, Long projectId, Long apiId) {
+        return projectUrl(url, projectId) + "/apis/api-" + apiId;
     }
 }

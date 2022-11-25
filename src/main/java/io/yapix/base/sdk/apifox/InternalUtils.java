@@ -1,10 +1,12 @@
 package io.yapix.base.sdk.apifox;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -12,9 +14,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import lombok.SneakyThrows;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 内部工具包
@@ -22,11 +26,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 class InternalUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Gson gson = new Gson();
 
-    @SneakyThrows
     public static String toJson(Object data) {
-        return objectMapper.writeValueAsString(data);
+        return gson.toJson(data);
     }
 
     /**
@@ -42,6 +45,24 @@ class InternalUtils {
         return null;
     }
 
+
+    /**
+     * 解析SetCookie为Cookie
+     */
+    public static String parseCookie(Collection<String> setCookies) {
+        return setCookies.stream()
+                .map(c -> {
+                    List<HttpCookie> httpCookies = HttpCookie.parse(c);
+                    if (httpCookies.isEmpty()) {
+                        return null;
+                    }
+                    HttpCookie httpCookie = httpCookies.get(0);
+                    return httpCookie.getName() + "=" + httpCookie.getValue();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("; "));
+    }
+
     /**
      * Bean转换为Map, 非普通类型字段转化为Json字符串
      */
@@ -55,7 +76,15 @@ class InternalUtils {
             }
             field.setAccessible(true);
 
-            String name = field.getName();
+            String name = "";
+            SerializedName annotation = field.getAnnotation(SerializedName.class);
+            if (annotation != null) {
+                name = annotation.value().trim();
+            }
+            if (StringUtils.isEmpty(name)) {
+                name = field.getName();
+            }
+
             String value = null;
             try {
                 Object fieldValue = field.get(bean);
