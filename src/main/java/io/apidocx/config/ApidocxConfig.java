@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.apidocx.parse.util.PropertiesLoader;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -282,6 +283,25 @@ public class ApidocxConfig {
         }
         config.setMockRules(mockRules);
         return config;
+    }
+
+    public BeanCustom getBeanCustomSettings(String type) {
+        BeanCustom custom = null;
+        if (this.beans != null) {
+            custom = this.beans.get(type);
+        }
+        if (custom != null) {
+            if (custom.getIncludes() == null) {
+                custom.setIncludes(Collections.emptyNavigableSet());
+            }
+            if (custom.getExcludes() == null) {
+                custom.setExcludes(Collections.emptyNavigableSet());
+            }
+            if (custom.getFields() == null) {
+                custom.setFields(Maps.newHashMapWithExpectedSize(0));
+            }
+        }
+        return custom;
     }
 
 }

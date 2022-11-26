@@ -29,7 +29,7 @@ public final class DataTypeParser {
     /**
      * 获取字段类型
      */
-    public String parseType(PsiType type) {
+    public String parse(PsiType type) {
         // 数组类型处理
         if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type, this.project, this.module)) {
             return DataTypes.ARRAY;

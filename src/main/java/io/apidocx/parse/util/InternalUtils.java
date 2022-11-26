@@ -1,6 +1,8 @@
 package io.apidocx.parse.util;
 
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,12 +12,18 @@ import java.util.regex.Pattern;
  * @author chengsheng@qbb6.com
  * @date 2019/4/30 4:13 PM
  */
-public class StringUtilsExt {
+public class InternalUtils {
 
 
+    private static final Gson gson = new Gson();
     static Pattern humpPattern = Pattern.compile("[A-Z]");
 
     static final String DASH = "-";
+
+    public static <T> T clone(T t) {
+        return gson.fromJson(gson.toJson(t), new TypeToken<T>() {
+        }.getType());
+    }
 
     /**
      * 驼峰转化

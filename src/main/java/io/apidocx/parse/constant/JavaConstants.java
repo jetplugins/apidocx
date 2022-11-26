@@ -1,8 +1,5 @@
 package io.apidocx.parse.constant;
 
-/**
- * Java相关常量
- */
 public interface JavaConstants {
 
     String NotNull = "javax.validation.constraints.NotNull";
@@ -13,13 +10,9 @@ public interface JavaConstants {
     String Max = "javax.validation.constraints.Max";
     String DecimalMin = "javax.validation.constraints.DecimalMin";
     String DecimalMax = "javax.validation.constraints.DecimalMax";
-
     String Positive = "javax.validation.constraints.Positive";
-
     String PositiveOrZero = "javax.validation.constraints.PositiveOrZero";
-
     String Negative = "javax.validation.constraints.Negative";
-
     String NegativeOrZero = "javax.validation.constraints.NegativeOrZero";
 
 }

@@ -14,8 +14,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ApidocxActionGroup extends DefaultActionGroup {
 
+    public static final String ACTION_TEXT = "Apidocx";
+
     @Override
     public void update(@NotNull AnActionEvent event) {
+        event.getPresentation().setText(ACTION_TEXT);
+
         // 不存在模块不展示：选择多个模块
         Project project = event.getData(CommonDataKeys.PROJECT);
         Module module = event.getData(LangDataKeys.MODULE);

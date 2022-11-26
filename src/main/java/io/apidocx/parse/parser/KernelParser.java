@@ -1,7 +1,6 @@
 package io.apidocx.parse.parser;
 
 import static io.apidocx.base.util.NotificationUtils.notifyWarning;
-import static io.apidocx.parse.util.PsiGenericUtils.splitTypeAndGenericPair;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
@@ -27,8 +26,6 @@ import io.apidocx.parse.util.PsiFieldUtils;
 import io.apidocx.parse.util.PsiGenericUtils;
 import io.apidocx.parse.util.PsiTypeUtils;
 import io.apidocx.parse.util.PsiUtils;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,97 +59,104 @@ public class KernelParser {
         this.isResponse = isResponse;
     }
 
-    public Property parseType(PsiType psiType, String canonicalType) {
+    public Property parse(PsiType psiType) {
+        return parse(psiType, psiType.getCanonicalText());
+    }
+
+    public Property parse(PsiType psiType, String canonicalType) {
         TypeParseContext context = new TypeParseContext();
-        return parseType(context, psiType, canonicalType);
+        return parse(context, psiType, canonicalType);
     }
 
     /**
      * 解析指定类型
      */
-    public Property parseType(TypeParseContext context, PsiType psiType, String canonicalType) {
-        return doParseType(context, psiType, canonicalType, Sets.newHashSet());
+    public Property parse(TypeParseContext context, PsiType psiType, String canonicalType) {
+        return doParse(context, psiType, canonicalType, Sets.newHashSet());
     }
 
-    private Property doParseType(TypeParseContext context, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
-        Property item = new Property();
-        item.setRequired(false);
-        item.setType(DataTypes.OBJECT);
+    private Property doParse(TypeParseContext context, PsiType psiType, String canonicalType, Set<PsiClass> chains) {
+        Property property = new Property();
+        property.setRequired(false);
+        property.setType(DataTypes.OBJECT);
         if (StringUtils.isEmpty(canonicalType)) {
-            return item;
+            return property;
         }
 
         // 泛型分割处理
-        String[] types = splitTypeAndGenericPair(canonicalType);
+        String[] types = PsiGenericUtils.splitTypeAndGenericPair(canonicalType);
         String type = types[0];
         String genericTypes = types[1];
         if (PsiTypeUtils.isVoid(type)) {
             return null;
         }
-
         PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, type);
         if (psiClass != null) {
             psiType = PsiTypesUtil.getClassType(psiClass);
         }
         if (psiType == null) {
-            return item;
+            return property;
+        }
+        property.setType(dataTypeParser.parse(psiType));
+        property.setValues(parseHelper.getTypeValues(psiType));
+
+        // 文件类型
+        if (property.isFileType()) {
+            return property;
         }
 
-        item.setType(dataTypeParser.parseType(psiType));
-        item.setValues(parseHelper.getTypeValues(psiType));
-        // 文件： 无需继续解析
-        if (DataTypes.FILE.equals(item.getType())) {
-            return item;
-        }
         // Map类型
         if (PsiTypeUtils.isMap(psiType, this.project, this.module) || Object.class.getName().equals(type)) {
-            item.setType(DataTypes.OBJECT);
-            doHandleMap(context, item, genericTypes, chains);
-            return item;
+            property.setType(DataTypes.OBJECT);
+            doHandleMap(context, property, genericTypes, chains);
+            return property;
         }
+
         // 数组
         if (PsiTypeUtils.isArray(psiType)) {
             PsiArrayType arrayType = (PsiArrayType) psiType;
             PsiType componentType = arrayType.getComponentType();
-            Property items = doParseType(context, componentType, componentType.getCanonicalText(), chains);
-            item.setItems(items);
+            Property items = doParse(context, componentType, componentType.getCanonicalText(), chains);
+            property.setItems(items);
         }
+
         // 集合
         if (PsiTypeUtils.isCollection(psiType, this.project, this.module)) {
-            Property items = doParseType(context, null, genericTypes, chains);
-            item.setItems(items);
+            Property items = doParse(context, null, genericTypes, chains);
+            property.setItems(items);
         }
+
         // 对象
-        boolean isNeedParseObject = psiClass != null && item.isObjectType()
+        boolean isNeedParseObject = psiClass != null && property.isObjectType()
                 && (chains == null || !chains.contains(psiClass));
         if (isNeedParseObject) {
             Map<String, Property> properties = doParseBean(context, type, genericTypes, psiClass, chains);
-            item.setProperties(properties);
+            property.setProperties(properties);
         }
 
-        // 放最后解析会以来前面数据
-        String mock = mockParser.parseMock(item, psiType, null, null);
-        item.setMock(mock);
-        return item;
+        // Mock数据: 放最后面解析会用到上面的数据
+        String mock = mockParser.parse(property, psiType, null, null);
+        property.setMock(mock);
+        return property;
     }
 
     /**
      * 处理Map类型
      */
-    private void doHandleMap(TypeParseContext context, Property item, String genericTypes, Set<PsiClass> chains) {
-        // 尝试解析map值得类型
+    private void doHandleMap(TypeParseContext context, Property property, String genericTypes, Set<PsiClass> chains) {
+        // 尝试解析map中泛型
         if (StringUtils.isEmpty(genericTypes)) {
             return;
         }
 
         String[] kvGenericTypes = PsiGenericUtils.splitGenericParameters(genericTypes);
         if (kvGenericTypes.length >= 2) {
-            Property mapValueProperty = doParseType(context, null, kvGenericTypes[1], chains);
+            Property mapValueProperty = doParse(context, null, kvGenericTypes[1], chains);
             if (mapValueProperty != null) {
                 mapValueProperty.setName("KEY");
                 Map<String, Property> properties = Maps.newHashMap();
                 properties.put(mapValueProperty.getName(), mapValueProperty);
-                item.setProperties(properties);
+                property.setProperties(properties);
             }
         }
     }
@@ -160,12 +164,9 @@ public class KernelParser {
     @NotNull
     private Map<String, Property> doParseBean(TypeParseContext context, String type, String genericTypes, PsiClass psiClass,
                                               Set<PsiClass> chains) {
-        // 防止循环引用
-        HashSet<PsiClass> newChains = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
-        newChains.add(psiClass);
-        BeanCustom beanCustom = getBeanCustomSettings(type);
-
+        Set<PsiClass> newChains = createNewChains(chains, psiClass);
         Map<String, Property> properties = new LinkedHashMap<>();
+        BeanCustom beanCustom = this.settings.getBeanCustomSettings(type);
 
         // 针对接口/实体类, 检查是否存在@see引用
         for (String typeName : PsiDocCommentUtils.getTagTextSet(psiClass, DocumentTags.See)) {
@@ -183,7 +184,7 @@ public class KernelParser {
             }
 
             Optional.of(PsiTypesUtil.getClassType(refPsiClass))
-                    .map(it -> doParseType(context, it, it.getCanonicalText(), chains))
+                    .map(it -> doParse(context, it, it.getCanonicalText(), chains))
                     .map(Property::getProperties)
                     .ifPresent(properties::putAll);
         }
@@ -200,14 +201,14 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, filedType, genericTypes);
-                Property fieldProperty = doParseType(context, filedType, realType, newChains);
+                Property fieldProperty = doParse(context, filedType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
 
                 fieldProperty.setName(filedName);
                 fieldProperty.setDeprecated(parseHelper.getApiDeprecated(method));
-                fieldProperty.setMock(mockParser.parseMock(fieldProperty, filedType, null, filedName));
+                fieldProperty.setMock(mockParser.parse(fieldProperty, filedType, null, filedName));
                 if (beanCustom != null) {
                     handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
                 }
@@ -224,7 +225,7 @@ public class KernelParser {
                     continue;
                 }
                 String realType = PsiGenericUtils.getRealTypeWithGeneric(psiClass, fieldType, genericTypes);
-                Property fieldProperty = doParseType(context, fieldType, realType, newChains);
+                Property fieldProperty = doParse(context, fieldType, realType, newChains);
                 if (fieldProperty == null) {
                     continue;
                 }
@@ -256,7 +257,7 @@ public class KernelParser {
                 fieldProperty.setDescription(parseHelper.getFieldDescription(field, fieldProperty.getPropertyValues()));
                 fieldProperty.setDeprecated(parseHelper.getFieldDeprecated(field));
                 fieldProperty.setRequired(parseHelper.getFieldRequired(context, field));
-                fieldProperty.setMock(mockParser.parseMock(fieldProperty, fieldType, field, filedName));
+                fieldProperty.setMock(mockParser.parse(fieldProperty, fieldType, field, filedName));
 
                 if (beanCustom != null) {
                     handleWithBeanCustomField(fieldProperty, filedName, beanCustom);
@@ -267,41 +268,20 @@ public class KernelParser {
         return properties;
     }
 
-    /**
-     * 处理自定义的bean配置
-     */
-    private void handleWithBeanCustomField(Property filedItem, String fieldName, BeanCustom beanCustom) {
-        if (beanCustom.getFields() == null || !beanCustom.getFields().containsKey(fieldName)) {
-            return;
-        }
-        Property customItem = beanCustom.getFields().get(fieldName);
-        if (customItem == null) {
-            return;
-        }
-        filedItem.mergeCustom(customItem);
+    private Set<PsiClass> createNewChains(Set<PsiClass> chains, PsiClass psiClass) {
+        Set<PsiClass> newer = (chains != null) ? Sets.newHashSet(chains) : Sets.newHashSet();
+        newer.add(psiClass);
+        return newer;
     }
 
     /**
-     * 获取指定类型自定义的bean配置
+     * 处理自定义的bean配置
      */
-    private BeanCustom getBeanCustomSettings(String type) {
-        BeanCustom custom = null;
-        Map<String, BeanCustom> beans = settings.getBeans();
-        if (beans != null) {
-            custom = beans.get(type);
+    private void handleWithBeanCustomField(Property property, String fieldName, BeanCustom beanCustom) {
+        Property fieldProperty = beanCustom.getFieldProperty(fieldName);
+        if (fieldProperty != null) {
+            property.mergeCustom(fieldProperty);
         }
-        if (custom != null) {
-            if (custom.getIncludes() == null) {
-                custom.setIncludes(Collections.emptyNavigableSet());
-            }
-            if (custom.getExcludes() == null) {
-                custom.setExcludes(Collections.emptyNavigableSet());
-            }
-            if (custom.getFields() == null) {
-                custom.setFields(Maps.newHashMapWithExpectedSize(0));
-            }
-        }
-        return custom;
     }
 
 }

@@ -23,7 +23,7 @@ import io.apidocx.model.Property;
 import io.apidocx.model.RequestBodyType;
 import io.apidocx.parse.constant.SpringConstants;
 import io.apidocx.parse.model.Jsr303Info;
-import io.apidocx.parse.model.RequestParseInfo;
+import io.apidocx.parse.model.RequestInfo;
 import io.apidocx.parse.model.TypeParseContext;
 import io.apidocx.parse.util.PsiAnnotationUtils;
 import io.apidocx.parse.util.PsiDocCommentUtils;
@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 请求信息解析
@@ -67,27 +68,39 @@ public class RequestParser {
      * @param method     待处理的方法
      * @param httpMethod 当前方法的http请求方法
      */
-    public RequestParseInfo parse(PsiMethod method, HttpMethod httpMethod) {
-        List<PsiParameter> parameters = filterPsiParameters(method);
+    public RequestInfo parse(PsiMethod method, HttpMethod httpMethod) {
+        List<PsiParameter> parameters = filterMethodParameters(method);
         // 解析参数: 请求体类型，普通参数，请求体
-        RequestBodyType requestBodyType = getRequestBodyType(parameters, httpMethod);
         List<Property> requestParameters = getRequestParameters(method, parameters);
+        RequestBodyType requestBodyType = getRequestBodyType(parameters, httpMethod);
         List<Property> requestBody = getRequestBody(method, parameters, httpMethod, requestParameters);
 
-        // 数据填充
-        RequestParseInfo info = new RequestParseInfo();
-        info.setParameters(requestParameters);
-        info.setRequestBodyType(requestBodyType);
-        if (requestBodyType == RequestBodyType.form || requestBodyType == RequestBodyType.form_data) {
-            info.setRequestBodyForm(requestBody);
+        RequestInfo request = new RequestInfo();
+        request.setParameters(requestParameters);
+        request.setRequestBodyType(requestBodyType);
+        request.setRequestBodyForm(Collections.emptyList());
+        if (requestBodyType != null && requestBodyType.isFormOrFormData()) {
+            request.setRequestBodyForm(requestBody);
         } else if (!requestBody.isEmpty()) {
-            info.setRequestBody(requestBody.get(0));
+            request.setRequestBody(requestBody.get(0));
         }
-        if (info.getRequestBodyForm() == null) {
-            info.setRequestBodyForm(Collections.emptyList());
-        }
-        return info;
+        return request;
     }
+
+    /**
+     * 解析普通参数
+     */
+    public List<Property> getRequestParameters(PsiMethod method, List<PsiParameter> parameterList) {
+        List<PsiParameter> parameters = filterRequestParameters(parameterList);
+
+        return parameters.stream().flatMap(p -> {
+            Property property = doParseParameter(method, p);
+            List<Property> properties = flatProperty(property);
+            properties.forEach(this::doSetPropertyDateFormat);
+            return properties.stream();
+        }).collect(Collectors.toList());
+    }
+
 
     /**
      * 解析请求方式
@@ -105,11 +118,83 @@ public class RequestParser {
             return RequestBodyType.json;
         }
 
-        boolean multipartFile = parameters.stream().anyMatch(p -> PsiTypeUtils.isFileIncludeArray(p.getType()));
-        if (multipartFile) {
+        boolean multipart = parameters.stream().anyMatch(p -> PsiTypeUtils.isFileIncludeArray(p.getType()));
+        if (multipart) {
             return RequestBodyType.form_data;
         }
         return RequestBodyType.form;
+    }
+
+    /**
+     * 解析请求体内容
+     */
+    private List<Property> getRequestBody(PsiMethod method, List<PsiParameter> methodParameters, HttpMethod httpMethod,
+                                          List<Property> requestParameters) {
+        if (!httpMethod.isAllowBody()) {
+            return Lists.newArrayList();
+        }
+        Map<String, String> paramTags = PsiDocCommentUtils.getTagParamTextMap(method);
+        Property bodyProperty = null;
+
+        // JSON: 解析@RequestBody注解参数、自定义@RequestBody注解参数
+        PsiParameter bodyParameter = methodParameters.stream()
+                .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
+        if (bodyParameter != null) {
+            bodyProperty = kernelParser.parse(bodyParameter.getType());
+            String description = paramTags.get(bodyParameter.getName());
+            if (StringUtils.isNotEmpty(description)) {
+                bodyProperty.setDescription(description);
+            }
+        }
+        List<ParameterAnnotationPair> bodyParamParameters = getRequestBodyParamParameters(methodParameters);
+        if (!bodyParamParameters.isEmpty()) {
+            if (bodyProperty == null) {
+                bodyProperty = new Property();
+                bodyProperty.setRequired(false);
+                bodyProperty.setType(DataTypes.OBJECT);
+            }
+            for (ParameterAnnotationPair pair : bodyParamParameters) {
+                PsiParameter parameter = pair.getParameter();
+                PsiAnnotation annotation = pair.getAnnotation();
+
+                Property property = kernelParser.parse(parameter.getType());
+                property.setRequired(true);
+                property.setDescription(paramTags.get(parameter.getName()));
+                String name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation,
+                        settings.getRequestBodyParamType().getProperty());
+                if (StringUtils.isEmpty(name)) {
+                    name = parameter.getName();
+                }
+                bodyProperty.addProperty(name, property);
+            }
+        }
+        if (bodyProperty != null) {
+            return Lists.newArrayList(bodyProperty);
+        }
+
+        // 2.文件类型
+        List<Property> formProperties = Lists.newArrayList();
+        List<PsiParameter> fileParameters = methodParameters.stream()
+                .filter(p -> PsiTypeUtils.isFileIncludeArray(p.getType())).collect(Collectors.toList());
+        for (PsiParameter p : fileParameters) {
+            Property item = kernelParser.parse(p.getType());
+            item.setType(DataTypes.FILE);
+            item.setName(p.getName());
+            item.setRequired(true);
+            item.setDescription(paramTags.get(p.getName()));
+            formProperties.add(item);
+        }
+        // 表单：查询参数合并查询参数到表单
+        if (requestParameters != null) {
+            List<Property> queries = requestParameters.stream()
+                    .filter(p -> p.getIn() == ParameterIn.query).collect(Collectors.toList());
+            for (Property query : queries) {
+                query.setIn(null);
+                formProperties.add(query);
+            }
+            requestParameters.removeAll(queries);
+        }
+        return formProperties;
     }
 
     /**
@@ -132,122 +217,6 @@ public class RequestParser {
         return pairs;
     }
 
-    /**
-     * 解析请求体内容
-     */
-    private List<Property> getRequestBody(PsiMethod method, List<PsiParameter> parameters, HttpMethod httpMethod,
-                                          List<Property> requestParameters) {
-        if (!httpMethod.isAllowBody()) {
-            return Lists.newArrayList();
-        }
-        Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
-
-        // Json请求: 找到@RequestBody注解参数, 自定义@RequestBody类型
-        Property jsonBodyItem = null;
-        PsiParameter bp = parameters.stream()
-                .filter(p -> p.getAnnotation(RequestBody) != null).findFirst().orElse(null);
-        if (bp != null) {
-            jsonBodyItem = kernelParser.parseType(bp.getType(), bp.getType().getCanonicalText());
-            // 方法上的参数描述
-            String parameterDescription = paramTagMap.get(bp.getName());
-            if (StringUtils.isNotEmpty(parameterDescription)) {
-                jsonBodyItem.setDescription(parameterDescription);
-            }
-        }
-        List<ParameterAnnotationPair> requestBodyParamParameters = getRequestBodyParamParameters(parameters);
-        if (!requestBodyParamParameters.isEmpty()) {
-            if (jsonBodyItem == null) {
-                jsonBodyItem = new Property();
-                jsonBodyItem.setRequired(false);
-                jsonBodyItem.setType(DataTypes.OBJECT);
-            }
-            for (ParameterAnnotationPair pair : requestBodyParamParameters) {
-                PsiAnnotation annotation = pair.getAnnotation();
-                PsiParameter parameter = pair.getParameter();
-                Property property = kernelParser.parseType(parameter.getType(), parameter.getType().getCanonicalText());
-                property.setRequired(true);
-                String name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(annotation,
-                        settings.getRequestBodyParamType().getProperty());
-                if (StringUtils.isEmpty(name)) {
-                    name = parameter.getName();
-                }
-                String description = paramTagMap.get(parameter.getName());
-                if (StringUtils.isNotEmpty(description)) {
-                    property.setDescription(description);
-                }
-                jsonBodyItem.addProperty(name, property);
-            }
-        }
-
-
-        if (jsonBodyItem != null) {
-            return Lists.newArrayList(jsonBodyItem);
-        }
-
-        // 文件
-        List<Property> items = Lists.newArrayList();
-        List<PsiParameter> fileParameters = parameters.stream()
-                .filter(p -> PsiTypeUtils.isFileIncludeArray(p.getType())).collect(Collectors.toList());
-        for (PsiParameter p : fileParameters) {
-            Property item = kernelParser.parseType(p.getType(), p.getType().getCanonicalText());
-            item.setType(DataTypes.FILE);
-            item.setName(p.getName());
-            item.setRequired(true);
-            // 方法上的参数描述
-            String parameterDescription = paramTagMap.get(p.getName());
-            if (StringUtils.isNotEmpty(parameterDescription)) {
-                item.setDescription(parameterDescription);
-            }
-            items.add(item);
-        }
-
-        // 表单：查询参数合并查询参数到表单
-        if (requestParameters != null) {
-            List<Property> queries = requestParameters.stream()
-                    .filter(p -> p.getIn() == ParameterIn.query).collect(Collectors.toList());
-            for (Property query : queries) {
-                query.setIn(null);
-                items.add(query);
-            }
-            requestParameters.removeAll(queries);
-        }
-        return items;
-    }
-
-    /**
-     * 解析普通参数
-     */
-    public List<Property> getRequestParameters(PsiMethod method, List<PsiParameter> parameterList) {
-        List<PsiParameter> parameters = parameterList.stream()
-                .filter(p -> p.getAnnotation(RequestBody) == null)
-                .filter(p -> {
-                    // 过滤掉自定义@RequestBody类型的参数
-                    RequestBodyParamType requestBodyParamType = settings.getRequestBodyParamType();
-                    if (requestBodyParamType == null) {
-                        return true;
-                    }
-                    PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(p,
-                            requestBodyParamType.getAnnotation());
-                    return annotation == null;
-                })
-                .filter(p -> !PsiTypeUtils.isFileIncludeArray(p.getType()))
-                .collect(Collectors.toList());
-
-        // 获取方法@param标记信息
-        Map<String, String> paramTagMap = PsiDocCommentUtils.getTagParamTextMap(method);
-
-        List<Property> items = Lists.newArrayListWithExpectedSize(parameters.size());
-        for (PsiParameter parameter : parameters) {
-            Property item = doParseParameter(method, parameter);
-            item.setDescription(parseHelper.getParameterDescription(parameter, paramTagMap, item.getPropertyValues()));
-            // 当参数是bean时，需要获取包括参数
-            List<Property> parameterItems = resolveItemToParameters(item);
-            items.addAll(parameterItems);
-        }
-        items.forEach(this::doSetPropertyDateFormat);
-        return items;
-    }
-
     private void doSetPropertyDateFormat(Property item) {
         // 附加时间格式
         StringBuilder sb = new StringBuilder();
@@ -267,22 +236,12 @@ public class RequestParser {
      * 解析单个参数
      */
     private Property doParseParameter(PsiMethod method, PsiParameter parameter) {
-        // 支持分组校验JSR303
-        PsiAnnotation validatedAnnotation = PsiAnnotationUtils.getAnnotation(parameter, SpringConstants.Validated);
-        if (validatedAnnotation == null) {
-            validatedAnnotation = PsiAnnotationUtils.getAnnotation(method, SpringConstants.Validated);
-        }
-        List<String> validatedClasses = Lists.newArrayList();
-        if (validatedAnnotation != null) {
-            validatedClasses = PsiAnnotationUtils.getStringArrayAttribute(validatedAnnotation, "value");
-        }
-        TypeParseContext context = new TypeParseContext();
-        context.setJsr303ValidateGroups(validatedClasses);
+        // 解析类型中的信息
+        TypeParseContext context = createTypeParseContext(method, parameter);
+        Property property = kernelParser.parse(context, parameter.getType(), parameter.getType().getCanonicalText());
 
-        Property item = kernelParser.parseType(context, parameter.getType(), parameter.getType().getCanonicalText());
-        dateParser.handle(item, parameter);
-
-        // 处理参数注解: @RequestParam等
+        // 方法参数级别信息处理
+        dateParser.handle(property, parameter);
         PsiAnnotation annotation = null;
         ParameterIn in = ParameterIn.query;
         Map<String, ParameterIn> targets = new LinkedHashMap<>();
@@ -318,48 +277,51 @@ public class RequestParser {
         if (required == null) {
             required = parseHelper.getParameterRequired(parameter);
         }
+        Map<String, String> paramTags = PsiDocCommentUtils.getTagParamTextMap(method);
+        String description = parseHelper.getParameterDescription(parameter, paramTags, property.getPropertyValues());
+        property.setIn(in);
+        property.setName(name);
+        property.setDescription(description);
+        property.setRequired(required != null ? required : false);
+        property.setDefaultValue(defaultValue);
 
         // JSR303注解
         Jsr303Info jsr303Info = parseHelper.getJsr303Info(parameter);
         if (jsr303Info.getMinLength() != null) {
-            item.setMinLength(jsr303Info.getMinLength());
+            property.setMinLength(jsr303Info.getMinLength());
         }
         if (jsr303Info.getMaxLength() != null) {
-            item.setMaxLength(jsr303Info.getMaxLength());
+            property.setMaxLength(jsr303Info.getMaxLength());
         }
         if (jsr303Info.getMinimum() != null) {
-            item.setMinimum(jsr303Info.getMinimum());
+            property.setMinimum(jsr303Info.getMinimum());
         }
         if (jsr303Info.getMaximum() != null) {
-            item.setMaximum(jsr303Info.getMaximum());
+            property.setMaximum(jsr303Info.getMaximum());
         }
-        item.setIn(in);
-        item.setName(name);
-        item.setRequired(required != null ? required : false);
-        item.setDefaultValue(defaultValue);
-        return item;
+        return property;
     }
 
-    /**
-     * 解析Item为扁平结构的parameter
-     */
-    private List<Property> resolveItemToParameters(Property item) {
-        if (item == null) {
-            return Collections.emptyList();
+    @NotNull
+    private static TypeParseContext createTypeParseContext(PsiMethod method, PsiParameter parameter) {
+        PsiAnnotation validatedAnnotation = PsiAnnotationUtils.getAnnotation(parameter, SpringConstants.Validated);
+        if (validatedAnnotation == null) {
+            validatedAnnotation = PsiAnnotationUtils.getAnnotation(method, SpringConstants.Validated);
         }
-        boolean needFlat = item.isObjectType() && item.getProperties() != null && ParameterIn.query == item.getIn();
-        if (needFlat) {
-            Collection<Property> flatItems = item.getProperties().values();
-            flatItems.forEach(one -> one.setIn(item.getIn()));
-            return Lists.newArrayList(flatItems);
+        List<String> validatedClasses = Lists.newArrayList();
+        if (validatedAnnotation != null) {
+            validatedClasses = PsiAnnotationUtils.getStringArrayAttribute(validatedAnnotation, "value");
         }
-        return Lists.newArrayList(item);
+        TypeParseContext context = new TypeParseContext();
+        context.setJsr303ValidateGroups(validatedClasses);
+        return context;
     }
+
 
     /**
      * 过滤无需处理的参数
      */
-    private List<PsiParameter> filterPsiParameters(PsiMethod method) {
+    private List<PsiParameter> filterMethodParameters(PsiMethod method) {
         PsiParameter[] parameters = method.getParameterList().getParameters();
         Set<String> ignoreTypes = Sets.newHashSet(settings.getParameterIgnoreTypes());
         return Arrays.stream(parameters)
@@ -367,6 +329,39 @@ public class RequestParser {
                     String type = p.getType().getCanonicalText();
                     return !ignoreTypes.contains(type);
                 }).collect(Collectors.toList());
+    }
+
+    private List<PsiParameter> filterRequestParameters(List<PsiParameter> parameters) {
+        return parameters.stream()
+                .filter(p -> p.getAnnotation(RequestBody) == null)
+                .filter(p -> {
+                    // 过滤掉自定义@RequestBody类型的参数
+                    RequestBodyParamType requestBodyParamType = settings.getRequestBodyParamType();
+                    if (requestBodyParamType == null) {
+                        return true;
+                    }
+                    PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(p,
+                            requestBodyParamType.getAnnotation());
+                    return annotation == null;
+                })
+                .filter(p -> !PsiTypeUtils.isFileIncludeArray(p.getType()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 解析Item为扁平结构的parameter
+     */
+    private List<Property> flatProperty(Property property) {
+        if (property == null) {
+            return Collections.emptyList();
+        }
+        boolean flat = property.isObjectType() && property.getProperties() != null && ParameterIn.query == property.getIn();
+        if (flat) {
+            Collection<Property> properties = property.getProperties().values();
+            properties.forEach(one -> one.setIn(property.getIn()));
+            return Lists.newArrayList(properties);
+        }
+        return Lists.newArrayList(property);
     }
 
     @Data

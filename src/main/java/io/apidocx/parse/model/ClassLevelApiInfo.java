@@ -3,10 +3,10 @@ package io.apidocx.parse.model;
 import lombok.Data;
 
 /**
- * 控制类上接口信息
+ * 类级别上的Api信息
  */
 @Data
-public class ControllerApiInfo {
+public class ClassLevelApiInfo {
 
     /**
      * 路径

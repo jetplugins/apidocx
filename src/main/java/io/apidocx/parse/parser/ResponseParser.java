@@ -1,6 +1,5 @@
 package io.apidocx.parse.parser;
 
-import static io.apidocx.parse.util.PsiGenericUtils.splitTypeAndGenericPair;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -10,6 +9,7 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
 import io.apidocx.config.ApidocxConfig;
 import io.apidocx.model.Property;
+import io.apidocx.parse.util.PsiGenericUtils;
 import io.apidocx.parse.util.PsiTypeUtils;
 import io.apidocx.parse.util.PsiUtils;
 import java.util.Objects;
@@ -53,11 +53,10 @@ public class ResponseParser {
         String unwrappedType = getUnwrapType(returnType);
         if (unwrappedType != null) {
             // 需要解开包赚类处理
-            String[] types = splitTypeAndGenericPair(unwrappedType);
+            String[] types = PsiGenericUtils.splitTypeAndGenericPair(unwrappedType);
             PsiClass psiClass = PsiUtils.findPsiClass(this.project, this.module, types[0]);
             type = psiClass != null ? PsiTypesUtil.getClassType(psiClass) : null;
             typeText = unwrappedType;
-
         } else {
             // 包装类处理
             PsiClass returnClass = getWrapperPsiClass(method);
@@ -68,11 +67,11 @@ public class ResponseParser {
         }
 
         // 解析
-        Property item = kernelParser.parseType(type, typeText);
-        if (item != null) {
-            item.setDescription(parseHelper.getTypeDescription(type, item.getPropertyValues()));
+        Property property = kernelParser.parse(type, typeText);
+        if (property != null) {
+            property.setDescription(parseHelper.getTypeDescription(type, property.getPropertyValues()));
         }
-        return item;
+        return property;
     }
 
     /**
@@ -80,7 +79,7 @@ public class ResponseParser {
      */
     private String getUnwrapType(PsiType type) {
         // 获取类型：types[0]=原始类型, types[1]=泛型参数
-        String[] types = splitTypeAndGenericPair(type.getCanonicalText());
+        String[] types = PsiGenericUtils.splitTypeAndGenericPair(type.getCanonicalText());
 
         // 是解开包装类， 例如： ResponseEntity<User>,
         Optional<String> unwrapOpt = settings.getReturnUnwrapTypes().stream()
@@ -110,7 +109,7 @@ public class ResponseParser {
         }
 
         // 是否是相同类型
-        String[] types = splitTypeAndGenericPair(returnType.getCanonicalText());
+        String[] types = PsiGenericUtils.splitTypeAndGenericPair(returnType.getCanonicalText());
         String theReturnType = types[0];
         if (Objects.equals(theReturnType, returnClass.getQualifiedName())) {
             return null;

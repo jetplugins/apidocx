@@ -104,7 +104,7 @@ public class ApifoxSettings implements PersistentStateComponent<ApifoxSettings> 
         }
 
         ApifoxSettings that = (ApifoxSettings) o;
-        if (webUrl != null ? !webUrl.equals(that.url) : that.webUrl != null) {
+        if (webUrl != null ? !webUrl.equals(that.webUrl) : that.webUrl != null) {
             return false;
         }
         if (url != null ? !url.equals(that.url) : that.url != null) {

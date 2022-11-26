@@ -13,9 +13,16 @@ import org.jetbrains.annotations.NotNull;
  */
 public class OpenSettingsAction extends AnAction {
 
+    public static final String ACTION_TEXT = "Open Settings";
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getData(CommonDataKeys.PROJECT);
         ShowSettingsUtil.getInstance().showSettingsDialog(project, ApidocxSettingsConfiguration.class);
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setText(ACTION_TEXT);
     }
 }

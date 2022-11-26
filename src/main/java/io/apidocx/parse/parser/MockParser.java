@@ -40,7 +40,7 @@ public class MockParser {
     /**
      * 获取字段类型
      */
-    public String parseMock(Property property, PsiType type, PsiField field, String filedName) {
+    public String parse(Property property, PsiType type, PsiField field, String filedName) {
         // 自定义标记
         if (field != null) {
             String mock = PsiDocCommentUtils.getTagText(field, DocumentTags.Mock);

@@ -12,12 +12,12 @@ import io.apidocx.config.ApidocxSettings;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 处理Yapix上传入口动作.
+ * 处理上传入口动作.
  */
 public class MainAction extends AnAction {
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         ApidocxSettings settings = ApidocxSettings.getInstance();
         ActionType actionType = settings.getDefaultAction();
         if (actionType != null) {

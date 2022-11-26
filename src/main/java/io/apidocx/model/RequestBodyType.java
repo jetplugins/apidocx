@@ -17,4 +17,7 @@ public enum RequestBodyType {
 
     private final String contentType;
 
+    public boolean isFormOrFormData() {
+        return form.equals(this) || form_data.equals(this);
+    }
 }

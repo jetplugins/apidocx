@@ -12,9 +12,9 @@ import lombok.Data;
 public class Api {
 
     /**
-     * 路径
+     * 分类
      */
-    private String path;
+    private String category;
 
     /**
      * 请求方法
@@ -22,19 +22,24 @@ public class Api {
     private HttpMethod method;
 
     /**
-     * 概述标题
+     * 路径
      */
-    private String summary;
+    private String path;
 
     /**
-     * 标签
+     * 概述
      */
-    private List<String> tags;
+    private String summary;
 
     /**
      * 描述
      */
     private String description;
+
+    /**
+     * 标签
+     */
+    private List<String> tags;
 
     /**
      * 是否标记过期
@@ -66,11 +71,10 @@ public class Api {
      */
     private Property responses;
 
-    /**
-     * 分类
-     */
-    private String category;
 
+    /**
+     * 获取指定类型的请求参数（query, path, header,etc）
+     */
     public List<Property> getParametersByIn(ParameterIn in) {
         if (parameters == null) {
             return Collections.emptyList();

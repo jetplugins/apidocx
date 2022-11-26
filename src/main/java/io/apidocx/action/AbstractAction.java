@@ -33,8 +33,8 @@ import io.apidocx.config.ApidocxConfigUtils;
 import io.apidocx.config.DefaultConstants;
 import io.apidocx.model.Api;
 import io.apidocx.parse.ApiParser;
-import io.apidocx.parse.model.ClassParseData;
-import io.apidocx.parse.model.MethodParseData;
+import io.apidocx.parse.model.ClassApiData;
+import io.apidocx.parse.model.MethodApiData;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -114,28 +114,28 @@ public abstract class AbstractAction extends AnAction {
         ApiParser parser = new ApiParser(data.project, data.module, config);
         // 选中方法
         if (data.selectedMethod != null) {
-            MethodParseData methodData = parser.parse(data.selectedMethod);
-            if (!methodData.valid) {
+            MethodApiData methodData = parser.parse(data.selectedMethod);
+            if (!methodData.isValid()) {
                 NotificationUtils.notifyWarning(DefaultConstants.NAME,
                         "The current method is not a valid api or ignored");
                 return StepResult.stop();
             }
-            if (config.isStrict() && StringUtils.isEmpty(methodData.declaredApiSummary)) {
+            if (config.isStrict() && StringUtils.isEmpty(methodData.getDeclaredApiSummary())) {
                 NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current method must declare summary");
                 return StepResult.stop();
             }
-            return StepResult.ok(methodData.apis);
+            return StepResult.ok(methodData.getApis());
         }
 
         // 选中类
         if (data.selectedClass != null) {
-            ClassParseData controllerData = parser.parse(data.selectedClass);
-            if (!controllerData.valid) {
+            ClassApiData controllerData = parser.parse(data.selectedClass);
+            if (!controllerData.isValid()) {
                 NotificationUtils.notifyWarning(DefaultConstants.NAME,
                         "The current class is not a valid controller or ignored");
                 return StepResult.stop();
             }
-            if (config.isStrict() && StringUtils.isEmpty(controllerData.declaredCategory)) {
+            if (config.isStrict() && StringUtils.isEmpty(controllerData.getDeclaredCategory())) {
                 NotificationUtils.notifyWarning(DefaultConstants.NAME, "The current class must declare category");
                 return StepResult.stop();
             }
@@ -150,11 +150,11 @@ public abstract class AbstractAction extends AnAction {
         }
         List<Api> apis = Lists.newLinkedList();
         for (PsiClass controller : controllers) {
-            ClassParseData controllerData = parser.parse(controller);
-            if (!controllerData.valid) {
+            ClassApiData controllerData = parser.parse(controller);
+            if (!controllerData.isValid()) {
                 continue;
             }
-            if (config.isStrict() && StringUtils.isEmpty(controllerData.declaredCategory)) {
+            if (config.isStrict() && StringUtils.isEmpty(controllerData.getDeclaredCategory())) {
                 continue;
             }
             List<Api> controllerApis = controllerData.getApis();

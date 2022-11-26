@@ -9,7 +9,7 @@ import lombok.Data;
  * 请求参数信息
  */
 @Data
-public class RequestParseInfo {
+public class RequestInfo {
 
     private List<Property> parameters;
     private RequestBodyType requestBodyType;

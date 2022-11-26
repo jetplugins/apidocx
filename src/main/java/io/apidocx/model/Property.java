@@ -116,6 +116,10 @@ public class Property {
         return DataTypes.INTEGER.equals(type);
     }
 
+    public boolean isFileType() {
+        return DataTypes.FILE.equals(type);
+    }
+
     /**
      * 获取类型名称, 包括数组
      */

@@ -1,11 +1,8 @@
 package io.apidocx.parse;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.apidocx.parse.util.PsiDocCommentUtils.findTagByName;
 import static java.util.Objects.isNull;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
@@ -15,18 +12,17 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import io.apidocx.config.ApidocxConfig;
 import io.apidocx.model.Api;
-import io.apidocx.model.Property;
-import io.apidocx.parse.constant.DocumentTags;
 import io.apidocx.parse.constant.SpringConstants;
-import io.apidocx.parse.model.ClassParseData;
-import io.apidocx.parse.model.ControllerApiInfo;
-import io.apidocx.parse.model.MethodParseData;
-import io.apidocx.parse.model.PathParseInfo;
-import io.apidocx.parse.model.RequestParseInfo;
+import io.apidocx.parse.model.ClassApiData;
+import io.apidocx.parse.model.ClassLevelApiInfo;
+import io.apidocx.parse.model.MethodApiData;
+import io.apidocx.parse.model.PathInfo;
+import io.apidocx.parse.model.RequestInfo;
 import io.apidocx.parse.parser.ParseHelper;
 import io.apidocx.parse.parser.PathParser;
 import io.apidocx.parse.parser.RequestParser;
 import io.apidocx.parse.parser.ResponseParser;
+import io.apidocx.parse.util.InternalUtils;
 import io.apidocx.parse.util.PathUtils;
 import io.apidocx.parse.util.PsiAnnotationUtils;
 import io.apidocx.parse.util.PsiUtils;
@@ -40,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ApiParser {
 
-    private static final Gson gson = new Gson();
     private final RequestParser requestParser;
     private final ResponseParser responseParser;
     private final ParseHelper parseHelper;
@@ -61,44 +56,115 @@ public class ApiParser {
     /**
      * 解析接口
      */
-    public MethodParseData parse(PsiMethod method) {
-        PsiClass psiClass = method.getContainingClass();
-        ControllerApiInfo controllerApiInfo = parseController(psiClass);
-        return parseMethod(controllerApiInfo, method);
+    public ClassApiData parse(PsiClass psiClass) {
+        ClassApiData data = new ClassApiData();
+        if (!isParseTargetPsiClass(psiClass) || parseHelper.isClassIgnored(psiClass)) {
+            data.setValid(false);
+            return data;
+        }
+        ClassLevelApiInfo classLevelApiInfo = doParseClassLevelApiInfo(psiClass);
+
+        List<PsiMethod> methods = filterMethodsToParse(psiClass);
+        List<MethodApiData> methodApiDataList = methods.stream()
+                .map(method -> doParseMethod(method, classLevelApiInfo))
+                .collect(Collectors.toList());
+
+        data.setDeclaredCategory(classLevelApiInfo.getDeclareCategory());
+        data.setMethodDataList(methodApiDataList);
+        return data;
     }
 
     /**
      * 解析接口
      */
-    public ClassParseData parse(PsiClass psiClass) {
-        if (!isNeedParseController(psiClass) || findTagByName(psiClass, DocumentTags.Ignore) != null) {
-            return ClassParseData.invalid(psiClass);
+    public MethodApiData parse(PsiMethod method) {
+        PsiClass psiClass = method.getContainingClass();
+        return doParseMethod(method, doParseClassLevelApiInfo(psiClass));
+    }
+
+    /**
+     * 解析类级别信息，包括路径前缀、分类等
+     */
+    private ClassLevelApiInfo doParseClassLevelApiInfo(PsiClass psiClass) {
+        ClassLevelApiInfo info = new ClassLevelApiInfo();
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotationIncludeExtends(psiClass, SpringConstants.RequestMapping);
+        if (annotation != null) {
+            PathInfo path = PathParser.parseRequestMappingAnnotation(annotation);
+            info.setPath(PathUtils.path(path.getPath()));
+        }
+        info.setCategory(parseHelper.getDeclareApiCategory(psiClass));
+        info.setDeclareCategory(info.getCategory());
+        if (StringUtils.isEmpty(info.getCategory())) {
+            info.setCategory(parseHelper.getDefaultApiCategory(psiClass));
+        }
+        return info;
+    }
+
+    /**
+     * 解析某个方法的接口信息
+     */
+    private MethodApiData doParseMethod(PsiMethod method, ClassLevelApiInfo classLevelInfo) {
+        MethodApiData data = new MethodApiData();
+
+        // 1.该方法是否被跳过
+        if (parseHelper.isMethodIgnored(method)) {
+            data.setValid(false);
+            return data;
         }
 
-        // 获得待处理方法
-        List<PsiMethod> methods = filterPsiMethods(psiClass);
-        if (methods.isEmpty()) {
-            return ClassParseData.valid(psiClass);
+        // 2.解析方法级别@XxxMapping注解
+        PathInfo pathInfo = PathParser.parse(method);
+        if (pathInfo == null || pathInfo.getPaths() == null) {
+            data.setValid(false);
+            return data;
         }
 
-        // 解析
-        ControllerApiInfo controllerApiInfo = parseController(psiClass);
-        List<MethodParseData> methodDataList = Lists.newArrayListWithExpectedSize(methods.size());
-        for (PsiMethod method : methods) {
-            MethodParseData methodData = parseMethod(controllerApiInfo, method);
-            methodDataList.add(methodData);
-        }
+        // 3.解析方法的参数和响应信息
+        Api methodApi = getMethodApi(method, pathInfo);
+        data.setDeclaredApiSummary(methodApi.getSummary());
 
-        ClassParseData data = ClassParseData.valid(psiClass);
-        data.declaredCategory = controllerApiInfo.getDeclareCategory();
-        data.methodDataList = methodDataList;
+        // 4.多路径处理
+        List<Api> apis = pathInfo.getPaths().stream().map(path -> {
+            Api api = methodApi;
+            if (pathInfo.getPaths().size() > 1) {
+                api = InternalUtils.clone(methodApi);
+            }
+            api.setMethod(pathInfo.getMethod());
+            api.setPath(PathUtils.path(classLevelInfo.getPath(), path));
+            api.setCategory(classLevelInfo.getCategory());
+            return api;
+        }).collect(Collectors.toList());
+        data.setApis(apis);
+
         return data;
+    }
+
+    /**
+     * 解析方法的通用信息，除请求路径、请求方法外.
+     */
+    private Api getMethodApi(PsiMethod method, PathInfo path) {
+        Api api = new Api();
+        // 基本信息
+        api.setMethod(path.getMethod());
+        api.setSummary(parseHelper.getApiSummary(method));
+        api.setDescription(parseHelper.getApiDescription(method));
+        api.setDeprecated(parseHelper.getApiDeprecated(method));
+        api.setTags(parseHelper.getApiTags(method));
+        // 请求信息
+        RequestInfo requestInfo = requestParser.parse(method, path.getMethod());
+        api.setParameters(requestInfo.getParameters());
+        api.setRequestBodyType(requestInfo.getRequestBodyType());
+        api.setRequestBody(requestInfo.getRequestBody());
+        api.setRequestBodyForm(requestInfo.getRequestBodyForm());
+        // 响应信息
+        api.setResponses(responseParser.parse(method));
+        return api;
     }
 
     /**
      * 判断是否是控制类或接口
      */
-    private boolean isNeedParseController(PsiClass psiClass) {
+    private boolean isParseTargetPsiClass(PsiClass psiClass) {
         // 接口是为了满足接口继承的情况
         boolean isController = psiClass.isInterface()
                 || PsiAnnotationUtils.getAnnotation(psiClass, SpringConstants.RestController) != null
@@ -126,7 +192,7 @@ public class ApiParser {
     /**
      * 获取待处理的方法列表
      */
-    private List<PsiMethod> filterPsiMethods(PsiClass psiClass) {
+    private List<PsiMethod> filterMethodsToParse(PsiClass psiClass) {
         return Arrays.stream(psiClass.getAllMethods())
                 .filter(m -> {
                     PsiModifierList modifier = m.getModifierList();
@@ -136,81 +202,5 @@ public class ApiParser {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 解析类级别信息
-     */
-    private ControllerApiInfo parseController(PsiClass controller) {
-        String path = null;
-        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotationIncludeExtends(controller,
-                SpringConstants.RequestMapping);
-        if (annotation != null) {
-            PathParseInfo mapping = PathParser.parseRequestMappingAnnotation(annotation);
-            path = mapping.getPath();
-        }
-        ControllerApiInfo info = new ControllerApiInfo();
-        info.setPath(PathUtils.path(path));
-        info.setDeclareCategory(parseHelper.getDeclareApiCategory(controller));
-        info.setCategory(info.getDeclareCategory());
-        if (StringUtils.isEmpty(info.getCategory())) {
-            info.setCategory(parseHelper.getDefaultApiCategory(controller));
-        }
-        return info;
-    }
 
-    /**
-     * 解析某个方法的接口信息
-     */
-    private MethodParseData parseMethod(ControllerApiInfo controllerInfo, PsiMethod method) {
-        if (findTagByName(method, DocumentTags.Ignore) != null) {
-            return MethodParseData.invalid(method);
-        }
-        // 1.解析路径信息: @XxxMapping
-        PathParseInfo mapping = PathParser.parse(method);
-        if (mapping == null || mapping.getPaths() == null) {
-            return MethodParseData.invalid(method);
-        }
-
-        // 2.解析方法上信息: 请求、响应等.
-        Api methodApi = doParseMethod(method, mapping);
-
-        // 3.合并信息
-        List<Api> apis = mapping.getPaths().stream().map(path -> {
-            Api api = methodApi;
-            if (mapping.getPaths().size() > 1) {
-                api = gson.fromJson(gson.toJson(methodApi), Api.class);
-            }
-            api.setMethod(mapping.getMethod());
-            api.setPath(PathUtils.path(controllerInfo.getPath(), path));
-            api.setCategory(controllerInfo.getCategory());
-            return api;
-        }).collect(Collectors.toList());
-
-        MethodParseData data = MethodParseData.valid(method);
-        data.declaredApiSummary = methodApi.getSummary();
-        data.apis = apis;
-        return data;
-    }
-
-    /**
-     * 解析方法的通用信息，除请求路径、请求方法外.
-     */
-    private Api doParseMethod(PsiMethod method, PathParseInfo mapping) {
-        Api api = new Api();
-        // 基本信息
-        api.setMethod(mapping.getMethod());
-        api.setSummary(parseHelper.getApiSummary(method));
-        api.setDescription(parseHelper.getApiDescription(method));
-        api.setDeprecated(parseHelper.getApiDeprecated(method));
-        api.setTags(parseHelper.getApiTags(method));
-        // 请求信息
-        RequestParseInfo requestInfo = requestParser.parse(method, mapping.getMethod());
-        api.setParameters(requestInfo.getParameters());
-        api.setRequestBodyType(requestInfo.getRequestBodyType());
-        api.setRequestBody(requestInfo.getRequestBody());
-        api.setRequestBodyForm(requestInfo.getRequestBodyForm());
-        // 响应信息
-        Property response = responseParser.parse(method);
-        api.setResponses(response);
-        return api;
-    }
 }

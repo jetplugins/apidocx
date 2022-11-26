@@ -49,12 +49,11 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
         <action id="apidocx.MainAction" class="io.apidocx.action.MainAction">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
-        <group id="apidocx.YapixActionGroup" class="io.apidocx.action.ApidocxActionGroup" text="Apidocx" popup="true">
+        <group id="apidocx.YapixActionGroup" class="io.apidocx.action.ApidocxActionGroup" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="apidocx.MainAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="apidocx.YapiUploadAction" class="io.apidocx.process.yapi.YapiUploadAction"/>
@@ -66,7 +65,7 @@
             <action id="apidocx.ExportToOpenApiAction" class="io.apidocx.process.openapi.ExportToOpenApiAction"/>
             <action id="apidocx.CopyAsCurlAction" class="io.apidocx.process.curl.CopyAsCurlAction"/>
             <action id="apidocx.CopyAsMarkdownAction" class="io.apidocx.process.markdown.CopyAsMarkdownAction"/>
-            <action id="apidocx.OpenSettings" class="io.apidocx.action.OpenSettingsAction" text="Open Settings"/>
+            <action id="apidocx.OpenSettings" class="io.apidocx.action.OpenSettingsAction"/>
         </group>
     </actions>
 

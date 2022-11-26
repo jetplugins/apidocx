@@ -40,4 +40,11 @@ public class BeanCustom {
         return !excludes.contains(fieldName);
     }
 
+    public Property getFieldProperty(String fieldName) {
+        if (fields != null) {
+            return fields.get(fieldName);
+        }
+        return null;
+    }
+
 }

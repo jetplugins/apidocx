@@ -8,7 +8,7 @@ import lombok.Data;
  * 请求路径和方法信息
  */
 @Data
-public class PathParseInfo {
+public class PathInfo {
 
     private HttpMethod method;
 

@@ -34,13 +34,13 @@ import io.apidocx.parse.constant.JavaConstants;
 import io.apidocx.parse.constant.SpringConstants;
 import io.apidocx.parse.model.Jsr303Info;
 import io.apidocx.parse.model.TypeParseContext;
+import io.apidocx.parse.util.InternalUtils;
 import io.apidocx.parse.util.PsiAnnotationUtils;
 import io.apidocx.parse.util.PsiDocCommentUtils;
 import io.apidocx.parse.util.PsiFieldUtils;
 import io.apidocx.parse.util.PsiSwaggerUtils;
 import io.apidocx.parse.util.PsiTypeUtils;
 import io.apidocx.parse.util.PsiUtils;
-import io.apidocx.parse.util.StringUtilsExt;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,7 +87,7 @@ public class ParseHelper {
     }
 
     public String getDefaultApiCategory(PsiClass psiClass) {
-        return StringUtilsExt.camelToLine(psiClass.getName(), null);
+        return InternalUtils.camelToLine(psiClass.getName(), null);
     }
 
     /**
@@ -578,4 +578,11 @@ public class ParseHelper {
         return data;
     }
 
+    public boolean isMethodIgnored(PsiMethod method) {
+        return PsiDocCommentUtils.findTagByName(method, DocumentTags.Ignore) != null;
+    }
+
+    public boolean isClassIgnored(PsiClass psiClass) {
+        return PsiDocCommentUtils.findTagByName(psiClass, DocumentTags.Ignore) != null;
+    }
 }

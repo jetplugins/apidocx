@@ -1,5 +1,8 @@
 package io.apidocx.parse.util;
 
+/**
+ * URL中路径处理工具
+ */
 public class PathUtils {
 
     /**
