@@ -2,13 +2,13 @@
 重要的事情说三遍！无依赖、无成本、开箱即用，只需要花几分钟了解下。
 
 ## 快速开始
-1. 安装插件: [Yapi X](https://plugins.jetbrains.com/plugin/17425-yapi-x)
+1. 安装插件: [Apidocx](https://plugins.jetbrains.com/plugin/17425-yapi-x)
 2. 选中上传的方法: 执行"Upload To YApi"
 
 - 支持整个类、多个类、当个方法API文档上传
-- 插件配置路径: File -> Settings -> Other Settings -> Yapi X
+- 插件配置路径: File -> Settings -> Other Settings -> Apidocx
 
-提示: 默认情况下右键菜单是"Upload To YApi", 可通过插件菜单配置为Rap2, Eolinker等
+提示: 默认情况下右键菜单是"Upload To YApi", 可通过插件菜单配置为Rap2, Eolink等
 
 ## 文档生成规则
 标准的Javadoc文档就能生成很好的API文档，对于生成文档的准确性有两个建议。

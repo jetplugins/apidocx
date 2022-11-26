@@ -1,26 +1,22 @@
 <idea-plugin>
     <id>yapix</id>
-    <name>Yapi X</name>
+    <name>Apidocx</name>
     <vendor url="https://github.com/jetplugins">Jetplugins</vendor>
 
     <description><![CDATA[
-        Generate API documents to any place: YApi, Rap2, Eolinker, etc.<br>
-        一键生成接口文档, 上传到YApi, Rap2, Eolinker等<br>
+        Generate API documents to any place: YApi, RAP2, Eolink, etc.<br>
+        一键生成接口文档, 上传到YApi, Rap2, Eolink等<br>
         <p>
-            <a href="https://github.com/jetplugins/yapix">GitHub</a> |
-            <a href="https://github.com/jetplugins/yapix/issues">Issues</a>
+            <a href="https://github.com/jetplugins/apidocx">GitHub</a> |
+            <a href="https://github.com/jetplugins/apidocx/issues">Issues</a>
         </p>
         <h2>Features</h2>
         <ul>
             <li>Generate API documents from Java source code.</li>
-            <li>Upload to YApi platform.</li>
-            <li>Upload to Rap2 platform.</li>
-            <li>Upload to Eolinker platform.</li>
-            <li>Upload to ShowDoc platform.</li>
-            <li>Export to markdown.</li>
-            <li>Copy as cURL.</li>
+            <li>Upload to YApi, Rap2, Eolink, ShowDoc, Apifox platform.</li>
+            <li>Export to OpenAPI, Markdown, cURL document.</li>
+            <li>Supports popular frameworks Spring MVC, Spring Flux, Jackson, JSR303, and Swagger.</li>
         </ul>
-        <img src="https://raw.githubusercontent.com/jetplugins/yapix/main/docs/screenshots.gif" height="360">
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -34,62 +30,65 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="io.yapix.config.YapixSettings"/>
-        <applicationService serviceImplementation="io.yapix.process.yapi.config.YapiSettings"/>
-        <applicationService serviceImplementation="io.yapix.process.rap2.config.Rap2Settings"/>
-        <applicationService serviceImplementation="io.yapix.process.eolink.config.EolinkSettings"/>
-        <applicationService serviceImplementation="io.yapix.process.apifox.config.ApifoxSettings"/>
-        <applicationService serviceImplementation="io.yapix.process.showdoc.config.ShowdocSettings"/>
+        <applicationService serviceImplementation="io.apidocx.config.ApidocxSettings"/>
+        <applicationService serviceImplementation="io.apidocx.process.yapi.config.YapiSettings"/>
+        <applicationService serviceImplementation="io.apidocx.process.rap2.config.Rap2Settings"/>
+        <applicationService serviceImplementation="io.apidocx.process.eolink.config.EolinkSettings"/>
+        <applicationService serviceImplementation="io.apidocx.process.apifox.config.ApifoxSettings"/>
+        <applicationService serviceImplementation="io.apidocx.process.showdoc.config.ShowdocSettings"/>
 
-        <applicationConfigurable instance="io.yapix.config.YapixSettingsConfiguration">
-            <configurable displayName="YApi" instance="io.yapix.process.yapi.config.YapiSettingsConfiguration"/>
-            <configurable displayName="Rap2" instance="io.yapix.process.rap2.config.Rap2SettingsConfiguration"/>
-            <configurable displayName="Eolinker"
-                          instance="io.yapix.process.eolink.config.EolinkSettingsConfiguration"/>
-            <configurable displayName="Apifox"
-                          instance="io.yapix.process.apifox.config.ApifoxSettingsConfiguration"/>
+        <applicationConfigurable instance="io.apidocx.config.ApidocxSettingsConfiguration">
+            <configurable displayName="YApi" instance="io.apidocx.process.yapi.config.YapiSettingsConfiguration"/>
+            <configurable displayName="Rap2" instance="io.apidocx.process.rap2.config.Rap2SettingsConfiguration"/>
+            <configurable displayName="Eolink" instance="io.apidocx.process.eolink.config.EolinkSettingsConfiguration"/>
+            <configurable displayName="Apifox" instance="io.apidocx.process.apifox.config.ApifoxSettingsConfiguration"/>
             <configurable displayName="ShowDoc"
-                          instance="io.yapix.process.showdoc.config.ShowdocSettingsConfiguration"/>
+                          instance="io.apidocx.process.showdoc.config.ShowdocSettingsConfiguration"/>
         </applicationConfigurable>
-        <fileTypeDetector implementation="io.yapix.config.YapixFileTypeDetector"/>
+        <fileTypeDetector implementation="io.apidocx.config.ApidocxFileTypeDetector"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="yapix.YapixAction" class="io.yapix.action.MainAction">
+        <action id="apidocx.MainAction" class="io.apidocx.action.MainAction">
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
-        <group id="yapix.YapixActionGroup" class="io.yapix.action.YapixActionGroup" text="Yapi X" popup="true">
-            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="yapix.YapixAction"/>
+        <group id="apidocx.YapixActionGroup" class="io.apidocx.action.ApidocxActionGroup" text="Apidocx" popup="true">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="apidocx.MainAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="yapix.YapiUploadAction" class="io.yapix.process.yapi.YapiUploadAction"/>
-            <action id="yapix.Rap2UploadAction" class="io.yapix.process.rap2.Rap2UploadAction"/>
-            <action id="yapix.EolinkerUploadAction" class="io.yapix.process.eolink.EolinkUploadAction"/>
-            <action id="yapix.ApifoxUploadAction" class="io.yapix.process.apifox.ApifoxUploadAction"/>
-            <action id="yapix.ShowdocUploadAction" class="io.yapix.process.showdoc.ShowdocUploadAction"/>
-            <action id="yapix.ExportToMarkdownAction" class="io.yapix.process.markdown.ExportToMarkdownAction"/>
-            <action id="yapix.ExportToOpenApiAction" class="io.yapix.process.openapi.ExportToOpenApiAction"/>
-            <action id="yapix.CopyAsCurlAction" class="io.yapix.process.curl.CopyAsCurlAction"/>
-            <action id="yapix.CopyAsMarkdownAction" class="io.yapix.process.markdown.CopyAsMarkdownAction"/>
-            <action id="yapix.OpenSettings" class="io.yapix.action.OpenSettingsAction" text="Open Settings"/>
+            <action id="apidocx.YapiUploadAction" class="io.apidocx.process.yapi.YapiUploadAction"/>
+            <action id="apidocx.Rap2UploadAction" class="io.apidocx.process.rap2.Rap2UploadAction"/>
+            <action id="apidocx.EolinkerUploadAction" class="io.apidocx.process.eolink.EolinkUploadAction"/>
+            <action id="apidocx.ApifoxUploadAction" class="io.apidocx.process.apifox.ApifoxUploadAction"/>
+            <action id="apidocx.ShowdocUploadAction" class="io.apidocx.process.showdoc.ShowdocUploadAction"/>
+            <action id="apidocx.ExportToMarkdownAction" class="io.apidocx.process.markdown.ExportToMarkdownAction"/>
+            <action id="apidocx.ExportToOpenApiAction" class="io.apidocx.process.openapi.ExportToOpenApiAction"/>
+            <action id="apidocx.CopyAsCurlAction" class="io.apidocx.process.curl.CopyAsCurlAction"/>
+            <action id="apidocx.CopyAsMarkdownAction" class="io.apidocx.process.markdown.CopyAsMarkdownAction"/>
+            <action id="apidocx.OpenSettings" class="io.apidocx.action.OpenSettingsAction" text="Open Settings"/>
         </group>
     </actions>
 
     <change-notes><![CDATA[
+        1.1.0: <br>
+        - feat: 支持上传到Apifox<br>
+        - refactor: 优化重构代码和重命名插件<br>
+        - fix: 复制为cURL严格模式问题<br>
+        <br>
         1.0.0: <br>
         - feat: 支持更多常量枚举解析<br>
         - feat: 支持更多JSR303校验注解、分组校验<br>
         - feat: 支持更多Jackson注解<br>
-        - fix: 修复无法上传Eolinker问题<br>
+        - fix: 修复无法上传Eolink问题<br>
         <br>
         0.9.7: <br>
         - feat: 支持导出为OpenApi3.0<br>
-        - fix: 修复无法上传Eolinker问题<br>
+        - fix: 修复无法上传Eolink问题<br>
         <br>
         0.9.6: <br>
         - feat: 支持自定义@RequestBody注解<br>
-        - fix: 修复无法上传Eolinker问题<br>
+        - fix: 修复无法上传Eolink问题<br>
         - fix: 修复枚举类型列表文档无法解析<br>
         - fix: 修复上传showdoc提示报错<br>
         <br>
