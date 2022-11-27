@@ -11,12 +11,13 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import java.util.Arrays;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
+/**
+ * PsiFile工具类
+ */
+@UtilityClass
 public class PsiFileUtils {
-
-    public PsiFileUtils() {
-    }
-
 
     /**
      * 获取Java文件

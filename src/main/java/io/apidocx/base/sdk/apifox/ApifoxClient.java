@@ -7,11 +7,13 @@ import io.apidocx.base.sdk.apifox.model.ApiTreeItem;
 import io.apidocx.base.sdk.apifox.model.CreateFolderRequest;
 import io.apidocx.base.sdk.apifox.model.LoginRequest;
 import io.apidocx.base.sdk.apifox.model.LoginResponse;
+import io.apidocx.base.sdk.apifox.model.LoginType;
 import io.apidocx.base.sdk.apifox.model.TestResult;
 import io.apidocx.base.sdk.apifox.model.TestResult.Code;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Apifox客户端
@@ -132,9 +134,10 @@ public class ApifoxClient {
 
     private String getOrRefreshAccessToken(boolean force) {
         if (force || accessToken == null) {
+            LoginType loginType = StringUtils.isNumeric(this.account) ? LoginType.MobilePassword : LoginType.EmailPassword;
             LoginRequest loginRequest = LoginRequest.builder()
-                    .loginType("EmailPassword")
-                    .account(this.account)
+                    .loginType(loginType.name())
+                    .account("+86 " + this.account)
                     .password(this.password)
                     .build();
             Response<LoginResponse> response = apifoxApi.login(loginRequest);

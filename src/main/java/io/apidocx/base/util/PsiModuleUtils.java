@@ -7,11 +7,13 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.experimental.UtilityClass;
 
+/**
+ * PsiModule模块工具类
+ */
+@UtilityClass
 public class PsiModuleUtils {
-
-    private PsiModuleUtils() {
-    }
 
     /**
      * 获取模块

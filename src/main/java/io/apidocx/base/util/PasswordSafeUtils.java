@@ -5,11 +5,13 @@ import com.intellij.credentialStore.CredentialAttributesKt;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import io.apidocx.config.DefaultConstants;
+import lombok.experimental.UtilityClass;
 
+/**
+ * 密码安全读写工具类
+ */
+@UtilityClass
 public class PasswordSafeUtils {
-
-    private PasswordSafeUtils() {
-    }
 
     /**
      * 获取密码

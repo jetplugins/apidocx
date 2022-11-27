@@ -1,11 +1,11 @@
 package io.apidocx.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
-import io.apidocx.process.apifox.ApifoxUploadAction;
-import io.apidocx.process.eolink.EolinkUploadAction;
-import io.apidocx.process.rap2.Rap2UploadAction;
-import io.apidocx.process.showdoc.ShowdocUploadAction;
-import io.apidocx.process.yapi.YapiUploadAction;
+import io.apidocx.handle.apifox.ApifoxUploadAction;
+import io.apidocx.handle.eolink.EolinkUploadAction;
+import io.apidocx.handle.rap2.Rap2UploadAction;
+import io.apidocx.handle.showdoc.ShowdocUploadAction;
+import io.apidocx.handle.yapi.YapiUploadAction;
 
 public enum ActionType {
 
@@ -44,7 +44,7 @@ public enum ActionType {
 
     ;
 
-    private String name;
+    private final String name;
 
     ActionType(String name) {
         this.name = name;

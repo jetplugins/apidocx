@@ -10,15 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
  * 数据模型Property处理工具
  */
+@UtilityClass
 public class PropertyUtils {
-
-    private PropertyUtils() {
-    }
 
     /**
      * 类型描述转化为json示例

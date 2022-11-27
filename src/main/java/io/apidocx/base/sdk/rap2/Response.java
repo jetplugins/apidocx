@@ -19,9 +19,9 @@ public class Response<T> {
 
 
     public boolean isSuccess() {
-        if (errMsg != null) {
+        if (errMsg != null && errMsg.isEmpty()) {
             return false;
         }
-        return true;
+        return data != null;
     }
 }

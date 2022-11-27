@@ -34,7 +34,7 @@ public class CreateConfigFileAction extends NotificationAction {
     }
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+    public void actionPerformed(@NotNull AnActionEvent event, @NotNull Notification notification) {
         // 参数校验
         File moduleRoot = new File(module.getModuleFilePath()).getParentFile();
         File file = Paths.get(moduleRoot.getPath(), DefaultConstants.FILE_NAME).toFile();

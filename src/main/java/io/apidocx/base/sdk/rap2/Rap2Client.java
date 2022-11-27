@@ -233,7 +233,8 @@ public class Rap2Client {
                     if (value instanceof Response) {
                         Response<?> responseValue = (Response<?>) value;
                         if (!responseValue.isSuccess()) {
-                            throw new Rap2Exception(path, responseValue.getErrMsg());
+                            String errMsg = responseValue.getErrMsg() != null ? responseValue.getErrMsg() : "未获取到数据";
+                            throw new Rap2Exception(path, errMsg);
                         }
                     }
 

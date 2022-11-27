@@ -5,7 +5,6 @@
 
     <description><![CDATA[
         Generate API documents to any place: YApi, RAP2, Eolink, etc.<br>
-        一键生成接口文档, 上传到YApi, Rap2, Eolink等<br>
         <p>
             <a href="https://github.com/jetplugins/apidocx">GitHub</a> |
             <a href="https://github.com/jetplugins/apidocx/issues">Issues</a>
@@ -17,6 +16,7 @@
             <li>Export to OpenAPI, Markdown, cURL document.</li>
             <li>Supports popular frameworks Spring MVC, Spring Flux, Jackson, JSR303, and Swagger.</li>
         </ul>
+        <img src="https://raw.githubusercontent.com/jetplugins/apidocx/main/docs/screenshots.gif" height="360">
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -31,19 +31,18 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="io.apidocx.config.ApidocxSettings"/>
-        <applicationService serviceImplementation="io.apidocx.process.yapi.config.YapiSettings"/>
-        <applicationService serviceImplementation="io.apidocx.process.rap2.config.Rap2Settings"/>
-        <applicationService serviceImplementation="io.apidocx.process.eolink.config.EolinkSettings"/>
-        <applicationService serviceImplementation="io.apidocx.process.apifox.config.ApifoxSettings"/>
-        <applicationService serviceImplementation="io.apidocx.process.showdoc.config.ShowdocSettings"/>
+        <applicationService serviceImplementation="io.apidocx.handle.yapi.config.YapiSettings"/>
+        <applicationService serviceImplementation="io.apidocx.handle.rap2.config.Rap2Settings"/>
+        <applicationService serviceImplementation="io.apidocx.handle.eolink.config.EolinkSettings"/>
+        <applicationService serviceImplementation="io.apidocx.handle.apifox.config.ApifoxSettings"/>
+        <applicationService serviceImplementation="io.apidocx.handle.showdoc.config.ShowdocSettings"/>
 
         <applicationConfigurable instance="io.apidocx.config.ApidocxSettingsConfiguration">
-            <configurable displayName="YApi" instance="io.apidocx.process.yapi.config.YapiSettingsConfiguration"/>
-            <configurable displayName="Rap2" instance="io.apidocx.process.rap2.config.Rap2SettingsConfiguration"/>
-            <configurable displayName="Eolink" instance="io.apidocx.process.eolink.config.EolinkSettingsConfiguration"/>
-            <configurable displayName="Apifox" instance="io.apidocx.process.apifox.config.ApifoxSettingsConfiguration"/>
-            <configurable displayName="ShowDoc"
-                          instance="io.apidocx.process.showdoc.config.ShowdocSettingsConfiguration"/>
+            <configurable instance="io.apidocx.handle.yapi.config.YapiSettingsConfiguration"/>
+            <configurable instance="io.apidocx.handle.rap2.config.Rap2SettingsConfiguration"/>
+            <configurable instance="io.apidocx.handle.eolink.config.EolinkSettingsConfiguration"/>
+            <configurable instance="io.apidocx.handle.apifox.config.ApifoxSettingsConfiguration"/>
+            <configurable instance="io.apidocx.handle.showdoc.config.ShowdocSettingsConfiguration"/>
         </applicationConfigurable>
         <fileTypeDetector implementation="io.apidocx.config.ApidocxFileTypeDetector"/>
     </extensions>
@@ -56,15 +55,15 @@
         <group id="apidocx.YapixActionGroup" class="io.apidocx.action.ApidocxActionGroup" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="apidocx.MainAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="apidocx.YapiUploadAction" class="io.apidocx.process.yapi.YapiUploadAction"/>
-            <action id="apidocx.Rap2UploadAction" class="io.apidocx.process.rap2.Rap2UploadAction"/>
-            <action id="apidocx.EolinkerUploadAction" class="io.apidocx.process.eolink.EolinkUploadAction"/>
-            <action id="apidocx.ApifoxUploadAction" class="io.apidocx.process.apifox.ApifoxUploadAction"/>
-            <action id="apidocx.ShowdocUploadAction" class="io.apidocx.process.showdoc.ShowdocUploadAction"/>
-            <action id="apidocx.ExportToMarkdownAction" class="io.apidocx.process.markdown.ExportToMarkdownAction"/>
-            <action id="apidocx.ExportToOpenApiAction" class="io.apidocx.process.openapi.ExportToOpenApiAction"/>
-            <action id="apidocx.CopyAsCurlAction" class="io.apidocx.process.curl.CopyAsCurlAction"/>
-            <action id="apidocx.CopyAsMarkdownAction" class="io.apidocx.process.markdown.CopyAsMarkdownAction"/>
+            <action id="apidocx.YapiUploadAction" class="io.apidocx.handle.yapi.YapiUploadAction"/>
+            <action id="apidocx.Rap2UploadAction" class="io.apidocx.handle.rap2.Rap2UploadAction"/>
+            <action id="apidocx.EolinkUploadAction" class="io.apidocx.handle.eolink.EolinkUploadAction"/>
+            <action id="apidocx.ApifoxUploadAction" class="io.apidocx.handle.apifox.ApifoxUploadAction"/>
+            <action id="apidocx.ShowdocUploadAction" class="io.apidocx.handle.showdoc.ShowdocUploadAction"/>
+            <action id="apidocx.ExportToMarkdownAction" class="io.apidocx.handle.markdown.ExportToMarkdownAction"/>
+            <action id="apidocx.ExportToOpenApiAction" class="io.apidocx.handle.openapi.ExportToOpenApiAction"/>
+            <action id="apidocx.CopyAsCurlAction" class="io.apidocx.handle.curl.CopyAsCurlAction"/>
+            <action id="apidocx.CopyAsMarkdownAction" class="io.apidocx.handle.markdown.CopyAsMarkdownAction"/>
             <action id="apidocx.OpenSettings" class="io.apidocx.action.OpenSettingsAction"/>
         </group>
     </actions>

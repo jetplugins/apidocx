@@ -4,11 +4,10 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class ConcurrentUtils {
-
-    private ConcurrentUtils() {
-    }
 
     public static <T> List<T> waitFuturesSilence(List<Future<T>> futures) {
         List<T> values = Lists.newArrayListWithExpectedSize(futures.size());

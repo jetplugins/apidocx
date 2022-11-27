@@ -2,7 +2,12 @@ package io.apidocx.base.util;
 
 import com.google.gson.Gson;
 import java.lang.reflect.Type;
+import lombok.experimental.UtilityClass;
 
+/**
+ * Json工具类
+ */
+@UtilityClass
 public class JsonUtils {
 
     private static final Gson gson = new Gson();

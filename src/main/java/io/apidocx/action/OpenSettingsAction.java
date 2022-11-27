@@ -22,7 +22,7 @@ public class OpenSettingsAction extends AnAction {
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setText(ACTION_TEXT);
+    public void update(@NotNull AnActionEvent event) {
+        event.getPresentation().setText(ACTION_TEXT);
     }
 }

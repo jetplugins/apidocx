@@ -15,6 +15,7 @@ import io.apidocx.base.sdk.rap2.model.Rap2Interface;
 import io.apidocx.base.sdk.rap2.model.Rap2InterfaceBase;
 import io.apidocx.base.sdk.rap2.model.Rap2Module;
 import io.apidocx.base.sdk.rap2.model.Rap2Repository;
+import io.apidocx.base.sdk.rap2.model.Rap2User;
 
 
 @Headers("Content-Type: application/json")
@@ -44,7 +45,7 @@ public interface Rap2Api {
      * 获取当前登录用户信息
      */
     @RequestLine("GET /account/info")
-    Response<?> getAccountInfo();
+    Response<Rap2User> getAccountInfo();
 
     /**
      * 获取仓库信息

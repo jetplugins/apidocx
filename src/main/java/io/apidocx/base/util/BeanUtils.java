@@ -2,41 +2,32 @@ package io.apidocx.base.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class BeanUtils {
 
-    private BeanUtils() {
-    }
-
-    public static <T> void merge(T o1, T o2) {
-        Class<?> clazz = o1.getClass();
+    /**
+     * 合并两个对象
+     *
+     * @param target 目标对象
+     * @param source 源对象
+     */
+    @SneakyThrows
+    public static <T> void merge(T target, T source) {
+        Class<?> clazz = target.getClass();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
-                Object value = getFieldValue(field, o2);
+                field.setAccessible(true);
+                Object value = field.get(source);
                 if (value != null) {
-                    setFieldValue(o1, field, value);
+                    field.set(target, value);
                 }
             }
         }
     }
 
-    private static void setFieldValue(Object target, Field field, Object value) {
-        try {
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("It's impossible", e);
-        }
-    }
-
-    private static Object getFieldValue(Field field, Object target) {
-        try {
-            field.setAccessible(true);
-            return field.get(target);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("It's impossible", e);
-        }
-    }
 }

@@ -17,28 +17,28 @@ import org.jetbrains.annotations.NotNull;
 public class MainAction extends AnAction {
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         ApidocxSettings settings = ApidocxSettings.getInstance();
         ActionType actionType = settings.getDefaultAction();
         if (actionType != null) {
             AnAction action = actionType.getAction();
-            action.actionPerformed(e);
+            action.actionPerformed(event);
         }
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
+    public void update(@NotNull AnActionEvent event) {
         // 菜单名称
         ApidocxSettings settings = ApidocxSettings.getInstance();
         ActionType actionType = settings.getDefaultAction();
         if (actionType != null) {
-            e.getPresentation().setText(actionType.getName());
+            event.getPresentation().setText(actionType.getName());
         }
 
         // 是否可见
         boolean visible = false;
-        Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
-        PsiFile editorFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);
+        Editor editor = event.getDataContext().getData(CommonDataKeys.EDITOR);
+        PsiFile editorFile = event.getDataContext().getData(CommonDataKeys.PSI_FILE);
         if (editor != null && editorFile != null) {
             PsiElement referenceAt = editorFile.findElementAt(editor.getCaretModel().getOffset());
             PsiClass selectClass = PsiTreeUtil.getContextOfType(referenceAt, PsiClass.class);
@@ -46,6 +46,6 @@ public class MainAction extends AnAction {
                 visible = true;
             }
         }
-        e.getPresentation().setVisible(visible);
+        event.getPresentation().setVisible(visible);
     }
 }
