@@ -135,9 +135,13 @@ public class ApifoxClient {
     private String getOrRefreshAccessToken(boolean force) {
         if (force || accessToken == null) {
             LoginType loginType = StringUtils.isNumeric(this.account) ? LoginType.MobilePassword : LoginType.EmailPassword;
+            String account = this.account;
+            if (loginType == LoginType.MobilePassword) {
+                account = "+86 " + account;
+            }
             LoginRequest loginRequest = LoginRequest.builder()
                     .loginType(loginType.name())
-                    .account("+86 " + this.account)
+                    .account(account)
                     .password(this.password)
                     .build();
             Response<LoginResponse> response = apifoxApi.login(loginRequest);
