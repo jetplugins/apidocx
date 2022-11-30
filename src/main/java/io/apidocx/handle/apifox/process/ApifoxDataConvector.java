@@ -101,7 +101,7 @@ public class ApifoxDataConvector {
         schema.setDescription(p.getDescription());
         schema.setExample(p.getExample());
         String mock = p.getMock();
-        if (mock != null && mock.isEmpty()) {
+        if (mock != null && !mock.isEmpty()) {
             schema.setMock(new Mock(mock));
         }
         if (p.isArrayType()) {

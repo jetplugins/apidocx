@@ -1,5 +1,6 @@
 package io.apidocx.base.sdk.apifox.model;
 
+import com.google.gson.annotations.Expose;
 import java.util.List;
 import lombok.Data;
 
@@ -17,6 +18,9 @@ public class ApiFolder {
     private List<ApiFolder> children;
 
     private String type;
+
+    @Expose(serialize = false, deserialize = false)
+    private String folderPath;
 
     public boolean isRoot() {
         return "root".equals(type);

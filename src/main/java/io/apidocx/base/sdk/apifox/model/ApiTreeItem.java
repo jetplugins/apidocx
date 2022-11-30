@@ -1,5 +1,6 @@
 package io.apidocx.base.sdk.apifox.model;
 
+import com.google.gson.annotations.Expose;
 import java.util.List;
 import lombok.Data;
 
@@ -11,6 +12,9 @@ public class ApiTreeItem {
     private ApiInfo api;
     private FolderInfo folder;
     private List<ApiTreeItem> children;
+
+    @Expose(serialize = false, deserialize = false)
+    private String folderPath;
 
     public boolean isApiType() {
         return "apiDetail".equals(type);

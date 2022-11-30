@@ -11,8 +11,10 @@ import io.apidocx.base.sdk.apifox.model.LoginType;
 import io.apidocx.base.sdk.apifox.model.TestResult;
 import io.apidocx.base.sdk.apifox.model.TestResult.Code;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -60,7 +62,11 @@ public class ApifoxClient {
      * 获取接口目录列表
      */
     public List<ApiFolder> getApiFolders(Long projectId) {
-        return apifoxApi.getApiFolders(projectId).getData();
+        List<ApiFolder> folders = apifoxApi.getApiFolders(projectId).getData();
+        if (folders == null) {
+            folders = Collections.emptyList();
+        }
+        return folders.stream().filter(f -> !f.isRoot()).collect(Collectors.toList());
     }
 
     /**

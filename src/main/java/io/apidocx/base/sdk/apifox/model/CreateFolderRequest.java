@@ -18,8 +18,7 @@ public class CreateFolderRequest {
     /**
      * 父目录id
      */
-    @Builder.Default
-    private Integer parentId = 0;
+    private Long parentId;
 
     /**
      * 类型
