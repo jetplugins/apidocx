@@ -28,6 +28,11 @@ public class ApidocxConfig {
     private boolean strict = true;
 
     /**
+     * 路径前缀
+     */
+    private String path;
+
+    /**
      * yapi项目id
      */
     private String yapiProjectId;
@@ -143,11 +148,12 @@ public class ApidocxConfig {
     public static ApidocxConfig fromProperties(Properties properties) {
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
         String strict = properties.getProperty("strict", "");
+        String path = properties.getProperty("path", null);
         String yapiProjectId = properties.getProperty("yapiProjectId", "");
         String yapiUrl = properties.getProperty("yapiUrl", "");
         String yapiProjectToken = properties.getProperty("yapiProjectToken", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
-        String eolinkerProjectId = properties.getProperty("eolinkerProjectId", "");
+        String eolinkProjectId = properties.getProperty("eolinkerProjectId", "");
         String showdocProjectId = properties.getProperty("showdocProjectId", "");
         String apifoxProjectId = properties.getProperty("apifoxProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");
@@ -164,11 +170,12 @@ public class ApidocxConfig {
         if (StringUtils.isNotEmpty(strict)) {
             config.strict = Boolean.parseBoolean(strict);
         }
+        config.setPath(path);
         config.yapiUrl = yapiUrl.trim();
         config.yapiProjectToken = yapiProjectToken.trim();
         config.yapiProjectId = yapiProjectId.trim();
         config.rap2ProjectId = rap2ProjectId.trim();
-        config.eolinkProjectId = eolinkerProjectId.trim();
+        config.eolinkProjectId = eolinkProjectId.trim();
         config.showdocProjectId = showdocProjectId.trim();
         config.apifoxProjectId = apifoxProjectId.trim();
         config.returnWrapType = returnWrapType.trim();
@@ -218,6 +225,7 @@ public class ApidocxConfig {
 
         ApidocxConfig config = new ApidocxConfig();
         config.setStrict(settings.isStrict());
+        config.setPath(settings.getPath());
         config.setYapiUrl(settings.getYapiUrl());
         config.setYapiProjectId(settings.getYapiProjectId());
         config.setYapiProjectToken(settings.getYapiProjectToken());

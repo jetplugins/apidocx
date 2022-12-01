@@ -69,9 +69,8 @@ public class ApifoxUploader {
         if (apiItem == null) {
             // 同分类下: method+path, title
             apiItem = folderApis.stream().filter(ApiTreeItem::isApiType)
-                    .filter(item -> StringUtils.equals(item.getApi().getMethod(), method)
-                            && StringUtils.equals(item.getApi().getPath(), path))
-                    .filter(item -> StringUtils.equals(item.getName(), title))
+                    .filter(item -> (StringUtils.equals(item.getApi().getMethod(), method) && StringUtils.equals(item.getApi().getPath(), path))
+                            || StringUtils.equals(item.getName(), title))
                     .findFirst()
                     .orElse(null);
         }

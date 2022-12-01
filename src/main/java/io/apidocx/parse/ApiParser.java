@@ -41,6 +41,7 @@ public class ApiParser {
     private final ParseHelper parseHelper;
     private final Project project;
     private final Module module;
+    private final ApidocxConfig settings;
 
     public ApiParser(Project project, Module module, ApidocxConfig settings) {
         checkNotNull(project);
@@ -48,6 +49,7 @@ public class ApiParser {
         checkNotNull(settings);
         this.project = project;
         this.module = module;
+        this.settings = settings;
         this.requestParser = new RequestParser(project, module, settings);
         this.responseParser = new ResponseParser(project, module, settings);
         this.parseHelper = new ParseHelper(project, module);
@@ -131,6 +133,9 @@ public class ApiParser {
             }
             api.setMethod(pathInfo.getMethod());
             api.setPath(PathUtils.path(classLevelInfo.getPath(), path));
+            if (this.settings.getPath() != null) {
+                api.setPath(PathUtils.path(this.settings.getPath(), api.getPath()));
+            }
             api.setCategory(classLevelInfo.getCategory());
             return api;
         }).collect(Collectors.toList());

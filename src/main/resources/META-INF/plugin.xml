@@ -71,8 +71,9 @@
     <change-notes><![CDATA[
         1.1.0: <br>
         - feat: 支持上传到Apifox<br>
-        - refactor: 优化重构代码和重命名插件<br>
+        - feat: 支持配置全局路径前缀<br>
         - fix: 复制为cURL严格模式问题<br>
+        - refactor: 优化重构代码和重命名插件<br>
         <br>
         1.0.0: <br>
         - feat: 支持更多常量枚举解析<br>

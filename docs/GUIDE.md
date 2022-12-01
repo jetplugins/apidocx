@@ -46,30 +46,31 @@
 - 文件名称: .yapix
 - 文件格式: properties
 #### 配置项
-| 名称                   | 类型 | 描述                        | 备注                                        |
-|:---------------------| :--- |:--------------------------|:------------------------------------------|
-| yapiProjectId        | integer | YApi项目id                  |
-| rap2ProjectId        | integer | Rap2项目id                  |
-| eolinkerProjectId    | string | Eolinker项目id              |
-| showdocProjectId     | string | ShowDoc项目id               |
-|                      | |                           |
-| yapiUrl              | string | YApi服务地址                  | 场景：插件无法支持YApi统一登录方式，此时可使用项目token方式        |
-| yapiProjectToken     | string | YApi项目访问token             |
-|                      | |                           |
-| strict               | boolean | 是否开启严格模式, true(默认), false | 严格模式下不会解析无分类、无接口名的                        |
-|                      | |                           |
-| returnWrapType       | string | 方法返回值，统一包装类限定名            | 场景: spring统一配置了返回包装类                      |
-| returnUnwrapTypes    | string | 方法返回值，指定不需要包装的类           | 场景: 某些类不需要spring统一包装, 多个用英文逗号分割           |
-| parameterIgnoreTypes | list&lt;string> | 方法参数忽略的类全称                | 场景: 某些方法参数不是由浏览器客户端上传到                    |
-| requestBodyParamType | string | 简化请求参数json自定义注解（io.your.RequestBodyParam#value）                | 场景: 自定义注解，实现简单json请求参数避免使用@RequestBody需要包装一个实体                    |
-|                      | |                           |
-| dateTimeFormatMvc    | string | 默认返回时间格式(表单)              | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
-| dateTimeFormatJson   | string | 默认返回时间格式(json)            | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
-| dateFormat           | string | 默认返回时间格式(LocalDate)       | 默认格式: yyyy-MM-dd                          |
-| timeFormat           | string | 默认返回时间格式(LocalTime)       | 默认格式: HH:mm:ss                            |
-|                      | |                           |
-| beans[X]             | BeanCustom | 自定义bean配置                 |
-| mockRules            | List&lt;MockRule> | 自定义mock规则                 |
+| 名称                   | 类型                | 描述                                              | 备注                                        |
+|:---------------------|:------------------|:------------------------------------------------|:------------------------------------------|
+| yapiProjectId        | integer           | YApi项目id                                        |
+| rap2ProjectId        | integer           | Rap2项目id                                        |
+| eolinkerProjectId    | string            | Eolinker项目id                                    |
+| showdocProjectId     | string            | ShowDoc项目id                                     |
+|                      |                   |                                                 |
+| yapiUrl              | string            | YApi服务地址                                        | 场景：插件无法支持YApi统一登录方式，此时可使用项目token方式        |
+| yapiProjectToken     | string            | YApi项目访问token                                   |
+|                      |                   |                                                 |
+| strict               | boolean           | 是否开启严格模式, true(默认), false                       | 严格模式下不会解析无分类、无接口名的                        |
+| path                 | string            | 全局接口路径前缀                                        | 严格模式下不会解析无分类、无接口名的                        |
+|                      |                   |                                                 |
+| returnWrapType       | string            | 方法返回值，统一包装类限定名                                  | 场景: spring统一配置了返回包装类                      |
+| returnUnwrapTypes    | string            | 方法返回值，指定不需要包装的类                                 | 场景: 某些类不需要spring统一包装, 多个用英文逗号分割           |
+| parameterIgnoreTypes | list&lt;string>   | 方法参数忽略的类全称                                      | 场景: 某些方法参数不是由浏览器客户端上传到                    |
+| requestBodyParamType | string            | 简化请求参数json自定义注解（io.your.RequestBodyParam#value） | 场景: 自定义注解，实现简单json请求参数避免使用@RequestBody需要包装一个实体                    |
+|                      |                   |                                                 |
+| dateTimeFormatMvc    | string            | 默认返回时间格式(表单)                                    | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
+| dateTimeFormatJson   | string            | 默认返回时间格式(json)                                  | 默认格式: yyyy-MM-dd HH:mm:ss, 时间轴配置: integer |
+| dateFormat           | string            | 默认返回时间格式(LocalDate)                             | 默认格式: yyyy-MM-dd                          |
+| timeFormat           | string            | 默认返回时间格式(LocalTime)                             | 默认格式: HH:mm:ss                            |
+|                      |                   |                                                 |
+| beans[X]             | BeanCustom        | 自定义bean配置                                       |
+| mockRules            | List&lt;MockRule> | 自定义mock规则                                       |
 
 #### beans
 - 概述: 自定义bean配置, Map类型: Key是类限定名, Value是配置项
