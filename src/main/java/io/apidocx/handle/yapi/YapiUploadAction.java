@@ -8,8 +8,11 @@ import com.intellij.openapi.project.Project;
 import io.apidocx.action.AbstractAction;
 import io.apidocx.base.sdk.yapi.YapiClient;
 import io.apidocx.base.sdk.yapi.model.ApiInterface;
+import io.apidocx.base.sdk.yapi.model.TestResult;
 import io.apidocx.base.sdk.yapi.model.TestResult.Code;
+import io.apidocx.base.util.NotificationUtils;
 import io.apidocx.config.ApidocxConfig;
+import io.apidocx.config.DefaultConstants;
 import io.apidocx.handle.yapi.config.YapiSettings;
 import io.apidocx.handle.yapi.config.YapiSettingsDialog;
 import io.apidocx.handle.yapi.process.YapiUploader;
@@ -37,14 +40,23 @@ public class YapiUploadAction extends AbstractAction {
             return false;
         }
         if (StringUtils.isNotEmpty(config.getYapiProjectToken())) {
-            return true;
-        }
-
-        Project project = event.getData(CommonDataKeys.PROJECT);
-        YapiSettings settings = YapiSettings.getInstance();
-        if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
-            YapiSettingsDialog dialog = YapiSettingsDialog.show(project, event.getPresentation().getText());
-            return !dialog.isCanceled();
+            YapiClient client = new YapiClient(config.getYapiUrl(), config.getYapiProjectToken());
+            TestResult testResult = client.test();
+            if (testResult.getCode() == Code.NETWORK_ERROR) {
+                NotificationUtils.notifyError(DefaultConstants.NAME, "Network error: " + config.getYapiUrl());
+                return false;
+            }
+            if (testResult.getCode() == Code.AUTH_ERROR) {
+                NotificationUtils.notifyError(DefaultConstants.NAME, "The project token is invalid.");
+                return false;
+            }
+        } else {
+            Project project = event.getData(CommonDataKeys.PROJECT);
+            YapiSettings settings = YapiSettings.getInstance();
+            if (!settings.isValidate() || Code.OK != settings.testSettings().getCode()) {
+                YapiSettingsDialog dialog = YapiSettingsDialog.show(project, event.getPresentation().getText());
+                return !dialog.isCanceled();
+            }
         }
         return true;
     }
