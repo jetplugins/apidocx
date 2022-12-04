@@ -1,12 +1,13 @@
 plugins {
-    id 'org.jetbrains.intellij' version '1.7.0'
+    id 'org.jetbrains.intellij' version '1.10.0'
     id 'java'
 }
 
 group 'com.github.jetplugins'
 version '1.1.0'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+java.sourceCompatibility = 1.8
+java.targetCompatibility = 1.8
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
 
@@ -15,11 +16,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.swagger.core.v3:swagger-models:2.2.2'
+    implementation 'io.swagger.core.v3:swagger-models:2.2.6'
     implementation 'io.github.openfeign:feign-core:12.1'
     implementation 'io.github.openfeign:feign-gson:12.1'
     implementation 'io.github.openfeign.form:feign-form:3.8.0'
-    implementation 'org.slf4j:slf4j-api:2.0.4'
+    implementation 'org.slf4j:slf4j-api:2.0.5'
 
 
     // lombok
@@ -28,8 +29,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
