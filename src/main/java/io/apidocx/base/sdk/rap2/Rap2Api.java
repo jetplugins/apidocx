@@ -7,6 +7,7 @@ import feign.RequestLine;
 import feign.form.FormEncoder;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
+import io.apidocx.base.sdk.rap2.dto.InterfaceCreateResponse;
 import io.apidocx.base.sdk.rap2.dto.InterfacePropertiesUpdateRequest;
 import io.apidocx.base.sdk.rap2.dto.InterfaceUpdateRequest;
 import io.apidocx.base.sdk.rap2.dto.LoginRequest;
@@ -69,7 +70,7 @@ public interface Rap2Api {
      * 创建接口
      */
     @RequestLine("POST /interface/create")
-    Response<Rap2InterfaceBase> createInterface(Rap2InterfaceBase request);
+    Response<InterfaceCreateResponse> createInterface(Rap2InterfaceBase request);
 
     /**
      * 更新接口

@@ -3,6 +3,7 @@ package io.apidocx.base.sdk.rap2;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.apidocx.base.sdk.rap2.dto.CaptchaResponse;
+import io.apidocx.base.sdk.rap2.dto.InterfaceCreateResponse;
 import io.apidocx.base.sdk.rap2.dto.InterfacePropertiesUpdateRequest;
 import io.apidocx.base.sdk.rap2.dto.InterfaceUpdateRequest;
 import io.apidocx.base.sdk.rap2.dto.LoginRequest;
@@ -191,7 +192,8 @@ public class Rap2Client {
     public Rap2InterfaceBase createInterface(Rap2InterfaceBase request) {
         checkArgument(request.getRepositoryId() != null, "repositoryId can't be null");
         checkArgument(request.getModuleId() != null, "moduleId can't be null");
-        return rap2Api.createInterface(request).getData();
+        InterfaceCreateResponse response = rap2Api.createInterface(request).getData();
+        return response.getItf();
     }
 
     /**
