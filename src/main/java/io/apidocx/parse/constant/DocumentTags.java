@@ -6,6 +6,8 @@ package io.apidocx.parse.constant;
 public interface DocumentTags {
 
     String Category = "menu";
+
+    String Module = "module";
     String Description = "description";
     String DescriptionYapiUpload = "Description";
     String Deprecated = "deprecated";

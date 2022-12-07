@@ -75,8 +75,11 @@ public class ParseHelper {
      * 获取接口分类
      */
     public String getDeclareApiCategory(PsiClass psiClass) {
-        // 优先级: 文档注释标记@menu > @Api > 文档注释第一行
-        String category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Category);
+        // 优先级: 文档注释标记@module > @menu > @Api > 文档注释第一行
+        String category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Module);
+        if (StringUtils.isEmpty(category)) {
+            category = PsiDocCommentUtils.getDocCommentTagText(psiClass, DocumentTags.Category);
+        }
         if (StringUtils.isEmpty(category)) {
             category = PsiSwaggerUtils.getApiCategory(psiClass);
         }
