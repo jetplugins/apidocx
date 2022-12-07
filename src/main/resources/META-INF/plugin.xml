@@ -52,7 +52,7 @@
             <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
         </action>
-        <group id="apidocx.YapixActionGroup" class="io.apidocx.action.ApidocxActionGroup" popup="true">
+        <group id="apidocx.ApidocxActionGroup" class="io.apidocx.action.ApidocxActionGroup" popup="true">
             <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="apidocx.MainAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="apidocx.YapiUploadAction" class="io.apidocx.handle.yapi.YapiUploadAction"/>
