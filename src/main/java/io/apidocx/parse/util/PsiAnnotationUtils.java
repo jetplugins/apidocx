@@ -37,6 +37,19 @@ public class PsiAnnotationUtils {
     /**
      * 获取指定注解
      */
+    public static PsiAnnotation getAnnotation(PsiModifierListOwner element, String... fqnWaits) {
+        for (String fqn : fqnWaits) {
+            PsiAnnotation annotation = element.getAnnotation(fqn);
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取指定注解
+     */
     public static PsiAnnotation getAnnotationIncludeExtends(PsiClass element, String fqn) {
         PsiAnnotation annotation = element.getAnnotation(fqn);
         if (annotation == null) {
