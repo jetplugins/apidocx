@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,8 +54,8 @@ public class MarkdownGenerator {
             markdown.append(format("## %d.%s", serialNumber, summary)).append("\n\n");
         }
         markdown.append(format("**路径**: %s %s", api.getMethod().name(), api.getPath())).append("\n\n");
-        if (serialNumber < 0 && !Objects.equals(api.getSummary(), api.getPath())) {
-            markdown.append(format("**描述**: %s", api.getSummary())).append("\n\n");
+        if (StringUtils.isNotEmpty(api.getDescription())) {
+            markdown.append(format("**描述**: %s", api.getDescription())).append("\n\n");
         }
         markdown.append("**请求参数**").append("\n\n");
         markdown.append(getPropertiesSnippets("Headers", api.getParametersByIn(ParameterIn.header)));

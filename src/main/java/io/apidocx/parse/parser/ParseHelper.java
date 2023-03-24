@@ -128,12 +128,7 @@ public class ParseHelper {
      * 获取接口描述
      */
     public String getApiDescription(PsiMethod psiMethod) {
-        String description = psiMethod.getText();
-        if (psiMethod.getBody() != null) {
-            description = description.replace(psiMethod.getBody().getText(), "");
-        }
-        description = description.replace("<", "&lt;").replace(">", "&gt;");
-        return "   <pre><code>    " + description + "</code></pre>";
+        return PsiDocCommentUtils.getDocCommentDescription(psiMethod);
     }
 
     /**

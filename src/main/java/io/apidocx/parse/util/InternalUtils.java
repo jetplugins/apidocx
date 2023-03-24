@@ -2,15 +2,11 @@ package io.apidocx.parse.util;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 描述工具,存放标题，菜单，描述等工具类
- *
- * @author chengsheng@qbb6.com
- * @date 2019/4/30 4:13 PM
+ * 内部工具类
  */
 public class InternalUtils {
 
@@ -21,8 +17,7 @@ public class InternalUtils {
     static final String DASH = "-";
 
     public static <T> T clone(T t) {
-        return gson.fromJson(gson.toJson(t), new TypeToken<T>() {
-        }.getType());
+        return gson.fromJson(gson.toJson(t), (Class<T>) t.getClass());
     }
 
     /**

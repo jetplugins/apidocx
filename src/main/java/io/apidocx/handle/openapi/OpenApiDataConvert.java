@@ -83,6 +83,7 @@ public class OpenApiDataConvert {
     private Operation buildOperation(Api api) {
         Operation operation = new Operation();
         operation.setSummary(api.getSummary());
+        operation.setDescription(api.getDescription());
         operation.setTags(Lists.newArrayList(api.getCategory()));
         operation.setParameters(buildParameters(api));
         operation.setRequestBody(buildRequestBody(api));

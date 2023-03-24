@@ -112,6 +112,23 @@ public class PsiDocCommentUtils {
     }
 
     /**
+     * 获取文档描述内容
+     */
+    public static String getDocCommentDescription(PsiJavaDocumentedElement element) {
+        PsiDocComment comment = element.getDocComment();
+        if (comment != null) {
+            return Arrays.stream(comment.getDescriptionElements())
+                    .filter(o -> o instanceof PsiDocToken)
+                    .skip(1)
+                    .map(PsiElement::getText)
+                    .map(String::trim)
+                    .filter(text -> !"<p>".equals(text))
+                    .collect(Collectors.joining());
+        }
+        return null;
+    }
+
+    /**
      * 获取文档注释上的标记
      */
     public static PsiDocTag findTagByName(PsiJavaDocumentedElement element, String tagName) {

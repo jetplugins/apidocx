@@ -29,6 +29,7 @@ public class ApifoxDataConvector {
         apiDetail.setPath(api.getPath());
         apiDetail.setType("http");
         apiDetail.setStatus("released");
+        apiDetail.setDescription(api.getDescription());
         apiDetail.setParameters(getRequestParameters(api));
         apiDetail.setRequestBody(getRequestBody(api));
         apiDetail.setResponses(getResponses(api));
