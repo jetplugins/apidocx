@@ -69,6 +69,12 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.1: <br>
+        - feat: 移除接口备注代码，采用文档注释描述<br>
+        - feat: 支持新module标记以替换menu标记<br>
+        - fix: 修复单接口多路径报错<br>
+        - fix: 适配新版jsr303注解jakarta.validation.constraints.*<br>
+        <br>
         1.1.0: <br>
         - feat: 支持上传到Apifox<br>
         - feat: 支持配置全局路径前缀<br>
