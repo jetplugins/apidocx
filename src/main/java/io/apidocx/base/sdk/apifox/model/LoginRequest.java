@@ -16,5 +16,6 @@ public class LoginRequest {
 
     private String loginType;
 
+    private String mobile;
 
 }

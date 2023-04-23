@@ -149,6 +149,7 @@ public class ApifoxClient {
                     .loginType(loginType.name())
                     .account(account)
                     .password(this.password)
+                    .mobile(account)
                     .build();
             Response<LoginResponse> response = apifoxApi.login(loginRequest);
             LoginResponse loginResponse = response.getData();

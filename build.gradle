@@ -21,7 +21,6 @@ dependencies {
     implementation 'io.github.openfeign:feign-gson:12.1'
     implementation 'io.github.openfeign.form:feign-form:3.8.0'
     implementation 'org.slf4j:slf4j-api:2.0.5'
-    implementation 'commons-io:commons-io:2.11.0'
     implementation('org.apache.xmlgraphics:batik-codec:1.16') {
         exclude group: 'xml-apis', module: 'xml-apis'
         exclude group: 'xml-apis', module: 'xml-apis-ext'
