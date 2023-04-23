@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.intellij' version '1.10.0'
+    id 'org.jetbrains.intellij' version '1.10.1'
     id 'java'
 }
 
@@ -21,13 +21,17 @@ dependencies {
     implementation 'io.github.openfeign:feign-gson:12.1'
     implementation 'io.github.openfeign.form:feign-form:3.8.0'
     implementation 'org.slf4j:slf4j-api:2.0.5'
-
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation('org.apache.xmlgraphics:batik-codec:1.16') {
+        exclude group: 'xml-apis', module: 'xml-apis'
+        exclude group: 'xml-apis', module: 'xml-apis-ext'
+    }
 
     // lombok
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
