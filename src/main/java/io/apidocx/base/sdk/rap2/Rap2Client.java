@@ -132,7 +132,7 @@ public class Rap2Client {
      */
     public CaptchaResponse getCaptcha() {
         try (feign.Response response = rap2Api.getCaptcha();) {
-            byte[] bytes = IOUtils.readFully(response.body().asInputStream(), response.body().length());
+            byte[] bytes = IOUtils.toByteArray(response.body().asInputStream());
             bytes = SvgUtils.convertToJpegBytes(bytes);
             CaptchaResponse captchaResponse = new CaptchaResponse();
             captchaResponse.setBytes(bytes);
