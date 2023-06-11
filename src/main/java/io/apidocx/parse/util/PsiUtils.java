@@ -10,6 +10,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
+import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
@@ -102,11 +103,12 @@ public class PsiUtils {
         return Arrays.stream(psiClass.getAllMethods()).filter(method -> {
             String methodName = method.getName();
             PsiType returnType = method.getReturnType();
+            PsiParameterList parameterList = method.getParameterList();
             PsiModifierList modifierList = method.getModifierList();
             return !modifierList.hasModifierProperty(PsiModifier.STATIC)
                     && !methodName.equals("getClass")
-                    && ((methodName.startsWith("get") && methodName.length() > 3 && returnType != null)
-                    || (methodName.startsWith("is") && methodName.length() > 2 && returnType != null && returnType
+                    && (parameterList.getParametersCount() == 0 && (methodName.startsWith("get") && methodName.length() > 3 && returnType != null)
+                    || (parameterList.getParametersCount() == 0 && methodName.startsWith("is") && methodName.length() > 2 && returnType != null && returnType
                     .getCanonicalText().equals("boolean"))
             );
         }).toArray(PsiMethod[]::new);
