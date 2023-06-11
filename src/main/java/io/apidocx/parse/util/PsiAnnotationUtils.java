@@ -12,10 +12,12 @@ import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifierListOwner;
+import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +34,13 @@ public class PsiAnnotationUtils {
      */
     public static PsiAnnotation getAnnotation(PsiModifierListOwner element, String fqn) {
         return element.getAnnotation(fqn);
+    }
+
+    /**
+     * 获取指定注解
+     */
+    public static PsiAnnotation[] getAnnotations(PsiModifierListOwner element, String fqn) {
+        return Arrays.stream(element.getAnnotations()).filter(annotation -> fqn.equals(annotation.getQualifiedName())).toArray(PsiAnnotation[]::new);
     }
 
     /**
@@ -187,4 +196,5 @@ public class PsiAnnotationUtils {
         }
         return null;
     }
+
 }

@@ -42,7 +42,7 @@ public class PsiSwaggerUtils {
         return null;
     }
 
-    public static String getParameterDescription(PsiParameter psiParameter) {
+    public static String getParameterDescription(PsiMethod method, PsiParameter psiParameter) {
         PsiAnnotation apiParam = PsiAnnotationUtils.getAnnotation(psiParameter, SwaggerConstants.ApiParam);
         if (apiParam != null) {
             return PsiAnnotationUtils.getStringAttributeValueByAnnotation(apiParam);
@@ -51,6 +51,14 @@ public class PsiSwaggerUtils {
         if (parameter != null) {
             return PsiAnnotationUtils.getStringAttributeValueByAnnotation(parameter, "description");
         }
+        PsiAnnotation[] parameters = PsiAnnotationUtils.getAnnotations(psiParameter, SwaggerConstants.Parameter);
+        for (PsiAnnotation p : parameters) {
+            String name = PsiAnnotationUtils.getStringAttributeValueByAnnotation(p, "name");
+            if (name != null && name.equals(psiParameter.getName())) {
+                return PsiAnnotationUtils.getStringAttributeValueByAnnotation(p, "description");
+            }
+        }
+
         return null;
     }
 

@@ -278,7 +278,7 @@ public class RequestParser {
             required = parseHelper.getParameterRequired(parameter);
         }
         Map<String, String> paramTags = PsiDocCommentUtils.getTagParamTextMap(method);
-        String description = parseHelper.getParameterDescription(parameter, paramTags, property.getPropertyValues());
+        String description = parseHelper.getParameterDescription(method, parameter, paramTags, property.getPropertyValues());
         property.setIn(in);
         property.setName(name);
         property.setDescription(description);
