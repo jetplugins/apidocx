@@ -69,6 +69,10 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.3: <br>
+        - fix: 修复解析getter方法导致大量解析提示<br>
+        - feat: 支持swagger3.0部分功能<br>
+        <br>
         1.1.2: <br>
         - fix: 修复兼容2023.1对Rap2上传的兼容性<br>
         <br>
