@@ -26,6 +26,8 @@ dependencies {
         exclude group: 'xml-apis', module: 'xml-apis'
         exclude group: 'xml-apis', module: 'xml-apis-ext'
     }
+    implementation 'org.yaml:snakeyaml:2.1'
+
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.26'

@@ -50,13 +50,17 @@ public class OpenApiGenerator {
         dumperOptions.setDefaultFlowStyle(FlowStyle.BLOCK);
         dumperOptions.setPrettyFlow(true);
 
-        CustomRepresent represent = new CustomRepresent();
+        CustomRepresent represent = new CustomRepresent(dumperOptions);
         represent.setPropertyUtils(new CustomPropertyUtils());
         represent.getPropertyUtils().setBeanAccess(BeanAccess.FIELD);
         return new Yaml(represent, dumperOptions);
     }
 
     private static class CustomRepresent extends Representer {
+
+        public CustomRepresent(DumperOptions options) {
+            super(options);
+        }
 
         @Override
         protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
