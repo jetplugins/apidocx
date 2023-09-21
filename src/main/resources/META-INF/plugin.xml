@@ -44,7 +44,11 @@
             <configurable instance="io.apidocx.handle.apifox.config.ApifoxSettingsConfiguration"/>
             <configurable instance="io.apidocx.handle.showdoc.config.ShowdocSettingsConfiguration"/>
         </applicationConfigurable>
-        <fileTypeDetector implementation="io.apidocx.config.ApidocxFileTypeDetector"/>
+        <fileType name="yapix"
+                  implementationClass="io.apidocx.config.ApidocxFileType"
+                  fieldName="INSTANCE"
+                  language="Properties"
+                  extensions="yapix"/>
     </extensions>
 
     <actions>
