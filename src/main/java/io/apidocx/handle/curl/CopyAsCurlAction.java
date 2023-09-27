@@ -14,8 +14,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.apidocx.action.AbstractAction;
 import io.apidocx.base.util.ClipboardUtils;
 import io.apidocx.config.ApidocxConfig;
+import io.apidocx.config.ApidocxSettings;
 import io.apidocx.model.Api;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,7 +45,9 @@ public class CopyAsCurlAction extends AbstractAction {
             notifyWarning("Copy as cURL", "only support single api, please choose method in editor");
             return;
         }
-        String curl = new CurlGenerator().generate(apis.get(0));
+        ApidocxSettings settings = ApidocxSettings.getInstance();
+        String host = StringUtils.isNotEmpty(settings.getCurlHost()) ? settings.getCurlHost() : "";
+        String curl = new CurlGenerator(host).generate(apis.get(0));
         ClipboardUtils.setClipboard(curl);
         notifyInfo(ACTION_TEXT, "copied to clipboard");
     }

@@ -8,12 +8,16 @@ import io.apidocx.model.ParameterIn;
 import io.apidocx.model.Property;
 import io.apidocx.model.RequestBodyType;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * 接口信息生成curl命令
  */
+@AllArgsConstructor
 public class CurlGenerator {
+
+    private final String host;
 
     /**
      * 生成curl字符串
@@ -53,7 +57,7 @@ public class CurlGenerator {
     private String getUrl(Api api) {
         List<Property> queries = api.getParametersByIn(ParameterIn.query);
         StringBuilder sb = new StringBuilder();
-        sb.append("{{host}}");
+        sb.append(host);
         sb.append(api.getPath());
         if (queries.size() > 0) {
             sb.append("?");

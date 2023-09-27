@@ -16,7 +16,10 @@ returnUnwrapTypes=\
 parameterIgnoreTypes=\
     javax.servlet.http.HttpServletRequest, \
     javax.servlet.http.HttpServletResponse, \
-    org.springframework.validation.BindingResult
+    org.springframework.validation.BindingResult, \
+    com.wangxiaobao.infra.pierre.security.tenant.Tenant, \
+    com.wangxiaobao.infra.pierre.security.tenant.Project, \
+    com.wangxiaobao.infra.pierre.security.User
 
 # 自定义bean配置
 beans[org.springframework.data.domain.Pageable]= { \
@@ -103,8 +106,7 @@ beans[com.wangxiaobao.infra.pierre.common.model.Result]= { \
 		"fields": { \
 			"code": { "mock": "0", "description": "状态码: 0(成功)", "required": true }, \
 			"msg": { "mock": "ok", "description": "消息", "required": true }, \
-            "data": { "description": "数据", "required": true}, \
-			"timestamp": { "mock": "@now", "description": "时间", "required": true } \
+            "data": { "description": "数据", "required": true} \
 		} \
 	}
 beans[com.wangxiaobao.infra.pierre.common.model.Pager]= { \

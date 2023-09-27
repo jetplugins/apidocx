@@ -14,6 +14,7 @@ public class ApidocxSettingsForm {
     private JRadioButton eolinkRadioButton;
     private JRadioButton showdocRadioButton;
     private JRadioButton apifoxRadioButton;
+    private JFormattedTextField curlHostField;
 
     public JPanel getPanel() {
         return panel;
@@ -37,6 +38,7 @@ public class ApidocxSettingsForm {
             default:
                 yapiRadioButton.doClick();
         }
+        curlHostField.setText(data.getCurlHost());
     }
 
     public ApidocxSettings get() {
@@ -55,6 +57,7 @@ public class ApidocxSettingsForm {
 
         ApidocxSettings data = new ApidocxSettings();
         data.setDefaultAction(defaultAction);
+        data.setCurlHost(curlHostField.getText());
         return data;
     }
 }
