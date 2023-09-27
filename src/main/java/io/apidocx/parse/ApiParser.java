@@ -10,6 +10,8 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
+import com.intellij.psi.search.searches.SuperMethodsSearch;
+import com.intellij.psi.util.MethodSignatureBackedByPsiMethod;
 import io.apidocx.config.ApidocxConfig;
 import io.apidocx.model.Api;
 import io.apidocx.parse.constant.SpringConstants;
@@ -81,7 +83,16 @@ public class ApiParser {
      */
     public MethodApiData parse(PsiMethod method) {
         PsiClass psiClass = method.getContainingClass();
-        return doParseMethod(method, doParseClassLevelApiInfo(psiClass));
+        MethodApiData methodApiData = doParseMethod(method, doParseClassLevelApiInfo(psiClass));
+        if (!methodApiData.isValid()) {
+            // 处理父类方法：接口方法和实现分离情况
+            MethodSignatureBackedByPsiMethod superMethodSignature = SuperMethodsSearch.search(method, psiClass, true, false).findFirst();
+            if (superMethodSignature != null) {
+                method = superMethodSignature.getMethod();
+            }
+            methodApiData = doParseMethod(method, doParseClassLevelApiInfo(psiClass));
+        }
+        return methodApiData;
     }
 
     /**
