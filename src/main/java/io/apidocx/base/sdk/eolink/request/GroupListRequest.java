@@ -15,9 +15,4 @@ public class GroupListRequest {
      */
     private String spaceKey;
 
-    /**
-     * 模块
-     */
-    private Long module = 2L;
-
 }

@@ -19,7 +19,6 @@ import io.apidocx.base.sdk.eolink.request.GroupListResponse;
 import io.apidocx.base.sdk.eolink.request.LoginRequest;
 import io.apidocx.base.sdk.eolink.request.LoginResponseData;
 import io.apidocx.base.sdk.eolink.request.SsoResponse;
-import java.net.URI;
 import java.util.Map;
 
 
@@ -35,9 +34,9 @@ public interface EolinkApi {
     /**
      * 登录
      */
-    @RequestLine("POST")
+    @RequestLine("POST /userCenter/common/sso/login")
     @Headers("Content-Type: application/json")
-    SsoResponse<LoginResponseData> login(URI uri, LoginRequest request);
+    SsoResponse<LoginResponseData> login(LoginRequest request);
 
     /**
      * 获取当前登录用户信息
@@ -54,13 +53,13 @@ public interface EolinkApi {
     /**
      * 获取分组列表
      */
-    @RequestLine("GET /api/apiManagementPro/ApiGroup/getApiGroupData")
+    @RequestLine("POST /api/apiManagementPro/ApiGroup/getApiGroupData")
     GroupListResponse getGroupList(GroupListRequest request);
 
     /**
      * 获取接口列表
      */
-    @RequestLine("GET /api/apiManagementPro/Api/getApiListByCondition")
+    @RequestLine("POST /api/apiManagementPro/Api/getApiListByCondition")
     ApiListResponse getApiList(ApiListRequest request);
 
     /**

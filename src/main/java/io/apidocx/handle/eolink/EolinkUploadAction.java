@@ -30,7 +30,7 @@ public class EolinkUploadAction extends AbstractAction {
     public boolean before(AnActionEvent event, ApidocxConfig config) {
         String projectId = config.getEolinkProjectId();
         if (StringUtils.isEmpty(projectId)) {
-            notifyError("Config file error", "eolinkerProjectId must not be empty.");
+            notifyError("Config file error", "eolinkProjectId must not be empty.");
             return false;
         }
 
@@ -49,18 +49,17 @@ public class EolinkUploadAction extends AbstractAction {
         Project project = event.getData(CommonDataKeys.PROJECT);
 
         EolinkSettings settings = EolinkSettings.getInstance();
-        EolinkClient client = new EolinkClient(settings.getUrl(), settings.getLoginUrl(), settings.getAccount(), settings.getPassword(), settings.getAccessToken());
+        EolinkClient client = new EolinkClient(settings.getUrl(), settings.getAccount(), settings.getPassword(), settings.getAccessToken());
         EolinkUploader uploader = new EolinkUploader(client);
         EolinkWebUrlCalculator urlCalculator = new EolinkWebUrlCalculator(settings.getWebUrl());
 
         super.handleUploadAsync(project, apis,
                 api -> {
                     ApiInfo eapi = uploader.upload(projectId, api);
-
+                    String spaceKey = client.getSpaceKey();
                     ApiUploadResult result = new ApiUploadResult();
-                    result.setCategoryUrl(urlCalculator.calculateApiListUrl(projectId,
-                            eapi.getBaseInfo().getGroupID()));
-                    result.setApiUrl(result.getCategoryUrl());
+                    result.setCategoryUrl(urlCalculator.calculateApiListUrl(spaceKey, projectId, eapi.getBaseInfo().getGroupID(), null));
+                    result.setApiUrl(urlCalculator.calculateApiListUrl(spaceKey, projectId, eapi.getBaseInfo().getGroupID(), eapi.getBaseInfo().getApiID()));
                     return result;
                 }, null);
     }

@@ -63,7 +63,7 @@
 |:---------------------|:------------------|:------------------------------------------------|:-----------------------------------------------|
 | yapiProjectId        | integer           | YApi项目id                                        |
 | rap2ProjectId        | integer           | Rap2项目id                                        |
-| eolinkerProjectId    | string            | Eolinker项目id                                    |
+| eolinkProjectId      | string            | Eolink项目id                                      |
 | showdocProjectId     | string            | ShowDoc项目id                                     |
 |                      |                   |                                                 |
 | yapiUrl              | string            | YApi服务地址                                        | 场景：插件无法支持YApi统一登录方式，此时可使用项目token方式             |

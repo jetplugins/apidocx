@@ -67,6 +67,11 @@ public class ApiConverter {
         data.setTagID(api.getTagID());
         data.setApiType(api.getApiType());
         data.setFileList(api.getFileList());
+
+        if (data.getApiNoteType() == null) {
+            // 兼容处理
+            data.setApiNoteType(1);
+        }
         return data;
     }
 }

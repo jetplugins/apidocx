@@ -9,6 +9,8 @@ public class Response {
 
     protected String statusCode;
 
+    protected String errorMsg;
+
     private static final Set<String> SUCCESS_CODES;
 
     static {

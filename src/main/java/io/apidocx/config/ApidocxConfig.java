@@ -153,7 +153,10 @@ public class ApidocxConfig {
         String yapiUrl = properties.getProperty("yapiUrl", "");
         String yapiProjectToken = properties.getProperty("yapiProjectToken", "");
         String rap2ProjectId = properties.getProperty("rap2ProjectId", "");
-        String eolinkProjectId = properties.getProperty("eolinkerProjectId", "");
+        String eolinkProjectId = properties.getProperty("eolinkProjectId", "");
+        if (StringUtils.isEmpty(eolinkProjectId)) {
+            eolinkProjectId = properties.getProperty("eolinkerProjectId", "");
+        }
         String showdocProjectId = properties.getProperty("showdocProjectId", "");
         String apifoxProjectId = properties.getProperty("apifoxProjectId", "");
         String returnWrapType = properties.getProperty("returnWrapType", "");

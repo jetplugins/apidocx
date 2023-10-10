@@ -24,7 +24,6 @@ import io.apidocx.base.sdk.eolink.request.SsoResponse;
 import io.apidocx.base.sdk.eolink.request.TestResult;
 import io.apidocx.base.sdk.eolink.request.TestResult.Code;
 import io.apidocx.base.sdk.eolink.util.ApiConverter;
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ public class EolinkClient {
 
     private final EolinkApi eolinkApi;
 
-    private final String loginUrl;
 
     /**
      * 服务地址
@@ -60,11 +58,10 @@ public class EolinkClient {
 
     private UserInfo userInfo;
 
-    public EolinkClient(String url, String loginUrl, String account, String password, String accessToken) {
+    public EolinkClient(String url, String account, String password, String accessToken) {
         checkArgument(StringUtils.isNotEmpty(url), "url can't be null");
         checkArgument(StringUtils.isNotEmpty(account), "account can't be null");
         checkArgument(StringUtils.isNotEmpty(password), "password can't be null");
-        this.loginUrl = loginUrl;
         this.url = url;
         this.account = account;
         this.password = password;
@@ -171,7 +168,7 @@ public class EolinkClient {
         }
     }
 
-    private String getSpaceKey() {
+    public String getSpaceKey() {
         if (this.userInfo != null) {
             return this.userInfo.getSpaceKey();
         }
@@ -203,7 +200,8 @@ public class EolinkClient {
                     if (value instanceof Response) {
                         Response responseValue = (Response) value;
                         if (!responseValue.isSuccess()) {
-                            throw new EolinkException(path, responseValue.getStatusCode());
+                            String errorMsg = StringUtils.defaultIfEmpty(responseValue.getErrorMsg(), responseValue.getStatusCode());
+                            throw new EolinkException(path, responseValue.getStatusCode(), errorMsg);
                         }
                     }
                     return value;
@@ -229,8 +227,7 @@ public class EolinkClient {
         loginREquest.setPassword(this.password);
         loginREquest.setUsername(this.account);
 
-        URI loginUri = URI.create(this.loginUrl + EolinkConstants.Login);
-        SsoResponse<LoginResponseData> response = eolinkApi.login(loginUri, loginREquest);
+        SsoResponse<LoginResponseData> response = eolinkApi.login(loginREquest);
         return response.getData();
     }
 }

@@ -17,7 +17,8 @@
 <img src="docs/screenshots.gif" height="360">
 
 ## 使用
-1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: Apidocx（原名: Yapi X）
+
+1. 安装: 打开Idea -> File -> Settings -> Plugins, 搜索: Apidocx
 2. 配置: 项目根目录创建".yapix"文件, 内容: yapiProjectId=110
 3. 上传: 光标放置在你的控制类或方法，右键执行: Upload To YApi ( 提示：如果未填登录信息，会弹窗提示 )
 
@@ -25,7 +26,6 @@
 
 ## 交流
 欢迎提出您的发现问题、需求、建议、以及提交代码来参与贡献。
-- QQ交流群：860701800
 
 提示：如果您准备为该插件开发一个新功能，请先通过issues讨论，避免重复开发。
 
