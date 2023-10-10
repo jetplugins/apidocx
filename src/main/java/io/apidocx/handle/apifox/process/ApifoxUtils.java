@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @UtilityClass
 public class ApifoxUtils {
