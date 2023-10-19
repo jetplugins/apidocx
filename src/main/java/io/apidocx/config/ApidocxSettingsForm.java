@@ -9,12 +9,9 @@ import javax.swing.*;
 public class ApidocxSettingsForm {
 
     private JPanel panel;
-    private JRadioButton yapiRadioButton;
-    private JRadioButton rap2RadioButton;
-    private JRadioButton eolinkRadioButton;
-    private JRadioButton showdocRadioButton;
-    private JRadioButton apifoxRadioButton;
+
     private JFormattedTextField curlHostField;
+    private JComboBox<String> defaultActionComboBox;
 
     public JPanel getPanel() {
         return panel;
@@ -22,39 +19,15 @@ public class ApidocxSettingsForm {
 
     public void set(ApidocxSettings data) {
         ActionType defaultAction = data.getDefaultAction();
-        switch (defaultAction) {
-            case Rap2:
-                rap2RadioButton.doClick();
-                break;
-            case Eolink:
-                eolinkRadioButton.doClick();
-                break;
-            case ShowDoc:
-                showdocRadioButton.doClick();
-                break;
-            case Apifox:
-                apifoxRadioButton.doClick();
-                break;
-            default:
-                yapiRadioButton.doClick();
-        }
+        defaultActionComboBox.setSelectedItem(defaultAction.getName());
         curlHostField.setText(data.getCurlHost());
     }
 
     public ApidocxSettings get() {
         ActionType defaultAction = ActionType.YApi;
-        if (yapiRadioButton.isSelected()) {
-            defaultAction = ActionType.YApi;
-        } else if (rap2RadioButton.isSelected()) {
-            defaultAction = ActionType.Rap2;
-        } else if (eolinkRadioButton.isSelected()) {
-            defaultAction = ActionType.Eolink;
-        } else if (showdocRadioButton.isSelected()) {
-            defaultAction = ActionType.ShowDoc;
-        } else if (apifoxRadioButton.isSelected()) {
-            defaultAction = ActionType.Apifox;
+        if (defaultActionComboBox.getSelectedItem() != null) {
+            defaultAction = ActionType.valueOf(defaultActionComboBox.getSelectedItem().toString());
         }
-
         ApidocxSettings data = new ApidocxSettings();
         data.setDefaultAction(defaultAction);
         data.setCurlHost(curlHostField.getText());
