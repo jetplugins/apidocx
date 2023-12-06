@@ -50,6 +50,9 @@ class InternalUtils {
      * 解析SetCookie为Cookie
      */
     public static String parseCookie(Collection<String> setCookies) {
+        if (setCookies == null || setCookies.isEmpty()) {
+            return null;
+        }
         return setCookies.stream()
                 .map(c -> {
                     List<HttpCookie> httpCookies = HttpCookie.parse(c);

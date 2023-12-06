@@ -180,7 +180,7 @@ public class YapiClient {
                         if (StringUtils.isNotEmpty(this.token)) {
                             template.query("token", this.token);
                         } else {
-                            template.header("cookie", getOrRefreshAccessToken(false));
+                            template.header("Cookie", getOrRefreshAccessToken(false));
                         }
                     }
                 })
@@ -188,7 +188,7 @@ public class YapiClient {
                     // 登录存储cookie
                     String path = InternalUtils.getUrlPath(ctx.response().request().url());
                     if (YapiConstants.isLoginPath(path)) {
-                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        Collection<String> setCookies = ctx.response().headers().get("Set-Cookie");
                         this.cookies = InternalUtils.parseCookie(setCookies);
                     }
                     // 响应异常转换

@@ -127,7 +127,7 @@ public class ShowdocClient {
     public CaptchaResponse getCaptcha() {
         try (feign.Response response = showdocApi.getCaptcha(uri(ShowdocConstants.GetCaptcha));) {
             byte[] bytes = IOUtils.toByteArray(response.body().asInputStream());
-            this.captchaCookies = InternalUtils.parseCookie(response.headers().get("set-cookie"));
+            this.captchaCookies = InternalUtils.parseCookie(response.headers().get("Set-Cookie"));
             CaptchaResponse captchaResponse = new CaptchaResponse();
             captchaResponse.setBytes(bytes);
             captchaResponse.setSession(this.captchaCookies);
@@ -171,7 +171,7 @@ public class ShowdocClient {
                     // 请求设置鉴权信息
                     boolean needCookie = !ShowdocConstants.isLoginPath(template.url()) && !ShowdocConstants.isCaptchaPath(template.url());
                     if (needCookie) {
-                        template.header("cookie", getOrRefreshAccessToken(false));
+                        template.header("Cookie", getOrRefreshAccessToken(false));
                     }
                 })
                 .responseInterceptor(ctx -> {
@@ -187,7 +187,7 @@ public class ShowdocClient {
                     }
                     // 登录存储cookie
                     if (ShowdocConstants.isLoginPath(requestUrl)) {
-                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        Collection<String> setCookies = ctx.response().headers().get("Set-Cookie");
                         this.cookies = InternalUtils.parseCookie(setCookies);
                     }
                     return value;

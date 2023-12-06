@@ -225,7 +225,7 @@ public class Rap2Client {
                     // 请求设置鉴权信息
                     boolean needCookie = !Rap2Constants.isLoginPath(template.path()) && !Rap2Constants.isCaptchaPath(template.path());
                     if (needCookie) {
-                        template.header("cookie", getOrRefreshAccessToken(false));
+                        template.header("Cookie", getOrRefreshAccessToken(false));
                     }
                 })
                 .responseInterceptor(ctx -> {
@@ -247,7 +247,7 @@ public class Rap2Client {
                         if (!loginResult.isSuccess()) {
                             throw new Rap2Exception(path, loginResult.getErrMsg());
                         }
-                        Collection<String> setCookies = ctx.response().headers().get("set-cookie");
+                        Collection<String> setCookies = ctx.response().headers().get("Set-Cookie");
                         this.cookies = InternalUtils.parseCookie(setCookies);
                     }
                     return value;
