@@ -73,6 +73,9 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.6: <br>
+        - fix: 修复兼容2023.2.5版本<br>
+        <br>
         1.1.5: <br>
         - fix: 修复新版本对Rap2上传兼容性问题<br>
         - fix: 修复Eolink上传问题<br>
