@@ -108,7 +108,7 @@ public class KernelParser {
         // Map类型
         if (PsiTypeUtils.isMap(psiType, this.project, this.module) || Object.class.getName().equals(type)) {
             property.setType(DataTypes.OBJECT);
-            doHandleMap(context, property, genericTypes, chains);
+            // doHandleMap(context, property, genericTypes, chains);
             return property;
         }
 

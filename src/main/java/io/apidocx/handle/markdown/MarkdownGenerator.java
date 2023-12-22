@@ -1,6 +1,7 @@
 package io.apidocx.handle.markdown;
 
 import com.google.common.collect.Lists;
+import io.apidocx.base.util.PropertyUtils;
 import io.apidocx.model.Api;
 import io.apidocx.model.ParameterIn;
 import io.apidocx.model.Property;
@@ -67,6 +68,7 @@ public class MarkdownGenerator {
         markdown.append(getBodySnippets("Body", api.getRequestBody(), true)).append("\n");
         markdown.append("**响应参数**").append("\n\n");
         markdown.append(getBodySnippets("Body", api.getResponses(), true)).append("\n");
+        markdown.append(getBodyDemoSnippets("Demo", api.getResponses())).append("\n");
         return markdown.toString();
     }
 
@@ -114,6 +116,19 @@ public class MarkdownGenerator {
         } else {
             markdown.append(propertyRowSnippets(property, 1, isLast));
         }
+        return markdown.toString();
+    }
+
+    private String getBodyDemoSnippets(String title, Property property) {
+        if (property == null) {
+            return "";
+        }
+        String jsonExample = PropertyUtils.getJsonExample(property);
+        StringBuilder markdown = new StringBuilder();
+        markdown.append(format("*%s:*", title)).append("\n\n");
+        markdown.append("```").append("\n");
+        markdown.append(jsonExample).append("\n");
+        markdown.append("```");
         return markdown.toString();
     }
 
