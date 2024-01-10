@@ -73,6 +73,9 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.7: <br>
+        - feat: 生成markdown内容支持响应json示例<br>
+        <br>
         1.1.6: <br>
         - fix: 修复兼容2023.2.5版本<br>
         <br>
