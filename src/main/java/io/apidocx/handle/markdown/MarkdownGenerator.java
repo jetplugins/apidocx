@@ -66,9 +66,9 @@ public class MarkdownGenerator {
                 getPropertiesSnippets(api.getRequestBodyType() == RequestBodyType.form_data ? "Form Data" : "Form",
                         api.getRequestBodyForm()));
         markdown.append(getBodySnippets("Body", api.getRequestBody(), true)).append("\n");
-        markdown.append("**响应参数**").append("\n\n");
+        markdown.append("**响应结果**").append("\n\n");
         markdown.append(getBodySnippets("Body", api.getResponses(), true)).append("\n");
-        markdown.append(getBodyDemoSnippets("Demo", api.getResponses())).append("\n");
+        markdown.append(getBodyDemoSnippets(null, api.getResponses())).append("\n");
         return markdown.toString();
     }
 
@@ -125,8 +125,10 @@ public class MarkdownGenerator {
         }
         String jsonExample = PropertyUtils.getJsonExample(property);
         StringBuilder markdown = new StringBuilder();
-        markdown.append(format("*%s:*", title)).append("\n\n");
-        markdown.append("```").append("\n");
+        if (StringUtils.isNotEmpty(title)) {
+            markdown.append(format("*%s:*", title)).append("\n\n");
+        }
+        markdown.append("```json").append("\n");
         markdown.append(jsonExample).append("\n");
         markdown.append("```");
         return markdown.toString();
