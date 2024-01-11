@@ -11,8 +11,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierListOwner;
-import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator;
@@ -197,4 +197,29 @@ public class PsiAnnotationUtils {
         return null;
     }
 
+
+    /**
+     * 获取字段注解值
+     */
+    public static PsiAnnotation getFieldAnnotation(PsiField psiField, String fqn, boolean includeGetterMethod) {
+        PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(psiField, fqn);
+        if (annotation == null && includeGetterMethod) {
+            PsiMethod getterMethod = PsiFieldUtils.getGetterMethod(psiField);
+            if (getterMethod != null) {
+                annotation = PsiAnnotationUtils.getAnnotation(getterMethod, fqn);
+            }
+        }
+        return annotation;
+    }
+
+    /**
+     * 获取字段指定注解value属性值
+     */
+    public static String getFieldAnnotationStringAttributeValue(PsiField psiField, String fqn, String attribute, boolean includeGetterMethod) {
+        PsiAnnotation annotation = getFieldAnnotation(psiField, fqn, includeGetterMethod);
+        if (annotation != null) {
+            return getStringAttributeValueByAnnotation(annotation, attribute);
+        }
+        return null;
+    }
 }

@@ -1,9 +1,11 @@
 package io.apidocx.parse.util;
 
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiType;
@@ -59,6 +61,9 @@ public class PsiFieldUtils {
         }
     }
 
+    /**
+     * 获取字段默认值文本
+     */
     private static String getDefaultValueFromFieldText(PsiField field) {
         String text = field.getText();
         int nameIdx = text.lastIndexOf(field.getName());
@@ -81,5 +86,17 @@ public class PsiFieldUtils {
         }
         return subText.substring(beginIdx, endIdx);
     }
+
+    /**
+     * 获取字段对应getter方法
+     */
+    public static PsiMethod getGetterMethod(PsiField psiField) {
+        PsiClass containingClass = psiField.getContainingClass();
+        if (containingClass == null) {
+            return null;
+        }
+        return PsiUtils.getGetterMethod(containingClass, psiField.getName(), psiField.getType());
+    }
+
 
 }

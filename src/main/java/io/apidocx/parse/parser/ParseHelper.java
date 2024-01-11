@@ -447,7 +447,7 @@ public class ParseHelper {
             return true;
         }
 
-        String jsonIgnore = PsiAnnotationUtils.getStringAttributeValue(field, SpringConstants.JsonIgnore);
+        String jsonIgnore = PsiAnnotationUtils.getFieldAnnotationStringAttributeValue(field, SpringConstants.JsonIgnore, "value", true);
         if ("true".equals(jsonIgnore)) {
             return true;
         }

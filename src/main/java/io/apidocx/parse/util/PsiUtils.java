@@ -114,4 +114,20 @@ public class PsiUtils {
         }).toArray(PsiMethod[]::new);
     }
 
+    /**
+     * 获取Getter方法
+     *
+     * @param psiClass  目标类
+     * @param fieldName 字段名
+     * @param fieldType 字段类型
+     * @return 对应Getter方法，可能为null。
+     */
+    public static PsiMethod getGetterMethod(PsiClass psiClass, String fieldName, PsiType fieldType) {
+        String prefix = fieldType.getCanonicalText().equals("boolean") ? "is" : "get";
+        String methodName = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        PsiMethod targetMethod = JavaPsiFacade.getElementFactory(psiClass.getProject())
+                .createMethod(methodName, fieldType);
+        return psiClass.findMethodBySignature(targetMethod, true);
+    }
+
 }

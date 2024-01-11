@@ -79,8 +79,7 @@ public class DateParser {
         }
 
         // 2: @JsonFormat优先
-        String jsonFormat = PsiAnnotationUtils
-                .getStringAttributeValue(field, SpringConstants.JsonFormat, "pattern");
+        String jsonFormat = PsiAnnotationUtils.getFieldAnnotationStringAttributeValue(field, SpringConstants.JsonFormat, "pattern", true);
         if (jsonFormat != null) {
             property.setType(DataTypes.STRING);
             property.setDateFormat(jsonFormat);
