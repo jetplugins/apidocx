@@ -98,6 +98,7 @@ public class KernelParser {
             return property;
         }
         property.setType(dataTypeParser.parse(psiType));
+        property.setFormat(dataTypeParser.parseFormat(psiType));
         property.setValues(parseHelper.getTypeValues(psiType));
 
         // 文件类型

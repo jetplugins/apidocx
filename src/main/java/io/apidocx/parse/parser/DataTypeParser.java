@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 public final class DataTypeParser {
 
     private static final String FILE = "types.properties";
+    private static final String FORMAT_FILE = "type2formats.properties";
     private final Project project;
     private final Module module;
     private final ApidocxConfig settings;
@@ -42,8 +43,28 @@ public final class DataTypeParser {
         return StringUtils.isEmpty(dataType) ? DataTypes.OBJECT : dataType;
     }
 
+    /**
+     * 获取字段类型
+     */
+    public String parseFormat(PsiType type) {
+        // 数组类型处理
+        if (PsiTypeUtils.isArray(type) || PsiTypeUtils.isCollection(type, this.project, this.module)) {
+            return null;
+        }
+        boolean isEnum = PsiTypeUtils.isEnum(type);
+        if (isEnum) {
+            return null;
+        }
+        return getFormatInProperties(type);
+    }
+
     public static String getTypeInProperties(PsiType type) {
         Properties typeProperties = PropertiesLoader.getProperties(FILE);
+        return typeProperties.getProperty(type.getCanonicalText());
+    }
+
+    public static String getFormatInProperties(PsiType type) {
+        Properties typeProperties = PropertiesLoader.getProperties(FORMAT_FILE);
         return typeProperties.getProperty(type.getCanonicalText());
     }
 

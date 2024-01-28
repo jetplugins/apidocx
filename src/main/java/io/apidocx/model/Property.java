@@ -26,6 +26,9 @@ public class Property {
     /** 类型 */
     private String type;
 
+    /** 格式 */
+    private String format;
+
     /** 时间格式 */
     private String dateFormat;
 

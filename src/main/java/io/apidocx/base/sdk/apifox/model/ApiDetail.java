@@ -159,6 +159,11 @@ public class ApiDetail {
         private String type;
 
         /**
+         * 格式
+         */
+        private String format;
+
+        /**
          * 描述
          */
         private String description;

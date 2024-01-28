@@ -90,6 +90,7 @@ public class ApifoxDataConvector {
         parameter.setId(RandomStringUtils.randomAlphabetic(10));
         parameter.setName(property.getName());
         parameter.setType(property.getType());
+        parameter.setFormat(property.getFormat());
         parameter.setDescription(property.getDescription());
         parameter.setRequired(property.getRequired());
         parameter.setExample(property.getExample());
@@ -99,6 +100,7 @@ public class ApifoxDataConvector {
     private Schema buildSchema(Property p) {
         Schema schema = new Schema();
         schema.setType(p.getType());
+        schema.setFormat(p.getFormat());
         schema.setDescription(p.getDescription());
         schema.setExample(p.getExample());
         String mock = p.getMock();
@@ -122,13 +124,8 @@ public class ApifoxDataConvector {
 
         // 特殊类型转换
         switch (p.getType()) {
-            case "datetime":
-                schema.setType("string");
-                schema.setFormat("date-time");
-                break;
             case "file":
                 schema.setType("string");
-                schema.setFormat("binary");
                 break;
         }
 

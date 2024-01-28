@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
@@ -41,10 +42,23 @@ public class PropertyUtils {
             case DataTypes.NUMBER:
                 return 1.0;
             case DataTypes.STRING:
+                try {
+                    if ("date-time".equals(item.getFormat())) {
+                        String dateFormat = StringUtils.defaultIfEmpty(item.getDateFormat(), "yyyy-MM-dd HH:mm:ss");
+                        return DateFormatUtils.format(new Date(), dateFormat);
+                    } else if ("date".equals(item.getFormat())) {
+                        String dateFormat = StringUtils.defaultIfEmpty(item.getDateFormat(), "yyyy-MM-dd");
+                        return DateFormatUtils.format(new Date(), dateFormat);
+                    } else if ("time".equals(item.getFormat())) {
+                        String dateFormat = StringUtils.defaultIfEmpty(item.getDateFormat(), "HH:mm:ss");
+                        return DateFormatUtils.format(new Date(), dateFormat);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+                return "";
             case DataTypes.FILE:
                 return "";
-            case DataTypes.DATETIME:
-                return DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
         }
 
         if (type.equals(DataTypes.OBJECT)) {

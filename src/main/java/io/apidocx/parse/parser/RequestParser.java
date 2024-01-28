@@ -179,6 +179,7 @@ public class RequestParser {
         for (PsiParameter p : fileParameters) {
             Property item = kernelParser.parse(p.getType());
             item.setType(DataTypes.FILE);
+            item.setFormat("binary");
             item.setName(p.getName());
             item.setRequired(true);
             item.setDescription(paramTags.get(p.getName()));

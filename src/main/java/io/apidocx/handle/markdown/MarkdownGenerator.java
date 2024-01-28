@@ -79,11 +79,11 @@ public class MarkdownGenerator {
         StringBuilder markdown = new StringBuilder();
         markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
-        markdown.append("| --- | --- | --- | --- | --- |").append("\n");
+        markdown.append("| --- | :-: | --- | --- | --- |").append("\n");
         properties.forEach(h -> {
             String description = getPropertyDescription(h);
             String hr = formatTable("| %s | %s | %s | %s | %s |",
-                    h.getName(), requiredText(h.getRequired()), h.getTypeWithArray(),
+                    h.getName(), requiredText(h.getRequired()), getPropertyType(h),
                     h.getDefaultValue(), description);
             markdown.append(hr).append("\n");
         });
@@ -102,7 +102,7 @@ public class MarkdownGenerator {
         StringBuilder markdown = new StringBuilder();
         markdown.append(format("*%s:*", title)).append("\n\n");
         markdown.append("| 名称 | 必选 | 类型 | 默认值 | 描述 |").append("\n");
-        markdown.append("| --- | --- | --- | --- | --- |").append("\n");
+        markdown.append("| --- | :-: | --- | --- | --- |").append("\n");
         if (property.isObjectType()) {
             List<Property> propertyList = Optional.ofNullable(property.getProperties())
                     .map(Map::values)
@@ -141,7 +141,7 @@ public class MarkdownGenerator {
             nameDepth = StringUtils.repeat("&nbsp;&nbsp;", depth - 1) + tree + property.getName();
         }
         String row = formatTable("| %s | %s | %s | %s | %s |\n",
-                nameDepth, requiredText(property.getRequired()), property.getTypeWithArray(),
+                nameDepth, requiredText(property.getRequired()), getPropertyType(property),
                 property.getDefaultValue(), getPropertyDescription(property));
         StringBuilder markdown = new StringBuilder(row);
 
@@ -172,6 +172,19 @@ public class MarkdownGenerator {
 
     //----------------------- 辅助方法 ---------------------------//
 
+    private String getPropertyType(Property property) {
+        String type = property.getType();
+        String format = property.getFormat();
+        if ("array".equals(property.getType()) && property.getItems() != null) {
+            type = property.getItems().getType() + "[]";
+            format = property.getItems().getFormat();
+        }
+        if (StringUtils.isNotEmpty(format)) {
+            type = String.format("%s *&lt;%s&gt;*", type, format);
+        }
+        return type;
+    }
+
     private String getPropertyDescription(Property property) {
         return property.getDescriptionMore();
     }
@@ -187,7 +200,7 @@ public class MarkdownGenerator {
     }
 
     private String requiredText(Boolean required) {
-        return Boolean.TRUE.equals(required) ? "是" : "否";
+        return Boolean.TRUE.equals(required) ? "✓" : "-";
     }
 
     private String escapeTable(String value) {
