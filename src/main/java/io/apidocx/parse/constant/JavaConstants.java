@@ -28,4 +28,9 @@ public interface JavaConstants {
     String PositiveOrZero2 = "jakarta.validation.constraints.PositiveOrZero";
     String Negative2 = "jakarta.validation.constraints.Negative";
     String NegativeOrZero2 = "jakarta.validation.constraints.NegativeOrZero";
+
+    //----------------------org.hibernate.validator.constraints.*-------------------------//
+    String NotEmpty3 = "org.hibernate.validator.constraints.NotEmpty";
+    String NotBlank3 = "org.hibernate.validator.constraints.NotBlank";
+
 }
