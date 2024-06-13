@@ -184,7 +184,8 @@ public class ParseHelper {
      */
     public Boolean getParameterRequired(PsiParameter parameter) {
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty,
-                JavaConstants.NotNull2, JavaConstants.NotBlank2, JavaConstants.NotEmpty2};
+                JavaConstants.NotNull2, JavaConstants.NotBlank2, JavaConstants.NotEmpty2,
+                JavaConstants.NotBlank3, JavaConstants.NotEmpty3};
         PsiAnnotation annotation = PsiAnnotationUtils.getAnnotation(parameter, annotations);
         return Objects.nonNull(annotation);
     }
@@ -261,7 +262,8 @@ public class ParseHelper {
     public boolean getFieldRequired(TypeParseContext context, PsiField field) {
         List<String> validateGroups = context.getJsr303ValidateGroups();
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty,
-                JavaConstants.NotNull2, JavaConstants.NotBlank2, JavaConstants.NotEmpty2};
+                JavaConstants.NotNull2, JavaConstants.NotBlank2, JavaConstants.NotEmpty2,
+                JavaConstants.NotBlank3, JavaConstants.NotEmpty3};
         for (String annotation : annotations) {
             PsiAnnotation target = PsiAnnotationUtils.getAnnotation(field, annotation);
             if (target == null) {
