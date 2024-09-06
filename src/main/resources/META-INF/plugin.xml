@@ -74,6 +74,10 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.8: <br>
+        - fix: 修复兼容问题<br>
+        - feat: 支持hibernate的NotEmpty/NotBlank注解<br>
+        <br>
         1.1.7: <br>
         - feat: 生成markdown内容支持响应json示例<br>
         <br>
