@@ -1,7 +1,7 @@
 package io.apidocx.handle.rap2.config;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -57,7 +57,7 @@ public class Rap2Settings implements PersistentStateComponent<Rap2Settings> {
     private Long cookiesUserId;
 
     public static Rap2Settings getInstance() {
-        Rap2Settings settings = ServiceManager.getService(Rap2Settings.class);
+        Rap2Settings settings = ApplicationManager.getApplication().getService(Rap2Settings.class);
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
         return settings;
     }

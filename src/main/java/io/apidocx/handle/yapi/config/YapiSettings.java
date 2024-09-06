@@ -1,7 +1,7 @@
 package io.apidocx.handle.yapi.config;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -54,7 +54,7 @@ public class YapiSettings implements PersistentStateComponent<YapiSettings> {
     private LoginWay loginWay;
 
     public static YapiSettings getInstance() {
-        YapiSettings settings = ServiceManager.getService(YapiSettings.class);
+        YapiSettings settings = ApplicationManager.getApplication().getService(YapiSettings.class);
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
         return settings;
     }

@@ -1,7 +1,7 @@
 package io.apidocx.config;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -25,7 +25,7 @@ public class ApidocxSettings implements PersistentStateComponent<ApidocxSettings
     private String curlHost = "http://localhost:8080";
 
     public static ApidocxSettings getInstance() {
-        return ServiceManager.getService(ApidocxSettings.class);
+        return ApplicationManager.getApplication().getService(ApidocxSettings.class);
     }
 
     @Nullable

@@ -1,7 +1,7 @@
 package io.apidocx.handle.eolink.config;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -54,7 +54,7 @@ public class EolinkSettings implements PersistentStateComponent<EolinkSettings> 
 
 
     public static EolinkSettings getInstance() {
-        EolinkSettings settings = ServiceManager.getService(EolinkSettings.class);
+        EolinkSettings settings = ApplicationManager.getApplication().getService(EolinkSettings.class);
         settings.password = PasswordSafeUtils.getPassword(PASSWORD_KEY, settings.account);
         return settings;
     }
