@@ -2,7 +2,6 @@ package io.apidocx.base.util;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationListener.UrlOpeningListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -13,7 +12,11 @@ import io.apidocx.config.DefaultConstants;
  */
 public final class NotificationUtils {
 
-    public static final NotificationGroup DEFAULT_GROUP = NotificationGroup.balloonGroup(DefaultConstants.NAME);
+    public static final NotificationGroup DEFAULT_GROUP;
+
+    static {
+        DEFAULT_GROUP = NotificationGroup.findRegisteredGroup(DefaultConstants.NAME);
+    }
 
     /**
      * 提示普通消息
@@ -27,8 +30,7 @@ public final class NotificationUtils {
      * 提示普通消息
      */
     public static void notifyInfo(String title, String content) {
-        Notification notification = DEFAULT_GROUP
-                .createNotification(title, content, NotificationType.INFORMATION, new UrlOpeningListener(false));
+        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.INFORMATION);
         Notifications.Bus.notify(notification);
     }
 
@@ -44,7 +46,7 @@ public final class NotificationUtils {
      * 提示警告消息
      */
     public static void notifyWarning(String title, String content) {
-        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.WARNING, null);
+        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.WARNING);
         Notifications.Bus.notify(notification);
     }
 
@@ -61,7 +63,7 @@ public final class NotificationUtils {
      * 提示错误消息
      */
     public static void notifyError(String title, String content) {
-        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.ERROR, null);
+        Notification notification = DEFAULT_GROUP.createNotification(title, content, NotificationType.ERROR);
         Notifications.Bus.notify(notification);
     }
 
@@ -69,8 +71,7 @@ public final class NotificationUtils {
      * 通知
      */
     public static void notify(NotificationType type, String title, String content, AnAction... actions) {
-        Notification notification = DEFAULT_GROUP
-                .createNotification(title, content, type, new UrlOpeningListener(false));
+        Notification notification = DEFAULT_GROUP.createNotification(title, content, type);
         if (actions != null) {
             for (AnAction action : actions) {
                 notification.addAction(action);
