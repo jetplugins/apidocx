@@ -6,6 +6,8 @@ import static java.lang.String.format;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.intellij.ide.BrowserUtil;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -260,7 +262,8 @@ public abstract class AbstractAction extends AnAction {
                         ApiUploadResult uploadResult = urls.get(0);
                         String url = urls.size() == 1 ? uploadResult.getApiUrl() : uploadResult.getCategoryUrl();
                         if (url != null && !url.isEmpty()) {
-                            notifyInfo("Upload successful", format("<a href=\"%s\">%s</a>", url, url));
+                            NotificationAction linkAction = NotificationAction.createSimple(url, () -> BrowserUtil.browse(url));
+                            NotificationUtils.notify(NotificationType.INFORMATION, "Upload successful", "", linkAction);
                         } else {
                             notifyInfo("Upload successful");
                         }
