@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -46,5 +47,11 @@ public class CreateConfigFileAction extends NotificationAction {
         } catch (IOException ex) {
             NotificationUtils.notifyError("Create config file error: " + ex.getMessage());
         }
+    }
+
+    @Override
+    @NotNull
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 }

@@ -7,6 +7,7 @@ import static java.lang.String.format;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -65,6 +66,12 @@ public abstract class AbstractAction extends AnAction {
 
     protected AbstractAction(boolean requiredConfigFile) {
         this.requiredConfigFile = requiredConfigFile;
+    }
+
+    @Override
+    @NotNull
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.apidocx.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -24,5 +25,11 @@ public class OpenSettingsAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         event.getPresentation().setText(ACTION_TEXT);
+    }
+
+    @Override
+    @NotNull
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 }
