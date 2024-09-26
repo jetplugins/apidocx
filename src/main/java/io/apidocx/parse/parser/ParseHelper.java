@@ -260,6 +260,12 @@ public class ParseHelper {
      * 字段是否必填
      */
     public boolean getFieldRequired(TypeParseContext context, PsiField field) {
+
+        // swagger ->  validate
+        if (PsiSwaggerUtils.isFieldRequired(field)) {
+            return true;
+        }
+        
         List<String> validateGroups = context.getJsr303ValidateGroups();
         String[] annotations = {JavaConstants.NotNull, JavaConstants.NotBlank, JavaConstants.NotEmpty,
                 JavaConstants.NotNull2, JavaConstants.NotBlank2, JavaConstants.NotEmpty2,
