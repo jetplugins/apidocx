@@ -82,4 +82,13 @@ public class PsiSwaggerUtils {
         }
         return false;
     }
+        
+    public static boolean isFieldRequired(PsiField psiField) {
+        PsiAnnotation apiModelProperty = PsiAnnotationUtils.getAnnotation(psiField, SwaggerConstants.ApiModelProperty);
+        if (apiModelProperty != null) {
+            Boolean required = AnnotationUtil.getBooleanAttributeValue(apiModelProperty, "required");
+            return Boolean.TRUE.equals(required);
+        }
+        return false;
+    }
 }
