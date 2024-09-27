@@ -19,6 +19,8 @@ parameterIgnoreTypes=\
     org.springframework.validation.BindingResult, \
     org.springframework.web.server.ServerWebExchange, \
     org.springframework.web.server.WebSession, \
+  org.springframework.http.server.reactive.ServerHttpRequest, \
+    org.springframework.http.server.reactive.ServerHttpResponse, \
     com.wangxiaobao.infra.pierre.security.tenant.Tenant, \
     com.wangxiaobao.infra.pierre.security.tenant.Project, \
     com.wangxiaobao.infra.pierre.security.User
