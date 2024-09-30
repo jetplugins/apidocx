@@ -74,6 +74,11 @@
     </actions>
 
     <change-notes><![CDATA[
+        1.1.9: <br>
+        - feat: 支持@ApiModelProperty是否必须标识<br>
+        - fix: 成功提示url跳转问题<br>
+        - other: 升级过期的接口<br>
+        <br>
         1.1.8: <br>
         - fix: 修复兼容问题<br>
         - feat: 支持hibernate的NotEmpty/NotBlank注解<br>
