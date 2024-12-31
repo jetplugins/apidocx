@@ -1,5 +1,6 @@
 package io.apidocx.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -34,5 +35,11 @@ public class ApidocxActionGroup extends DefaultActionGroup {
             event.getPresentation().setVisible(false);
             return;
         }
+    }
+
+    @Override
+    @NotNull
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 }
