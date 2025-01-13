@@ -40,6 +40,6 @@ public class ApidocxActionGroup extends DefaultActionGroup {
     @Override
     @NotNull
     public ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 }
